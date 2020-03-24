@@ -136,8 +136,8 @@ if(${BUILD_PYTHON})
 endif()
 
 if (NOT MSVC)
-    set(COMPILE_FLAGS  -Wall -Wextra  -Werror -MMD) #-Wno-deprecated
-    set(RELEASE_FLAGS ${COMPILE_FLAGS} -O3) #-Wno-deprecated
+    set(COMPILE_FLAGS  -Wall -Wextra  -MMD) #-Wno-deprecated -Werror 
+    set(RELEASE_FLAGS -O3) #-Wno-deprecated
 endif()
 
 if (RUN_ASAN)
@@ -378,6 +378,7 @@ add_dependencies(build_input_parsers ${MPS_PARSER} ${ACAS_PARSER}
 add_subdirectory(${SRC_DIR})
 add_subdirectory(${TOOLS_DIR})
 add_subdirectory(${REGRESS_DIR})
+add_subdirectory(${CVC4_DIR})
 
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD
