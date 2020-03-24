@@ -43,6 +43,7 @@ set(BOOST_DIR "${TOOLS_DIR}/boost_1_68_0")
 set(OPENBLAS_DIR "${TOOLS_DIR}/OpenBLAS-0.3.9")
 set(COMMON_DIR "${SRC_DIR}/common")
 set(BASIS_DIR "${SRC_DIR}/basis_factorization")
+set(CVC4_DIR "${DEPS_DIR}/CVC4")
 
 set(CVC4_DIR "${DEPS_DIR}/CVC4")
 set(CONTEXT_DIR "${CVC4_DIR}/context")
@@ -71,6 +72,7 @@ set(MPS_PARSER mps)
 set(ACAS_PARSER acas)
 set(BERKELEY_PARSER berkeley)
 set(INPUT_PARSERS_DIR input_parsers)
+
 
 #-----------------------------------------------------------------------------#
 # Determine number of threads available, used to configure (default) parallel
@@ -309,7 +311,7 @@ if(CXXTEST_FOUND)
     enable_testing()
 endif()
 
-target_link_libraries(${MARABOU_TEST_LIB} ${MARABOU_LIB})
+target_link_libraries(${MARABOU_TEST_LIB} ${LIBS})
 target_include_directories(${MARABOU_TEST_LIB} PRIVATE ${LIBS_INCLUDES} )
 target_compile_options(${MARABOU_TEST_LIB} PRIVATE ${CXXTEST_FLAGS})
 
