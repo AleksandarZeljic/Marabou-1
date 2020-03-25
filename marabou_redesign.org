@@ -1,4 +1,4 @@
-#+TODO:  TODO(t) NEW(n) NEXT(x) | DONE(d)
+#+TODO:  TODO(t) NEW(n) | DONE(d)
 #+TODO:  Aleks(k) Ahmed(a) Andrew(h) | DONE(d)
 #+TITLE: MARABOU - ReDesign
 #+AUTHOR: Ahmed Irfan
@@ -51,10 +51,8 @@ CLOSED: [2020-03-24 Tue 13:53]
 ****** DONE Include logging macros in Marabou::Utils namespace (Pros/Cons?)
 CLOSED: [2020-03-24 Tue 13:53]
 - Included in CVC4 namespace
-****** DONE Remove -wError for CVC4 dependencies
-CLOSED: [2020-03-30 Mon 14:12]
-***** DONE Add _context, an instance of Context class, as a member of SMTCore
-CLOSED: [2020-03-30 Mon 15:45]
+****** NEW Remove -wError for CVC4 dependencies
+***** NEW Add _context, an instance of Context class, as a member of SMTCore
 - Expectation: _context decision level is in sync with the depth of existing search procedure
 - Depth = number of ReLU splits asserted by the SMTCore
 ****** Add new context frame whenever a new ReLU split is performed.
@@ -72,44 +70,34 @@ CLOSED: [2020-03-30 Mon 15:45]
 ***** Add _trail, of type CDList<PiecewiseLinearCaseSplit>, to SMTCore
 - Expectation: _trail is associated with _context
 - Long-term goal, move to CDList<Literals>?
-****** Alternative splits:
-- Asked from PWLConstraint at the time of decisions/implications 
-- Based on the last popped PWLConstraint
-- Instead of storing all alternative splits, we can only store the last decision.
-- Idea: Encapsulate context.pop to return last decision (that is being popped)
-****** Tests:
-******* Push/Pop functionality
-******* NEXT Sync pushed splitCases with existing search 
-******* NEXT Sync popped splitCases with existing search
 ***** Push ReLU splits to _trail 
 - Expectation: _trail contains all the currently active PWLCaseSplits in the search
 - Expectation: splitting asserts a PWLCaseSplit on a new decision level
-- Expectation: TODO: add to test implication asserts a PWLCaseSplit on the same decision level
+- Expectation: implication asserts a PWLCaseSplit on the same decision level
 - PWLCaseSplits are asserted in two ways:
-- by splitting (in SmtCore::decideSplit())
+- by splitting (in SmtCore::performSplit())
 - by implication (i.e. bound propagation)
 - NOTE: The decision/implication distinction should come for free, by correctly
   positioning the call to _context.push()
 ***** Pop ReLU splits from the _trail
 - Expectation: _trail contains all the currently active PWLCaseSplits in the search
-***** (optional) Abstract Trail from case splits to literals (CDCL)
-**** 3a Refactor decideSplit
+**** 3a Refactor performSplit
 - Expectation: can perform a split on a particular case of a ReLU
 - Expectation: logic of which case to split on and splitting are separated
 ***** Refactor into two methods:
-****** chooseSplitCase(  )
+****** chooseSplitCase()
 - Expectation: Implements logic of which case should be asserted next
-****** decideSplit( PWLCaseSplit case )
+****** performSplit(PWLCaseSplit case)
 - Expectation: the *PWLCaseSplit case* to be asserted is passed as an argument
 ***** @5a: Eliminate state storing 
 **** 4a Refactor popSplit()
 - Expectation: popSplit() only pops a PWLCaseSplit
-- Expectation: asserting alternative cases is done using chooseSplitCase() and  decideSplit(case)
+- Expectation: asserting alternative cases is done using chooseSplitCase() and  performSplit(case)
 - Simplify to just pop() the trail 
 ***** Separate into: 
 ****** _context.pop()
 ****** chooseSplitCase()
-****** decideSplit()
+****** performSplit()
 **** 4a Add push calls for other cases (pop used to do this)
 - Expectation: Backtracking mechanism works as intended. 
 *** 2b Introduce BoundManager
@@ -117,8 +105,6 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Expectation: provides getter/setter interface for lower and upper bounds for every variable.
 - Expectation: bounds are stored using context-dependent data-structures
 - Expectation: backtracks correctly with the _context
-- Q: Do we need a flexible variable size.
-- Basic functionality unit test
 **** 3c add BoundManager _boundManager memeber to the Engine 
 - Expectation: single central object, visible to the SimplexEngine, bound tighteners, SmtCore 
 **** 4b mirror all bound update calls to _boundManager  
@@ -347,7 +333,7 @@ SMTCore as the forum where all the different kinds of reasoning meet
 ** Adding Context object which will dictate backtracking using
 advanceDecisionLevel and backtrack.
 
-New implementation of decideSplit and popSplit
+New implementation of performSplit and popSplit
 
 Implementation of terms and literals
 
@@ -403,7 +389,7 @@ should move to a decisionMaking logic
 **** Engine:pickSplitPLConstraint
 *** _needToSplit - might become more complex, who wants to split, how?
 **** Might become an enum
-*** decideSplit
+*** performSplit
 Assumes it know what to split on
 **** Separate ReLU Splitting logic from general splitting logic
 **** No negations -> ReLU Splitting and Disjunction splitting.
@@ -414,7 +400,7 @@ Assumes it know what to split on
 ***** Just the pop()
 ***** Separate decide of alternative splits 
 ***** What does checkSkewFromDebuggingSolution() does?
-**** implyValidSplit -> Implications, could be more than just ReLUs in the future.
+**** recordImpliedValidSplit -> Implications, could be more than just ReLUs in the future.
 **** allSplitsSoFar -> getAllReLUPhases
 
 * Simplex Core
