@@ -1,0 +1,555 @@
+#+TODO:  TODO(t) NEW(n) | DONE(d)
+#+TODO:  Aleks(k) Ahmed(a) Andrew(h) | DONE(d)
+#+TITLE: MARABOU - ReDesign
+#+AUTHOR: Ahmed Irfan
+#+AUTHOR: Andrew Haoze Wu 
+#+AUTHOR: Aleksandar Zeljic
+
+* Development plan
+
+** Development loop 
+*** Milestone evaluation
+- Evaluating correctness AND performance
+*** Iteration evaluation
+- Focus on correctness
+**** Think of invariants, document them
+**** Write unit tests
+**** Reviews (A* and Guy) 
+***** A^3: Paired development, third A is local reviewer (@Stanford)
+**** Small modular self-contained PRs
+**** Small test cases (regression)
+- Think of tests ahead of the code
+**** Quick, but quality development 
+**** Comment the code: 
+***** How does it work
+***** What are the assumptions and assurances
+***** How is intended to be changed, if part of multiple iterations 
+***** The code should be as readable as possible, use descriptive names
+** Continuous changes:
+*** Simple refactors - more appropriate names
+*** Introducing namespaces 
+*** Switch to more compact logging/error traces 
+** Philosophy: 
+*** Implement changes by shadowing existing features
+- Expectation: New implementation is in lockstep with the old feature
+*** Debug by checking equivalence between the new and old feature 
+- Expectation: The two systems behave equivalently
+*** Transition to new feature 
+- Check performance (if it makes sense)
+** M1 - Introducing incremental and modular problem representation
+*** Refactor SMTCore 
+**** 1a Add Context 
+***** Start using namespaces (look at the proposal of logical decomposition)
+****** Retain CVC4::Context namespace
+****** Introduce Marabou namespace
+***** Add and compile Context and dependent CVC4 code
+- Expectation: Context* classes and any dependencies compile without any errors/warnings
+- Dependencies include CVC4 macros for logging and tracing, which are more compact than in Marabou
+****** DONE Include Context classes in the Marabou::Context namespace
+CLOSED: [2020-03-24 Tue 13:53]
+- Included in CVC4 namespace
+****** DONE Include logging macros in Marabou::Utils namespace (Pros/Cons?)
+CLOSED: [2020-03-24 Tue 13:53]
+- Included in CVC4 namespace
+****** NEW Remove -wError for CVC4 dependencies
+***** NEW Add _context, an instance of Context class, as a member of SMTCore
+- Expectation: _context decision level is in sync with the depth of existing search procedure
+- Depth = number of ReLU splits asserted by the SMTCore
+****** Add new context frame whenever a new ReLU split is performed.
+- Inv: New context frame is created whenever we split
+- Test: With empty stack, make a decision, expect one frame in the _context  
+- This occurs in two places:
+- when splitting a ReLU for the first time
+- when backtracking a ReLU and an alternative PWLCaseSplit is applied.
+****** Remove a context frame whenever a popSplit() is called.
+- Inv: Context frame is popped whenever we backtrack
+- Test: Start with one element on stack, pop decision, expect and empty _context s
+****** Both:
+- Inv: Context decision level is in sync with depth of the existing search  
+**** 2a Add Trail (of PiecewiseLinearCaseSplits)
+***** Add _trail, of type CDList<PiecewiseLinearCaseSplit>, to SMTCore
+- Expectation: _trail is associated with _context
+- Long-term goal, move to CDList<Literals>?
+***** Push ReLU splits to _trail 
+- Expectation: _trail contains all the currently active PWLCaseSplits in the search
+- Expectation: splitting asserts a PWLCaseSplit on a new decision level
+- Expectation: implication asserts a PWLCaseSplit on the same decision level
+- PWLCaseSplits are asserted in two ways:
+- by splitting (in SmtCore::performSplit())
+- by implication (i.e. bound propagation)
+- NOTE: The decision/implication distinction should come for free, by correctly
+  positioning the call to _context.push()
+***** Pop ReLU splits from the _trail
+- Expectation: _trail contains all the currently active PWLCaseSplits in the search
+**** 3a Refactor performSplit
+- Expectation: can perform a split on a particular case of a ReLU
+- Expectation: logic of which case to split on and splitting are separated
+***** Refactor into two methods:
+****** chooseSplitCase()
+- Expectation: Implements logic of which case should be asserted next
+****** performSplit(PWLCaseSplit case)
+- Expectation: the *PWLCaseSplit case* to be asserted is passed as an argument
+***** @5a: Eliminate state storing 
+**** 4a Refactor popSplit()
+- Expectation: popSplit() only pops a PWLCaseSplit
+- Expectation: asserting alternative cases is done using chooseSplitCase() and  performSplit(case)
+- Simplify to just pop() the trail 
+***** Separate into: 
+****** _context.pop()
+****** chooseSplitCase()
+****** performSplit()
+**** 4a Add push calls for other cases (pop used to do this)
+- Expectation: Backtracking mechanism works as intended. 
+*** 2b Introduce BoundManager
+**** write BoundManager class 
+- Expectation: provides getter/setter interface for lower and upper bounds for every variable.
+- Expectation: bounds are stored using context-dependent data-structures
+- Expectation: backtracks correctly with the _context
+**** 3c add BoundManager _boundManager memeber to the Engine 
+- Expectation: single central object, visible to the SimplexEngine, bound tighteners, SmtCore 
+**** 4b mirror all bound update calls to _boundManager  
+- Expectation: _boundManager is in sync with bounds returned by the BoundTighteners 
+***** Verify correctness at this point! 
+**** 4c Tighteners obtain local bounds from BoundManager
+- Expectation: all BoundTighteners use only _boundManager to store bounds 
+***** Remove all updates to local bounds 
+***** Remove local bounds 
+**** 4d Tableau obtains local bounds from BoundManager
+- Simplex ensures that bounds are up to date before performing any steps
+**** 5c (optional) Refactor Tighteners   
+***** 6a (optional) Create a Tightener interface/superclass
+***** 7a (optional) Refactor existing tighteners
+*** Refactor Tableau / Simplex
+**** 1b Fix size of the tableau for ReLUs
+- Use the existing forward/backward variables
+- According to Guy the functionality should be there already
+- Eliminates need for resizing, simplifies bookkeeping all-around
+- Simplex-friendly encoding, by asserting constant bounds to the Tableau
+**** Think about other PWLConstraints
+*** 5a Remove existing store mechanism
+- No longer necessary to store/restore states
+**** Remove all calls to store/restore state
+*** 5b Refactor precisionRestoration, to only restore the tableau 
+- With bounds and ReLUs stored independently and incrementally there is no need to replay they ReLUs.
+- Fixed size tableau -> eliminates need for replaying
+*** EVALUATE PERFORMANCE 
+* Marabou Engine:
+#+begin_src C++
+Engine::Engine( unsigned verbosity )
+    : _rowBoundTightener( *_tableau )
+    , _symbolicBoundTightener( NULL )
+    , _smtCore( this )
+    , _numPlConstraintsDisabledByValidSplits( 0 )
+    , _preprocessingEnabled( false )
+    , _initialStateStored( false )
+    , _work( NULL )
+    , _basisRestorationRequired( Engine::RESTORATION_NOT_NEEDED )
+    , _basisRestorationPerformed( Engine::NO_RESTORATION_PERFORMED )
+    , _costFunctionManager( _tableau )
+    , _quitRequested( false )
+    , _exitCode( Engine::NOT_DONE )
+    , _constraintBoundTightener( *_tableau )
+    , _numVisitedStatesAtPreviousRestoration( 0 )
+    , _networkLevelReasoner( NULL )
+    , _verbosity( verbosity )
+    , _lastNumVisitedStates( 0 )
+    , _lastIterationWithProgress( 0 )
+{}
+#+end_src
+
+_work - a piece of computation, saves on memory re-alloc
+
+Seems to serve as a high-level flow-control
+
+** Solve()
+
+** Questions/Issues 
+
+*** Store the entire engine state, fairly often. 
+**** Tableau, Bounds, etc.
+*** Step away from exception driven control flow 
+- this will affect almost everything
+- when is the good time to do this?)
+- Perhaps, implement new stuff without exceptions 
+- Refactor old components over time? 
+*** Separate into BoundTighteners, DecisionMakers, ...
+*** Keep restarts/timeoutQuits/IncrementalAPICalls, statistics, etc
+*** Annotate used/unused methods
+* What are our goals?
+** Neurify-like behavior
+*** Back-trackable 
+*** Incremental (diff based, context-dependent data-structures)
+** CDCL
+*** Explainability
+*** SAT-engine
+** Other (user desires)
+*** Incremental query interface
+*** Recurrent networks
+*** Other activation functions   
+*** Approximations
+* Vision (sort of)
+** Component Class Diagram
+[[file:ComponentsCD.png]]
+** Disjunction Class Diagram
+[[file:Disjunction.png]]
+* Proposed order of changes 
+** SmtCore (context support)
+- Import Context and dependent code, make it compile 
+*** Add context to SMTCore
+**** Internal representation of literals (needed for Interval splitting, CDCL)
+- Discussion about how to represent queries, ReLUs, bounds, intervals etc.
+*****  DisjunctionConstraint/Clause
+****** Refactor PiecewiseLinearConstraint 
+****** Allows support for disjunctions in input queries (usability goal!) 
+****** Interval splitting - by introducing Clauses as lemmas-on-deman
+Returns the list of case splits that this piecewise linear
+constraint breaks into. These splits need to complementary,
+i.e. if the list is {l1, l2, ..., ln-1, ln},
+then ~l1 /\ ~l2 /\ ... /\ ~ln-1 --> ln.
+
+Currently PWLConstraint returns a list of conjunctions, we could abstract that
+to a list of n*k+1 clauses, where k is conjunction length.
+
+
+f = y - ReLU(x) ::: (x > 0 /\ f = 0 ) \/ (x <= 0 /\ y = 0)
+
+y = ReLU(x) ::: (x > 0 /\ x = y ) \/ (x <= 0 /\ y = 0)
+(x > 0 \/ x <= 0) / in the lonf run getCases returns only this
+(- (x > 0) \/ x = y) / monitored by boolean propagation
+(- (x <= 0) \/ y = 0)
+---------------------
+( b1 \/ -b1)
+
+Handled automatically
+( b1 -> x = y)
+( -b1 -> y = 0)
+***** Separate current PWLConstraint into general Disjunction and things specific to Pwls
+Introduce a general Disjunction class
+Refactor PWLConstraint to be a subclass of Disjunction
+
+**** BoundManager (base-level should be simple)
+***** use context dependent data-structure to store bounds, test in parallel to existing data-structures
+***** Centralized use, all Tighteners should use this to store bounds
+****** Tightener refactor
+******* Identify the interface, Implement it
+******* Refactor existing tighteners using the interface
+
+*** Refactor Push and Pop  
+**** DecisionMaker (encapsulates different decision logic)
+***** Class design  
+***** Implement it
+***** Refactor existing pieces
+****** Internal ReLU Splitting (existing threshold guided branch and bound search)
+****** Direct ReLU Splitting (potentially same as above) 
+****** Input interval splitting (may also depend on Internal representation @1) 
+
+*** Scheduler - Implement Search strategies: 
+ Neurify-like, Reluplex-like, something in between?
+
+** Engine (this list is unordered)
+*** Precision restoration (to become very light-weight)
+- Can this be associated somehow with the context?
+- Replay the context instead of the current implementation
+- When in the roadmap this makes sense to be done?
+- By decoupling the tableau matrix from the matrix, there is no need to replay
+  the SMT-level constraints on the simplex side.
+- Is it neccessary to replay the constraints for bound tightening reasons?
+- Most of the restorePrecision method seems to become redundant once bounds are
+  decoupled from the tableau matrix.
+*** Question: Difference between weak and strong restoration
+*** applySplit
+- INV: Only updates bounds, and does not touch the Tableau matrix
+- revise: column merging functionality
+*** Solve method 
+- Refactor to put boiler-plate in the background
+- Main loop with 
+*** Eliminate Exception driven control flow
+- InfeasibleQueryException -> Conflict, Conflict @0 is UNSAT
+- 
+*** CVC4s macros for logging things
+* Tableau 
+[[file:~/git/azmarabou/src/engine/Tableau.cpp::Tableau::Tableau()]]
+#+begin_src C++
+Tableau::Tableau()
+    : _n ( 0 )
+    , _m ( 0 )
+    , _A( NULL )
+    , _sparseColumnsOfA( NULL )
+    , _sparseRowsOfA( NULL )
+    , _denseA( NULL )
+    , _changeColumn( NULL )
+    , _pivotRow( NULL )
+    , _b( NULL )
+    , _workM( NULL )
+    , _workN( NULL )
+    , _unitVector( NULL )
+    , _basisFactorization( NULL )
+    , _multipliers( NULL )
+    , _basicIndexToVariable( NULL )
+    , _nonBasicIndexToVariable( NULL )
+    , _variableToIndex( NULL )
+    , _nonBasicAssignment( NULL )
+    , _lowerBounds( NULL )
+    , _upperBounds( NULL )
+    , _boundsValid( true )
+    , _basicAssignment( NULL )
+    , _basicStatus( NULL )
+    , _basicAssignmentStatus( ITableau::BASIC_ASSIGNMENT_INVALID )
+    , _statistics( NULL )
+    , _costFunctionManager( NULL )
+    , _rhsIsAllZeros( true )
+{
+}
+#+end_src
+
+Tableau integrates the tableau coefficients, bounds and assignment, and is stored frequently. 
+
+
+If we introduce auxiliary ReLU variables upfront there is no reason to change
+the tableau after the fact.
+
+We only need to assert and backtrack bounds. Whatever simplex does to Tableau
+state it is staying within the tableau, thus not needing to be stored.
+
+Assignment does not need to be backtracked and thus no storing.
+
+
+Simplex will need to make sure to fetch the latest bounds. Maybe use decision level for synchronization?
+
+* Main loop  
+- Step away from Exception-driven flow control
+- Implements the global strategy of the algorithm 
+  Neurify -> SmtCore and no simplex
+  Marabou -> Simplex and occasional SMTCore split
+- Elaborate on current functionality
+
+*** Questions
+**** Set a vision what it should be 
+**** What's the relationship to SMTCore and other pieces. 
+
+* SMT Core - a scheduler for different theory reasoning
+SMTCore as the forum where all the different kinds of reasoning meet
+
+** Adding Context object which will dictate backtracking using
+advanceDecisionLevel and backtrack.
+
+New implementation of performSplit and popSplit
+
+Implementation of terms and literals
+
+*** What is stored in the context.
+
+*** How do we represent the information about, bounds/intervals, relus 
+
+**** Representation as Booleans for ReLUs? Convenient for communication with a SAT solver
+***** Do we keep a mapping? Or do we directly use the representation? 
+
+** pwlConstraint refactor:
+Disjunctions/Clause support 
+PWLConstraint as a sub-class
+IntervalPartition as a sub-class
+
+>Allow disjunctions in queries (GREAT!)
+
+** Decision-making pattern, with a simple interface
+Splitting = decision making 
+Implied splits = implication
+
+ReLU splitting
+Interval splitting
+Disjunction splitting
+Look into QueryDivider interface
+
+Threshold for ReLU splitting - slowly phased out (over time), implemented in a
+splitter.
+
+*** Also, interface to a SAT solver 
+Can have a decision making wrapper if we consult the SAT solver for decisions
+
+
+
+
+** VISION: Learning and back-tracking - keep in mind  
+
+** Questions
+**** Set a vision what it should be 
+*** What's the relationship to SMTCore and other pieces.
+*** Currently: lacks flexibility for back-jumping 
+** Changes
+*** freeMemory goes away after context is introduced
+*** TheorySolver interface from SMT: TheorySolver returns SAT/UNSAT/UNKNOWN  
+*** reportViolatedConstraint -> ? reportAssignmentConflict/reportConflict
+This method communicates a constraint has been violated. 
+should move to a decisionMaking logic
+*** getViolationCounts 
+should move to a decisionMaking logic
+**** setConstraintViolationThreshold
+**** chooseViolatedConstraintForFixing
+**** pickSplitPLConstraint
+**** Engine:pickSplitPLConstraint
+*** _needToSplit - might become more complex, who wants to split, how?
+**** Might become an enum
+*** performSplit
+Assumes it know what to split on
+**** Separate ReLU Splitting logic from general splitting logic
+**** No negations -> ReLU Splitting and Disjunction splitting.
+**** Store alternativeSplits? Do we need this, there are other solutions
+***** Alternative: Store flags for cases in the constraint itself?
+**** PWLConstraint getConstraints  ?
+**** popSplit - needs severe refactoring
+***** Just the pop()
+***** Separate decide of alternative splits 
+***** What does checkSkewFromDebuggingSolution() does?
+**** recordImpliedValidSplit -> Implications, could be more than just ReLUs in the future.
+**** allSplitsSoFar -> getAllReLUPhases
+
+* Simplex Core
+For now, we try to minimize the changes to the simplex code. Proposed changes
+should merely move the main copy of the bounds to BoundManager. A simple method
+that updates the tableau bounds should be implemented. 
+
+#+begin_src C++ 
+  // Copies new Bounds from the bound manager. 
+  //Lazy options include using the ContextNotifyObj to store the exact bounds that
+  // need updating.
+  Tableau::updateBounds()
+  {
+  }
+#+end_src
+This method is called before any simplex steps are taken.
+The Tableau should be unchanged otherwise.
+
+** How would restorPrecision work?
+* Bounds
+
+** Observations
+Separate copy of the bounds is kept at:
+- ConstraintBoundTightener
+- RowBoundTightener
+- SymbolicBoundTightener
+
+- Simplex - either update bound from the BM, or uses ContextNotifyObj interface,
+  consider tighter itegration in second iteration.
+
+First wave - implementation can just mimic the call to local copies of lower and upper bounds.
+
+Second wave - Refactor the bound tighteners to use the BoundManager in the same
+way. Goal: identify bound tightener pattern. A function to enumerate terms and a
+function to propagate bounds on them.
+
+
+We propose a bound manager class:
+#+begin_src C++ 
+BoundManager::BoundManager(const Context & ctx)
+: _ctx(ctx)
+, _lowerBounds(NULL) // vector of vectors of pairs (decisionLevel, bound)
+, _upperBounds(NULL) // vector of vectors of pairs (decisionLevel, bound)
+{}
+
+/* Getters*/
+BoundManager::getLowerBound(Variable x)
+BoundManager::getUpperBound(Variable x)
+/* Setters */
+BoundManager::setLowerBound(Variable x, Double value)
+BoundManager::setUpperBound(Variable x, Double value)
+#+end_src
+
+
+Storing bounds in only one place. Different tighteners are just different strategies of same type of reasoning.
+
+
+Bound manager will by design be back-trackable, and further more easy to build upon for explanation generation.
+
+
+Two versions: One stores all bound inferences (might be desireable for explainability), the other stores only tightest bound inference at every level.
+
+* Network-level Reasoner (should contain SymbolicBoundTightener)
+* Cost function manager
+* Marabou use-cases
+- what we currently support and what we want to support
+* Namespace proposal 
+** Marabou
+*** NNVParsers
+- Parsers*
+- InputQuery
+- AcasNeuralNetwork
+- AcasNNet
+- AcasParser
+- Simulator
+*** Context (imported from CVC4)
+*** Expr  (problem representation, to be discussed)
+- DisjunctionConstraint
+- Equation
+- PiecewiseLinearCaseSplit
+- PiecewiseLinearConstraint
+- Tightening
+*** SimplexEngine
+- AutoCostFunctionManager
+- AutoProjectedSteepestEdge
+- AutoTableau
+- BlandsRule
+- IProjectedSteepestEdge
+- CostFunctionManager
+- DantzigsRule
+- EntrySelectionStrategy
+- ICostFunctionManager
+- IProjectedSteepestEdge
+- ITableau
+- ProjectedSteepestEdge
+- Tableau
+- TableauRow
+- TableauState
+*** SMTCore/Engine
+- SMTCore
+- DegradationChecker
+- DivideStrategy
+- Engine
+- EngineState
+- IEngine
+- InfeasibleQueryException
+- LargestIntervalDivider
+- Marabou
+- MarabouError
+- MaxConstraint
+- PrecisionRestorer
+- QueryDivider
+- ReluConstraint
+*** BoundReasoning
+- AutoConstraintMatrixAnalyzer
+- AutoConstraintBoundTightener
+- AutoRowBoundTightener
+- ConstraintBoundTightener
+- ConstraintMatrixAnalyzer
+- IConstraintBoundTightener
+- IConstraintMatrixAnalyzer
+- IRowBoundTightener
+- RowBoundTightener
+- SymbolicBoundTightener
+*** NNReasoning (Checking relaxed solutions)
+- NetworkLevelReasoner
+*** DNC
+- DnCManager
+- DnCMarabou
+- DnCWorker
+- SubQuery
+*** Preprocessing
+- Preprocessor
+* Simple refactors
+** Equation -> Constraint
+** ImpliedCaseSplit -> Implication
+**    
+* Goal
+** M1 - Context and Bound Manager
+*** Context in SMTCore 
+**** Add Context Class to build   
+**** BoundManager abstract 
+**** BM concrete implementation   
+** Development loop
+*** Small steps
+*** Unit tests
+*** Reviews 
+*** Doing things quickly
+*** Small PRs
+*** Travis support  
+**** Small test cases (regression)
+**** Andrew Setup Travis
