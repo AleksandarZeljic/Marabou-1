@@ -300,7 +300,7 @@ if(CXXTEST_FOUND)
     enable_testing()
 endif()
 
-target_link_libraries(${MARABOU_TEST_LIB} ${LIBS})
+target_link_libraries(${MARABOU_TEST_LIB} ${MARABOU_LIB})
 target_include_directories(${MARABOU_TEST_LIB} PRIVATE ${LIBS_INCLUDES} )
 target_compile_options(${MARABOU_TEST_LIB} PRIVATE ${CXXTEST_FLAGS})
 
