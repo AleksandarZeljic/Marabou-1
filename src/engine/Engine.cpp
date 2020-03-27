@@ -34,6 +34,7 @@ using namespace CVC4::context;
 Engine::Engine( unsigned verbosity )
     : _context()
     , _rowBoundTightener( *_tableau )
+    , _symbolicBoundTightener( NULL )
     , _smtCore( this, _context )
     , _numPlConstraintsDisabledByValidSplits( 0 )
     , _preprocessingEnabled( false )
