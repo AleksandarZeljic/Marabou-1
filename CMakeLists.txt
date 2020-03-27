@@ -70,7 +70,7 @@ set(BERKELEY_PARSER berkeley)
 set(INPUT_PARSERS_DIR input_parsers)
 
 
-include_directories(${CVC4_DIR} ${CVC4_DIR}/include)
+include_directories(SYSTEM ${CVC4_DIR} ${CVC4_DIR}/include)
 
 #-----------------------------------------------------------------------------#
 # Determine number of threads available, used to configure (default) parallel
