@@ -662,7 +662,6 @@ public:
 
     void test_perform_split()
     {
-        std::cout << "######" <<std::endl;
         Context context;
         SmtCore smtCore( engine, context );
 
