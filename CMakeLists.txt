@@ -74,6 +74,8 @@ set(BERKELEY_PARSER berkeley)
 set(INPUT_PARSERS_DIR input_parsers)
 
 
+include_directories(${CVC4_DIR} ${CVC4_DIR}/include)
+
 #-----------------------------------------------------------------------------#
 # Determine number of threads available, used to configure (default) parallel
 # execution of custom test targets (can be overriden with ARGS=-jN).
@@ -378,6 +380,7 @@ add_dependencies(build_input_parsers ${MPS_PARSER} ${ACAS_PARSER}
 add_subdirectory(${SRC_DIR})
 add_subdirectory(${TOOLS_DIR})
 add_subdirectory(${REGRESS_DIR})
+
 
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD
