@@ -15,6 +15,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "context/context.h"
 #include "GlobalConfiguration.h"
 #include "MockEngine.h"
 #include "MockErrno.h"
@@ -23,6 +24,8 @@
 #include "SmtCore.h"
 
 #include <string.h>
+
+using namespace CVC4::context;
 
 class MockForSmtCore
 {
@@ -170,7 +173,8 @@ public:
         ReluConstraint constraint1( 1, 2 );
         ReluConstraint constraint2( 3, 4 );
 
-        SmtCore smtCore( engine );
+        Context context;
+        SmtCore smtCore( engine, context );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD - 1; ++i )
         {
@@ -186,7 +190,8 @@ public:
 
     void test_perform_split()
     {
-        SmtCore smtCore( engine );
+        Context context;
+        SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
 
@@ -333,7 +338,8 @@ public:
 
     void test_perform_split__inactive_constraint()
     {
-        SmtCore smtCore( engine );
+        Context context;
+        SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
 
@@ -398,7 +404,8 @@ public:
 
     void test_all_splits_so_far()
     {
-        SmtCore smtCore( engine );
+        Context context;
+        SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
 
