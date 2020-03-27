@@ -24,8 +24,11 @@
 #include "ReluConstraint.h"
 #include "SmtCore.h"
 
-SmtCore::SmtCore( IEngine *engine )
+using namespace CVC4::context;
+
+SmtCore::SmtCore( IEngine *engine, Context &ctx )
     : _statistics( NULL )
+    , _context( ctx )
     , _engine( engine )
     , _needToSplit( false )
     , _constraintForSplitting( NULL )

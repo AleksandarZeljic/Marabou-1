@@ -29,9 +29,13 @@
 #include "TableauRow.h"
 #include "TimeUtils.h"
 
+using namespace CVC4::context;
+
 Engine::Engine( unsigned verbosity )
-    : _rowBoundTightener( *_tableau )
-    , _smtCore( this )
+    : _context()
+    , _rowBoundTightener( *_tableau )
+    , _symbolicBoundTightener( NULL )
+    , _smtCore( this, _context )
     , _numPlConstraintsDisabledByValidSplits( 0 )
     , _preprocessingEnabled( false )
     , _initialStateStored( false )
@@ -1848,7 +1852,8 @@ void Engine::clearViolatedPLConstraints()
 void Engine::resetSmtCore()
 {
     _smtCore.freeMemory();
-    _smtCore = SmtCore( this );
+    ASSERT(0);
+    //_smtCore = SmtCore( this, _context );
 }
 
 void Engine::resetExitCode()
@@ -2026,3 +2031,4 @@ void Engine::setConstraintViolationThreshold( unsigned threshold )
 // c-basic-offset: 4
 // End:
 //
+
