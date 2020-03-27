@@ -22,6 +22,7 @@
 #include "AutoRowBoundTightener.h"
 #include "AutoTableau.h"
 #include "BlandsRule.h"
+#include "context/context.h"
 #include "DantzigsRule.h"
 #include "DegradationChecker.h"
 #include "DivideStrategy.h"
@@ -215,6 +216,11 @@ private:
     DantzigsRule _dantzigsRule;
     AutoProjectedSteepestEdgeRule _projectedSteepestEdgeRule;
     EntrySelectionStrategy *_activeEntryStrategy;
+
+    /*
+      CVC4 Context Data structure 
+    */
+    CVC4::context::Context _context;
 
     /*
       Bound tightener.
