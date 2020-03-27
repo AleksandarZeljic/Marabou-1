@@ -46,6 +46,7 @@ set(CVC4_DIR "${DEPS_DIR}/CVC4")
 
 set(CONTEXT_DIR "${CVC4_DIR}/context")
 set(CVC4BASE_DIR "${CVC4_DIR}/base")
+
 file(GLOB DEPS_CVC4_CONTEXT "${CONTEXT_DIR}/*.cpp")
 file(GLOB DEPS_CVC4_BASE "${CVC4BASE_DIR}/*.cpp")
 set(OPENBLAS_LIB openblas)
@@ -67,6 +68,8 @@ set(ACAS_PARSER acas)
 set(BERKELEY_PARSER berkeley)
 set(INPUT_PARSERS_DIR input_parsers)
 
+
+include_directories(${CVC4_DIR} ${CVC4_DIR}/include)
 
 #-----------------------------------------------------------------------------#
 # Determine number of threads available, used to configure (default) parallel
@@ -103,7 +106,9 @@ endif()
 
 # We build a static library that is the core of the project, the link it to the
 # API's (executable and python at the moment)
-add_library(${MARABOU_LIB} ${SRCS_COMMON_REAL} ${SRCS_ENGINE_REAL} ${DEPS_CVC4_CONTEXT} ${DEPS_CVC4_BASE})
+add_library(${MARABOU_LIB} ${DEPS_CVC4_CONTEXT} ${DEPS_CVC4_BASE} ${SRCS_COMMON_REAL} ${SRCS_ENGINE_REAL})
+target_include_directories(${MARABOU_LIB} PRIVATE SYSTEM)
+
 add_executable(${MARABOU_EXE} "${ENGINE_DIR}/main.cpp")
 set(MARABOU_EXE_PATH "${BIN_DIR}/${MARABOU_EXE}")
 add_custom_command(TARGET ${MARABOU_EXE} POST_BUILD
@@ -362,7 +367,7 @@ add_dependencies(build_input_parsers ${MPS_PARSER} ${ACAS_PARSER}
 add_subdirectory(${SRC_DIR})
 add_subdirectory(${TOOLS_DIR})
 add_subdirectory(${REGRESS_DIR})
-add_subdirectory(${CVC4_DIR})
+
 
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD
