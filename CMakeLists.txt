@@ -134,7 +134,7 @@ if(${BUILD_PYTHON})
 endif()
 
 if (NOT MSVC)
-    set(COMPILE_FLAGS  -Wall -Wextra  -MMD) #-Wno-deprecated -Werror 
+    set(COMPILE_FLAGS  -Wall -Wextra  -MMD -Werror) #-Wno-deprecated  
     set(RELEASE_FLAGS -O3) #-Wno-deprecated
 endif()
 
