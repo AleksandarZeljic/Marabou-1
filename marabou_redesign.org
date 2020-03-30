@@ -51,8 +51,10 @@ CLOSED: [2020-03-24 Tue 13:53]
 ****** DONE Include logging macros in Marabou::Utils namespace (Pros/Cons?)
 CLOSED: [2020-03-24 Tue 13:53]
 - Included in CVC4 namespace
-****** NEW Remove -wError for CVC4 dependencies
-***** NEW Add _context, an instance of Context class, as a member of SMTCore
+****** DONE Remove -wError for CVC4 dependencies
+CLOSED: [2020-03-30 Mon 14:12]
+***** DONE Add _context, an instance of Context class, as a member of SMTCore
+CLOSED: [2020-03-30 Mon 15:45]
 - Expectation: _context decision level is in sync with the depth of existing search procedure
 - Depth = number of ReLU splits asserted by the SMTCore
 ****** Add new context frame whenever a new ReLU split is performed.
@@ -70,6 +72,15 @@ CLOSED: [2020-03-24 Tue 13:53]
 ***** Add _trail, of type CDList<PiecewiseLinearCaseSplit>, to SMTCore
 - Expectation: _trail is associated with _context
 - Long-term goal, move to CDList<Literals>?
+****** Alternative splits:
+- Asked from PWLConstraint at the time of decisions/implications 
+- Based on the last popped PWLConstraint
+- Instead of storing all alternative splits, we can only store the last decision.
+- Idea: Encapsulate context.pop to return last decision (that is being popped)
+****** Tests:
+******* Push/Pop functionality
+******* Sync pushed splitCases with existing search 
+******* Sync popped splitCases with existing search
 ***** Push ReLU splits to _trail 
 - Expectation: _trail contains all the currently active PWLCaseSplits in the search
 - Expectation: splitting asserts a PWLCaseSplit on a new decision level
