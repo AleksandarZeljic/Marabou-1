@@ -188,11 +188,207 @@ public:
         TS_ASSERT( smtCore.needToSplit() );
     }
 
-    void test_perform_split()
+    /*
+     * Test - Context push and pop functionality:
+     *       1. Start with a fresh context
+     *       2. Call context.push() 
+     *       3. Check that context level is now one.
+     *       4. Call context.pop()
+     *       5. Check that context level is now zero. 
+     */
+    void test_context_level()
+    {
+        Context context;
+        // TODO: casting the context from int to unsigned int for now
+        int prev_context_level = context.getLevel();
+        context.push();
+        TS_ASSERT_EQUALS( 1, context.getLevel() );
+        TS_ASSERT_EQUALS( prev_context_level + 1, context.getLevel() );
+
+        prev_context_level = context.getLevel();
+        context.pop();
+        TS_ASSERT_EQUALS( 0, context.getLevel() );
+        TS_ASSERT_EQUALS( prev_context_level -1, context.getLevel() );
+    }
+
+    /*
+     *  Test - Context and Perform split are in sync:
+     *   1. Context level advances with performSplit 
+     *   2. TODO: Context level decreases with popSplit
+     *   3. TODO: perfromImplciation does not effct context level.
+     *   N. TODO: Additionally, trail and asserted ReLUs are in sync
+     */
+    void test_context_perform_split()
     {
         Context context;
         SmtCore smtCore( engine, context );
 
+        MockConstraint constraint;
+
+        // Split 1
+        PiecewiseLinearCaseSplit split1;
+        Tightening bound1( 1, 3.0, Tightening::LB );
+        Tightening bound2( 1, 5.0, Tightening::UB );
+
+        Equation equation1( Equation::EQ );
+        equation1.addAddend( 1, 0 );
+        equation1.addAddend( 2, 1 );
+        equation1.addAddend( -1, 2 );
+        equation1.setScalar( 11 );
+
+        split1.storeBoundTightening( bound1 );
+        split1.storeBoundTightening( bound2 );
+        split1.addEquation( equation1 );
+
+        // Split 2
+        PiecewiseLinearCaseSplit split2;
+        Tightening bound3( 2, 13.0, Tightening::UB );
+        Tightening bound4( 3, 25.0, Tightening::UB );
+
+        Equation equation2( Equation::EQ );
+        equation2.addAddend( -3, 0 );
+        equation2.addAddend( 3, 1 );
+        equation2.setScalar( -5 );
+
+        split2.storeBoundTightening( bound3 );
+        split2.storeBoundTightening( bound4 );
+        split2.addEquation( equation2 );
+
+        // Split 3
+        PiecewiseLinearCaseSplit split3;
+        Tightening bound5( 14, 2.3, Tightening::LB );
+
+        split3.storeBoundTightening( bound5 );
+        split3.addEquation( equation1 );
+        split3.addEquation( equation2 );
+
+        // Store the splits
+        constraint.nextSplits.append( split1 );
+        constraint.nextSplits.append( split2 );
+        constraint.nextSplits.append( split3 );
+
+        for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
+            smtCore.reportViolatedConstraint( &constraint );
+
+        engine->lastStoredState = NULL;
+        engine->lastRestoredState = NULL;
+
+        unsigned prev_context_level = context.getLevel();
+
+        TS_ASSERT( smtCore.needToSplit() );
+        TS_ASSERT_EQUALS( 0U, prev_context_level );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT( !constraint.setActiveWasCalled );
+        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_EQUALS( prev_context_level + 1, static_cast<unsigned>( context.getLevel() ) );
+        TS_ASSERT( constraint.setActiveWasCalled );
+        TS_ASSERT( !smtCore.needToSplit() );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+
+        // Check that Split1 was performed and tableau state was stored
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.size(), 1U );
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.begin()->_variable, 1U );
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.begin()->_bound, 3.0 );
+
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.size(), 1U );
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.begin()->_variable, 1U );
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.begin()->_bound, 5.0 );
+
+        TS_ASSERT_EQUALS( engine->lastEquations.size(), 1U );
+        Equation equation4 = equation1;
+        TS_ASSERT_EQUALS( *engine->lastEquations.begin(), equation4 );
+
+        TS_ASSERT( engine->lastStoredState );
+        TS_ASSERT( !engine->lastRestoredState );
+
+        EngineState *originalState = engine->lastStoredState;
+        engine->lastStoredState = NULL;
+        engine->lastLowerBounds.clear();
+        engine->lastUpperBounds.clear();
+        engine->lastEquations.clear();
+
+        // Pop Split1, check that the tableau was restored and that
+        // a Split2 was performed
+        TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getevvel() ) );
+
+        TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
+        TS_ASSERT( !engine->lastStoredState );
+        engine->lastRestoredState = NULL;
+
+        TS_ASSERT( engine->lastLowerBounds.empty() );
+
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.size(), 2U );
+        auto it = engine->lastUpperBounds.begin();
+        TS_ASSERT_EQUALS( it->_variable, 2U );
+        TS_ASSERT_EQUALS( it->_bound, 13.0 );
+        ++it;
+        TS_ASSERT_EQUALS( it->_variable, 3U );
+        TS_ASSERT_EQUALS( it->_bound, 25.0 );
+
+        TS_ASSERT_EQUALS( engine->lastEquations.size(), 1U );
+        Equation equation5 = equation2;
+        TS_ASSERT_EQUALS( *engine->lastEquations.begin(), equation5 );
+
+        engine->lastRestoredState = NULL;
+        engine->lastLowerBounds.clear();
+        engine->lastUpperBounds.clear();
+        engine->lastEquations.clear();
+
+        // Pop Split2, check that the tableau was restored and that
+        // a Split3 was performed
+        TS_ASSERT( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+
+
+        TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
+        TS_ASSERT( !engine->lastStoredState );
+        engine->lastRestoredState = NULL;
+
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.size(), 1U );
+        it = engine->lastLowerBounds.begin();
+        TS_ASSERT_EQUALS( it->_variable, 14U );
+        TS_ASSERT_EQUALS( it->_bound, 2.3 );
+
+        TS_ASSERT( engine->lastUpperBounds.empty() );
+
+        TS_ASSERT_EQUALS( engine->lastEquations.size(), 2U );
+        auto equation = engine->lastEquations.begin();
+        Equation equation6 = equation1;
+        TS_ASSERT_EQUALS( *equation, equation6 );
+        ++equation;
+        Equation equation7 = equation2;
+        TS_ASSERT_EQUALS( *equation, equation7 );
+
+        engine->lastRestoredState = NULL;
+        engine->lastLowerBounds.clear();
+        engine->lastUpperBounds.clear();
+        engine->lastEquations.clear();
+
+        // Final pop
+        // Potentially context.pop() and smtCore.popSplit have different semantics
+        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT( !engine->lastRestoredState );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+    }
+
+    void test_perform_split()
+    {
+        Context context;
+        SmtCore smtCore( engine, context );
+        
         MockConstraint constraint;
 
         // Split 1
