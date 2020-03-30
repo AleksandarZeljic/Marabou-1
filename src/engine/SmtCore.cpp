@@ -182,7 +182,8 @@ void SmtCore::decideSplit()
     }
 
     _stack.append( stackEntry );
-    SMT_LOG( "> New stack depth: %d", getStackDepth() );
+    _context.push();
+
     if ( _statistics )
     {
         _statistics->setCurrentStackDepth( getStackDepth() );
@@ -280,9 +281,7 @@ bool SmtCore::checkStackTrailEquivalence()
 
 unsigned SmtCore::getStackDepth() const
 {
-    // TODO: This is not an invariant, since the stack treats implications as
-    // decisions
-    // ASSERT( _stack.size() == static_cast<unsigned>( _context.getLevel() ) );
+    ASSERT( _stack.size() == static_cast<unsigned>( _context.getLevel() ) );
     return _stack.size();
 }
 
