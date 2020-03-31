@@ -17,6 +17,7 @@
 #define __SmtCore_h__
 
 #include "context/context.h"
+#include "context/cdlist.h"
 #include "PiecewiseLinearCaseSplit.h"
 #include "PiecewiseLinearConstraint.h"
 #include "Stack.h"
@@ -146,6 +147,12 @@ private:
       The case-split stack.
     */
     List<StackEntry *> _stack;
+
+    /*
+      Trail is context dependent and contains all the asserted PWLCaseSplits. 
+      TODO: Abstract from PWLCaseSplits to Literals
+    */
+    CVC4::context::CDList<PiecewiseLinearCaseSplit *> _trail;
 
     /*
       The engine.

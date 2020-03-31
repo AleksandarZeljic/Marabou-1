@@ -92,6 +92,7 @@ CLOSED: [2020-03-30 Mon 15:45]
   positioning the call to _context.push()
 ***** Pop ReLU splits from the _trail
 - Expectation: _trail contains all the currently active PWLCaseSplits in the search
+***** (optional) Abstract Trail from case splits to literals (CDCL)
 **** 3a Refactor performSplit
 - Expectation: can perform a split on a particular case of a ReLU
 - Expectation: logic of which case to split on and splitting are separated
@@ -116,6 +117,8 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Expectation: provides getter/setter interface for lower and upper bounds for every variable.
 - Expectation: bounds are stored using context-dependent data-structures
 - Expectation: backtracks correctly with the _context
+- Q: Do we need a flexible variable size.
+- Basic functionality unit test
 **** 3c add BoundManager _boundManager memeber to the Engine 
 - Expectation: single central object, visible to the SimplexEngine, bound tighteners, SmtCore 
 **** 4b mirror all bound update calls to _boundManager  

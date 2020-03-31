@@ -29,6 +29,7 @@ using namespace CVC4::context;
 SmtCore::SmtCore( IEngine *engine, Context &ctx )
     : _statistics( NULL )
     , _context( ctx )
+    , _trail( &_context )
     , _engine( engine )
     , _needToSplit( false )
     , _constraintForSplitting( NULL )
@@ -188,7 +189,7 @@ bool SmtCore::popSplit()
         delete _stack.back()->_engineState;
         delete _stack.back();
         _stack.popBack();
-        _context.pop(); 
+        _context.pop();
         if ( _stack.empty() )
             return false;
     }
