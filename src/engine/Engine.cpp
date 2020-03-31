@@ -1817,7 +1817,7 @@ bool Engine::shouldExitDueToTimeout( unsigned timeout ) const
     if ( timeout == 0 )
         return false;
 
-    return _statistics.getTotnenalTime() / MILLISECONDS_TO_SECONDS > timeout;}
+    return _statistics.getTotalTime() / MILLISECONDS_TO_SECONDS > timeout;}
 
 void Engine::reset()
 {
