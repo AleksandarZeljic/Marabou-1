@@ -15,6 +15,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "context/cdlist.h"
 #include "context/context.h"
 #include "GlobalConfiguration.h"
 #include "MockEngine.h"
@@ -207,10 +208,45 @@ public:
     }
 
     /*
+     * Test - Trail push and pop functionality:
+     *       1. Start with a fresh context and trail
+     *       2. Call context.push(), and push 0 to the trail
+     *       3. Call context.push() again, and push 1, 2 to the trail
+     *       4. Check that the trail size is 3
+     *       5. Call context.pop()
+     *       6. Check that the trail size is 1
+     *       7. Check that the last element in the trail is 0 
+     *       8. Call context.pop()
+     *       9. Check that the trail size is 0
+     */ 
+    void test_trail_push_pop()
+    {
+        Context context;
+        CDList<int> trail( &context );
+
+        context.push();
+        trail.push_back( 0 );
+
+        context.push();
+        trail.push_back( 1 );
+        trail.push_back( 2 );
+
+        TS_ASSERT_EQUALS( trail.size(), 3U );
+
+        context.pop();
+        TS_ASSERT_EQUALS( trail.size(), 1U );
+        TS_ASSERT_EQUALS( trail.back(), 0 );
+
+        context.pop();
+        TS_ASSERT_EQUALS( trail.size(), 0U );
+    }
+
+
+    /*
      *  Test - Context and Perform split are in sync:
-     *   1. Context level advances with performSplit 
+     *   1. Context level advances with performSplit
      *   2. TODO: Context level decreases with popSplit
-     *   3. TODO: perfromImplciation does not effct context level.
+     *   3. TODO: perfromImplciation does noteaffect context level.
      *   N. TODO: Additionally, trail and asserted ReLUs are in sync
      */
     void test_context_perform_split()
@@ -379,11 +415,165 @@ public:
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
     }
 
+    void test_trail_perform_split()
+    {
+        Context context;
+        SmtCore smtCore( engine, context );
+
+        MockConstraint constraint1;
+
+        // Split 1_1
+        PiecewiseLinearCaseSplit split1_1;
+        Tightening bound1_1( 1, 3.0, Tightening::LB );
+        Tightening bound1_2( 1, 5.0, Tightening::UB );
+
+        Equation equation1_1( Equation::EQ );
+        equation1_1.addAddend( 1, 0 );
+        equation1_1.addAddend( 2, 1 );
+        equation1_1.addAddend( -1, 2 );
+        equation1_1.setScalar( 11 );
+
+        split1_1.storeBoundTightening( bound1_1 );
+        split1_1.storeBoundTightening( bound1_2 );
+        split1_1.addEquation( equation1_1 );
+
+        // Split 1_2
+        PiecewiseLinearCaseSplit split1_2;
+        Tightening bound1_3( 2, 13.0, Tightening::UB );
+        Tightening bound1_4( 3, 25.0, Tightening::UB );
+
+        Equation equation1_2( Equation::EQ );
+        equation1_2.addAddend( -3, 0 );
+        equation1_2.addAddend( 3, 1 );
+        equation1_2.setScalar( -5 );
+
+        split1_2.storeBoundTightening( bound1_3 );
+        split1_2.storeBoundTightening( bound1_4 );
+        split1_2.addEquation( equation1_2 );
+
+        // Split 1_3
+        PiecewiseLinearCaseSplit split1_3;
+        Tightening bound1_5( 14, 2.3, Tightening::LB );
+
+        split1_3.storeBoundTightening( bound1_5 );
+        split1_3.addEquation( equation1_1 );
+        split1_3.addEquation( equation1_2 );
+
+        // Store the splits
+        constraint1.nextSplits.append( split1_1 );
+        constraint1.nextSplits.append( split1_2 );
+        constraint1.nextSplits.append( split1_3 );
+
+        MockConstraint constraint2;
+
+        // Split2_1
+        PiecewiseLinearCaseSplit split2_1;
+        Tightening bound2_1( 1, -3.0, Tightening::LB );
+        Tightening bound2_2( 1, 15.0, Tightening::UB );
+
+        Equation equation2_1( Equation::EQ );
+        equation2_1.addAddend( 1.5, 0 );
+        equation2_1.addAddend( 2.3, 1 );
+        equation2_1.addAddend( -1.1, 2 );
+        equation2_1.setScalar( 15 );
+
+        split2_1.storeBoundTightening( bound2_1 );
+        split2_1.storeBoundTightening( bound2_2 );
+        split2_1.addEquation( equation2_1 );
+
+        // Split2_2
+        PiecewiseLinearCaseSplit split2_2;
+        Tightening bound2_3( 2, 31.0, Tightening::UB );
+        Tightening bound2_4( 3, 52.0, Tightening::UB );
+
+        Equation equation2_2( Equation::EQ );
+        equation2_2.addAddend( -3.5, 0 );
+        equation2_2.addAddend( 3.5, 1 );
+        equation2_2.setScalar( -5.5 );
+
+        split2_2.storeBoundTightening( bound2_3 );
+        split2_2.storeBoundTightening( bound2_4 );
+        split2_2.addEquation( equation2_2 );
+
+        // split2_3
+        PiecewiseLinearCaseSplit split2_3;
+        Tightening bound2_5( 14, 2.3, Tightening::LB );
+
+        split2_3.storeBoundTightening( bound2_5 );
+        split2_3.addEquation( equation2_1 );
+        split2_3.addEquation( equation2_2 );
+
+        // Store the splits
+        constraint2.nextSplits.append( split2_1 );
+        constraint2.nextSplits.append( split2_2 );
+        constraint2.nextSplits.append( split2_3 );
+
+        for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
+            smtCore.reportViolatedConstraint( &constraint1 );
+
+        engine->lastStoredState = NULL;
+        engine->lastRestoredState = NULL;
+
+        unsigned prev_context_level = context.getLevel();
+
+        TS_ASSERT( smtCore.needToSplit() );
+        TS_ASSERT_EQUALS( 0U, prev_context_level );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT( !constraint1.setActiveWasCalled );
+        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+
+        List<PiecewiseLinearCaseSplit> allSplitsOnStackSoFar;
+        smtCore.allSplitsSoFar( allSplitsOnStackSoFar );
+
+        auto trail = smtCore.trailBegin();
+        auto endtrail = smtCore.trailEnd();
+        auto splits = allSplitsOnStackSoFar.begin();
+        auto endsplits = allSplitsOnStackSoFar.end();
+        for ( ; trail != endtrail && splits != endsplits; ++trail, ++splits )
+        {
+            TS_ASSERT_EQUALS( *( *trail ), *splits );
+        }
+        TS_ASSERT_EQUALS( trail, endtrail );
+        TS_ASSERT_EQUALS( splits, endsplits );
+
+        TS_ASSERT( constraint1.setActiveWasCalled );
+        TS_ASSERT( !smtCore.needToSplit() );
+
+
+        // Pop Split1, check that the tableau was restored and that
+        // a Split2 was performed
+        TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+
+        // Pop Split2, check that the tableau was restored and that
+        // a Split3 was performed
+        TS_ASSERT( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+
+        // Final pop
+        // Potentially context.pop() and smtCore.popSplit have different semantics
+        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT( !engine->lastRestoredState );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+    }
+
     void test_perform_split()
     {
         Context context;
         SmtCore smtCore( engine, context );
-        
+
         MockConstraint constraint;
 
         // Split 1
