@@ -90,6 +90,22 @@ public:
     void allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const;
 
     /*
+      Get trail begin iterator.
+    */
+    CVC4::context::CDList<PiecewiseLinearCaseSplit *>::const_iterator trailBegin() const
+    {
+        return _trail.begin();
+    };
+
+    /*
+      Get trail end iterator.
+    */
+    CVC4::context::CDList<PiecewiseLinearCaseSplit *>::const_iterator trailEnd() const
+    {
+        return _trail.end();
+    };
+
+    /*
       Have the SMT core start reporting statistics.
     */
     void setStatistics( Statistics *statistics );
