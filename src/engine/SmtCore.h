@@ -90,7 +90,7 @@ public:
     /*
       Get trail begin iterator.
     */
-    CVC4::context::CDList<PiecewiseLinearCaseSplit *>::const_iterator trailBegin() const
+    CVC4::context::CDList<PiecewiseLinearCaseSplit>::const_iterator trailBegin() const
     {
         return _trail.begin();
     };
@@ -98,7 +98,7 @@ public:
     /*
       Get trail end iterator.
     */
-    CVC4::context::CDList<PiecewiseLinearCaseSplit *>::const_iterator trailEnd() const
+    CVC4::context::CDList<PiecewiseLinearCaseSplit>::const_iterator trailEnd() const
     {
         return _trail.end();
     };
@@ -168,7 +168,7 @@ private:
       Trail is context dependent and contains all the asserted PWLCaseSplits. 
       TODO: Abstract from PWLCaseSplits to Literals
     */
-    CVC4::context::CDList<PiecewiseLinearCaseSplit *> _trail;
+    CVC4::context::CDList<PiecewiseLinearCaseSplit> _trail;
 
     /*
       The engine.

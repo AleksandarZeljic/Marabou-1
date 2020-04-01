@@ -141,7 +141,9 @@ void SmtCore::performSplit()
     }
 
     _stack.append( stackEntry );
+    // Trail changes require a context push to denote a new decision level
     _context.push();
+    _trail.push_back( *split );
 
     if ( _statistics )
     {
@@ -153,7 +155,9 @@ void SmtCore::performSplit()
 
 unsigned SmtCore::getStackDepth() const
 {
-    ASSERT( _stack.size() == static_cast<unsigned>( _context.getLevel() ) );
+    // TODO: This is not an invariant, since the stack treats implications as
+    // decisions
+    // ASSERT( _stack.size() == static_cast<unsigned>( _context.getLevel() ) );
     return _stack.size();
 }
 
@@ -209,20 +213,30 @@ bool SmtCore::popSplit()
     log( "\tRestoring engine state - DONE" );
 
     // Apply the new split and erase it from the list
+    // TODO: Rename split to implication?
     auto split = stackEntry->_alternativeSplits.begin();
 
     // Erase any valid splits that were learned using the split we just popped
     stackEntry->_impliedValidSplits.clear();
 
     log( "\tApplying new split..." );
-    // At this point this is an implication rather than a decision
-    // TODO: _context.pop()
-    // To keep generality in mind, if this is not an implication we need to _context.push()
     _engine->applySplit( *split );
     log( "\tApplying new split - DONE" );
 
     stackEntry->_activeSplit = *split;
     stackEntry->_alternativeSplits.erase( split );
+
+    // Check whether this is an implication and if it is pop
+    // if ( stackEntry->_alternativeSplits.empty() )
+    //    _context.pop();
+
+    // To keep generality in mind, if this is not an implication we need to
+    // _context.push();
+
+    // TODO: Trail bookkeeping - where each level begins
+
+    // TODO: Assert negated Literal
+    _trail.push_back(  *split );
 
     if ( _statistics )
     {
@@ -249,6 +263,7 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
     else
         _stack.back()->_impliedValidSplits.append( validSplit );
 
+    _trail.push_back( validSplit );
     checkSkewFromDebuggingSolution();
 }
 
