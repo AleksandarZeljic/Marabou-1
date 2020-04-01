@@ -380,7 +380,7 @@ public:
         // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() );
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
-        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+        TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) );
 
 
         TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
@@ -412,7 +412,7 @@ public:
         TS_ASSERT( !smtCore.popSplit() );
         TS_ASSERT( !engine->lastRestoredState );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
-        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+        TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) );
     }
 
     void test_trail_perform_split()
@@ -531,7 +531,7 @@ public:
         auto endsplits = allSplitsOnStackSoFar.end();
         for ( ; trail != endtrail && splits != endsplits; ++trail, ++splits )
         {
-            TS_ASSERT_EQUALS( *( *trail ), *splits );
+            TS_ASSERT_EQUALS( *trail , *splits );
         }
         TS_ASSERT_EQUALS( trail, endtrail );
         TS_ASSERT_EQUALS( splits, endsplits );
@@ -564,7 +564,6 @@ public:
         // Final pop
         // Potentially context.pop() and smtCore.popSplit have different semantics
         TS_ASSERT( !smtCore.popSplit() );
-        TS_ASSERT( !engine->lastRestoredState );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
     }
