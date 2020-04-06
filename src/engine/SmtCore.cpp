@@ -37,15 +37,20 @@ SmtCore::SmtCore( IEngine *engine, Context &ctx )
     , _constraintViolationThreshold
       ( GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD )
 {
+    //log( "Decision level 0 ..." );
+    //_context.push();
+    //log( "Decision level 0 - DONE" );
 }
 
 SmtCore::~SmtCore()
 {
+    //_context.popto( 0 );
     freeMemory();
 }
 
 void SmtCore::freeMemory()
 {
+
     for ( const auto &stackEntry : _stack )
     {
         delete stackEntry->_engineState;
@@ -131,6 +136,14 @@ void SmtCore::performSplit()
     _engine->applySplit( *split );
     stackEntry->_activeSplit = *split;
 
+    // Trail changes require a context push to denote a new decision level
+    log( "New decision level ..." );
+    _context.push();
+    log( "New decision level - DONE" );
+    log( "New decision ..." );
+    _trail.push_back( *split );
+    log( Stringf( "Decision push @ %d DONE", _context.getLevel() ) );
+
     // Store the remaining splits on the stack, for later
     stackEntry->_engineState = stateBeforeSplits;
     ++split;
@@ -141,9 +154,6 @@ void SmtCore::performSplit()
     }
 
     _stack.append( stackEntry );
-    // Trail changes require a context push to denote a new decision level
-    _context.push();
-    _trail.push_back( *split );
 
     if ( _statistics )
     {
@@ -193,7 +203,10 @@ bool SmtCore::popSplit()
         delete _stack.back()->_engineState;
         delete _stack.back();
         _stack.popBack();
+        ASSERT( _context.getLevel() > 0 );
+        log( "Backtracking context ..." );
         _context.pop();
+        log( Stringf( "Backtracking context - %d DONE", _context.getLevel() ) );
         if ( _stack.empty() )
             return false;
     }
@@ -210,7 +223,7 @@ bool SmtCore::popSplit()
     // Restore the state of the engine
     log( "\tRestoring engine state..." );
     _engine->restoreState( *(stackEntry->_engineState) );
-    log( "\tRestoring engine state - DONE" );
+    log( Stringf("\tRestoring engine state %d - DONE", getStackDepth() ) );
 
     // Apply the new split and erase it from the list
     // TODO: Rename split to implication?
@@ -234,9 +247,11 @@ bool SmtCore::popSplit()
     // _context.push();
 
     // TODO: Trail bookkeeping - where each level begins
-
+    _context.push();
     // TODO: Assert negated Literal
-    _trail.push_back(  *split );
+    log( "Trail push... " );
+    _trail.push_back( stackEntry->_activeSplit );
+    log( Stringf( "\"Decision\" push @ %d DONE", _context.getLevel() ) );
 
     if ( _statistics )
     {
@@ -262,8 +277,11 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
         _impliedValidSplitsAtRoot.append( validSplit );
     else
         _stack.back()->_impliedValidSplits.append( validSplit );
-
+    log( "Pushing implication ..." );
     _trail.push_back( validSplit );
+    log( Stringf( "Implication push @ %d DONE", _context.getLevel() ) );
+    ASSERT( & validSplit != & (_trail.back()));
+
     checkSkewFromDebuggingSolution();
 }
 

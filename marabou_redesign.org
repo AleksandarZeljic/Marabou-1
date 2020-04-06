@@ -84,7 +84,7 @@ CLOSED: [2020-03-30 Mon 15:45]
 ***** Push ReLU splits to _trail 
 - Expectation: _trail contains all the currently active PWLCaseSplits in the search
 - Expectation: splitting asserts a PWLCaseSplit on a new decision level
-- Expectation: implication asserts a PWLCaseSplit on the same decision level
+- Expectation: TODO: add to test implication asserts a PWLCaseSplit on the same decision level
 - PWLCaseSplits are asserted in two ways:
 - by splitting (in SmtCore::performSplit())
 - by implication (i.e. bound propagation)
