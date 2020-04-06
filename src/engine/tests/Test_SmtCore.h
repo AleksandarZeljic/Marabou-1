@@ -239,6 +239,65 @@ public:
 
         context.pop();
         TS_ASSERT_EQUALS( trail.size(), 0U );
+
+        // Test CDList of PiecewiseLinearCaseSplits
+
+
+        // Split 1
+        PiecewiseLinearCaseSplit split1;
+        Tightening bound1( 1, 3.0, Tightening::LB );
+        Tightening bound2( 1, 5.0, Tightening::UB );
+
+        Equation equation1( Equation::EQ );
+        equation1.addAddend( 1, 0 );
+        equation1.addAddend( 2, 1 );
+        equation1.addAddend( -1, 2 );
+        equation1.setScalar( 11 );
+
+        split1.storeBoundTightening( bound1 );
+        split1.storeBoundTightening( bound2 );
+        split1.addEquation( equation1 );
+
+        // Split 2
+        PiecewiseLinearCaseSplit split2;
+        Tightening bound3( 2, 13.0, Tightening::UB );
+        Tightening bound4( 3, 25.0, Tightening::UB );
+
+        Equation equation2( Equation::EQ );
+        equation2.addAddend( -3, 0 );
+        equation2.addAddend( 3, 1 );
+        equation2.setScalar( -5 );
+
+        split2.storeBoundTightening( bound3 );
+        split2.storeBoundTightening( bound4 );
+        split2.addEquation( equation2 );
+
+        // Split 3
+        PiecewiseLinearCaseSplit split3;
+        Tightening bound5( 14, 2.3, Tightening::LB );
+
+        split3.storeBoundTightening( bound5 );
+        split3.addEquation( equation1 );
+        split3.addEquation( equation2 );
+
+        CDList<PiecewiseLinearCaseSplit> trailPWCaseSplits( &context );
+        context.push();
+        trailPWCaseSplits.push_back( split1 );
+        // TS_ASSERT_EQUALS( & split1, & (trailPWCaseSplits.back()) )
+
+        context.push();
+        trailPWCaseSplits.push_back( split2 );
+        trailPWCaseSplits.push_back( split3 );
+
+        TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 3U );
+
+        context.pop();
+        TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 1U );
+        TS_ASSERT_EQUALS( trailPWCaseSplits.back(), split1 );
+
+        context.pop();
+        TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 0U );
+        context.pop();
     }
 
 
@@ -415,6 +474,13 @@ public:
         TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) );
     }
 
+    /*
+     * Test _trail contents:
+     *  1. Decide PWL1, check that it is at _context/_trail level 1.
+     *  2. Decide PWL2, check that it is at level 2. 
+     *  3. Backtrack level 2, check that only PWL1 is on the trail.
+     *  4. Propagate PWL2, check that it is asserted at on level 1 and trail consists of PWL1, PWL2
+     */
     void test_trail_perform_split()
     {
         Context context;
