@@ -370,6 +370,7 @@ public:
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT( !constraint.setActiveWasCalled );
         TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
         TS_ASSERT_EQUALS( prev_context_level + 1, static_cast<unsigned>( context.getLevel() ) );
         TS_ASSERT( constraint.setActiveWasCalled );
         TS_ASSERT( !smtCore.needToSplit() );

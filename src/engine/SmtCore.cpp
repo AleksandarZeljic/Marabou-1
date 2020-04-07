@@ -247,7 +247,7 @@ bool SmtCore::popSplit()
     // _context.push();
 
     // TODO: Trail bookkeeping - where each level begins
-    _context.push();
+    // _context.push();
     // TODO: Assert negated Literal
     log( "Trail push... " );
     _trail.push_back( stackEntry->_activeSplit );
