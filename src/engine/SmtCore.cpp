@@ -94,7 +94,9 @@ bool SmtCore::needToSplit() const
 
 void SmtCore::performSplit()
 {
+    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     ASSERT( _needToSplit );
+    log( "Performing a ReLU split" );
 
     // Maybe the constraint has already become inactive - if so, ignore
     // TODO: Ideally we will not ever reach this point
@@ -140,7 +142,7 @@ void SmtCore::performSplit()
     // Trail changes require a context push to denote a new decision level
     log( "New decision level ..." );
     _context.push();
-    log( "New decision level - DONE" );
+    log( Stringf("> New decision level %d", _context.getLevel() ) );
     log( "New decision ..." );
     _trail.push_back( *split );
     log( Stringf( "Decision push @ %d DONE", _context.getLevel() ) );
@@ -155,13 +157,16 @@ void SmtCore::performSplit()
     }
 
     _stack.append( stackEntry );
-
+    log( Stringf( "> New stack depth: %d", getStackDepth() ) );
     if ( _statistics )
     {
         _statistics->setCurrentStackDepth( getStackDepth() );
         struct timespec end = TimeUtils::sampleMicro();
         _statistics->addTimeSmtCore( TimeUtils::timePassed( start, end ) );
     }
+    log( "Performing a ReLU split - DONE");
+
+    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
 }
 
 unsigned SmtCore::getStackDepth() const
@@ -174,6 +179,7 @@ unsigned SmtCore::getStackDepth() const
 
 bool SmtCore::popSplit()
 {
+    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     SMT_LOG( "Performing a pop" );
 
     // TODO: We do not want to reach this point
@@ -266,6 +272,7 @@ bool SmtCore::popSplit()
 
     checkSkewFromDebuggingSolution();
 
+    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     return true;
 }
 
