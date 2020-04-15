@@ -10,6 +10,7 @@ option(RUN_UNIT_TEST "run unit tests on build" ON)
 option(RUN_REGRESS_TEST "run regression tests on build" OFF)
 option(RUN_SYSTEM_TEST "run system tests on build" OFF)
 option(RUN_MEMORY_TEST "run cxxtest testing with ASAN ON" ON)
+option(RUN_ASAN "compile with ASAN ON" ON)
 
 set(DEFAULT_PYTHON_VERSION "3" CACHE STRING "Default Python version 2/3")
 set(PYTHON_VERSIONS_SUPPORTED 2 3)
@@ -108,6 +109,14 @@ if (NOT MSVC)
     set(RELEASE_FLAGS -O3) #-Wno-deprecated
 endif()
 
+if (RUN_ASAN)
+  if(NOT MSVC)
+    set(ASAN_FLAGS -fsanitize=address -fno-omit-frame-pointer -O1)
+  endif()
+endif()
+
+
+
 if (RUN_MEMORY_TEST)
     if(NOT MSVC)
         set(MEMORY_FLAGS -fsanitize=address -fno-omit-frame-pointer -O1)
@@ -173,9 +182,9 @@ find_package(Threads REQUIRED)
 list(APPEND LIBS Threads::Threads)
 
 # build a static library
-target_link_libraries(${MARABOU_LIB} ${LIBS})
+target_link_libraries(${MARABOU_LIB} ${LIBS} ${ASAN_FLAGS})
 target_include_directories(${MARABOU_LIB} PRIVATE ${LIBS_INCLUDES})
-target_compile_options(${MARABOU_LIB} PRIVATE ${RELEASE_FLAGS})
+target_compile_options(${MARABOU_LIB} PRIVATE ${RELEASE_FLAGS} ${ASAN_FLAGS})
 
 
 # Build marabou executable
