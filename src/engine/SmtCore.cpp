@@ -289,7 +289,7 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
     else
         _stack.back()->_impliedValidSplits.append( validSplit );
     log( "Pushing implication ..." );
-    _trail.push_back( validSplit );
+    //_trail.push_back( validSplit );
     log( Stringf( "Implication push @ %d DONE", _context.getLevel() ) );
     ASSERT( & validSplit != & (_trail.back()));
 
