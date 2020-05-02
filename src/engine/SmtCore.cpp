@@ -144,7 +144,8 @@ void SmtCore::performSplit()
     _context.push();
     log( Stringf("> New decision level %d", _context.getLevel() ) );
     log( "New decision ..." );
-    _trail.push_back( *split );
+    TrailEntry te( _constraintForSplitting, split->getPhase() );
+    _trail.push_back(te);
     log( Stringf( "Decision push @ %d DONE", _context.getLevel() ) );
 
     // Store the remaining splits on the stack, for later
@@ -260,7 +261,8 @@ bool SmtCore::popSplit()
     // _context.push();
     // TODO: Assert negated Literal
     log( "Trail push... " );
-    _trail.push_back( stackEntry->_activeSplit );
+    TrailEntry te( _constraintForSplitting, split->getPhase() );
+    _trail.push_back( te );
     log( Stringf( "\"Decision\" push @ %d DONE", _context.getLevel() ) );
 
     if ( _statistics )
@@ -291,7 +293,7 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
     log( "Pushing implication ..." );
     //_trail.push_back( validSplit );
     log( Stringf( "Implication push @ %d DONE", _context.getLevel() ) );
-    ASSERT( & validSplit != & (_trail.back()));
+    //ASSERT( & validSplit != & (_trail.back()));
 
     _trail.push_back( validSplit );
     checkSkewFromDebuggingSolution();
