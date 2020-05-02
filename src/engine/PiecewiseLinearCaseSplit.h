@@ -21,6 +21,15 @@
 #include "MString.h"
 #include "Pair.h"
 #include "Tightening.h"
+#include "PiecewiseLinearConstraint.h"
+
+
+// TODO: Add all the other phases into this enumeration?
+enum PWLCPhaseStatus {
+                      PHASE_NOT_FIXED = 0,
+                      RELU_PHASE_ACTIVE = 1,
+                      RELU_PHASE_INACTIVE = 2,
+};
 
 class PiecewiseLinearCaseSplit
 {
@@ -53,6 +62,9 @@ public:
     */
     void updateVariableIndex( unsigned oldIndex, unsigned newIndex );
 
+    PWLCPhaseStatus getPhase() { return _phase; }
+    void setPhase(PWLCPhaseStatus phase) { _phase = phase;}
+
 private:
     /*
       Bound tightening information.
@@ -63,6 +75,11 @@ private:
       The equation that needs to be added.
     */
     List<Equation> _equations;
+
+    /*
+     * PhaseStatus
+     */
+    PWLCPhaseStatus _phase;
 };
 
 #endif // __PiecewiseLinearCaseSplit_h__
