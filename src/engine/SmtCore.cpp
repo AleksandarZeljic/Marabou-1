@@ -144,7 +144,7 @@ void SmtCore::performSplit()
     _context.push();
     log( Stringf("> New decision level %d", _context.getLevel() ) );
     log( "New decision ..." );
-    TrailEntry te( _constraintForSplitting, split->getPhase() );
+    TrailEntry te( _constraintForSplitting, stackEntry->_activeSplit.getPhase() );
     _trail.push_back(te);
     log( Stringf( "Decision push @ %d DONE", _context.getLevel() ) );
 
@@ -261,7 +261,7 @@ bool SmtCore::popSplit()
     // _context.push();
     // TODO: Assert negated Literal
     log( "Trail push... " );
-    TrailEntry te( _constraintForSplitting, split->getPhase() );
+    TrailEntry te( _constraintForSplitting, stackEntry->_activeSplit.getPhase() );
     _trail.push_back( te );
     log( Stringf( "\"Decision\" push @ %d DONE", _context.getLevel() ) );
 
