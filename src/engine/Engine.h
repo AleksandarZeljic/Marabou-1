@@ -22,6 +22,7 @@
 #include "AutoRowBoundTightener.h"
 #include "AutoTableau.h"
 #include "BlandsRule.h"
+#include "BoundManager.h"
 #include "context/context.h"
 #include "DantzigsRule.h"
 #include "DegradationChecker.h"
@@ -216,9 +217,14 @@ private:
     EntrySelectionStrategy *_activeEntryStrategy;
 
     /*
-      CVC4 Context Data structure 
+      CVC4 Context Data structure
     */
     CVC4::context::Context _context;
+
+    /*
+       Bound Manager
+    */
+    BoundManager _boundManager;
 
     /*
       Bound tightener.

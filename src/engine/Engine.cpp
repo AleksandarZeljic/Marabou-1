@@ -32,6 +32,7 @@ using namespace CVC4::context;
 
 Engine::Engine( unsigned verbosity )
     : _context()
+    , _boundManager(_context)
     , _rowBoundTightener( *_tableau )
     , _symbolicBoundTightener( NULL )
     , _smtCore( this, _context )
@@ -1066,6 +1067,7 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         if ( _verbosity > 0 )
             printInputBounds( inputQuery );
 
+        _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
         double *constraintMatrix = createConstraintMatrix();
         removeRedundantEquations( constraintMatrix );
 
