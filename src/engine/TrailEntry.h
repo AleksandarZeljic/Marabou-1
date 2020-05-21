@@ -26,9 +26,9 @@ class TrailEntry
 {
 public:
   PiecewiseLinearConstraint * _pwlconstraint;
-  PWLCPhaseStatus _phase;
+  unsigned _phase; /* Enum for fixed case PiecewiseLinearConstraints, case index otherwise (e.g. Max)*/
 
- TrailEntry(PiecewiseLinearConstraint * pwlc, PWLCPhaseStatus phase)
+ TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase)
     : _pwlconstraint(pwlc),
     _phase(phase)
     {
