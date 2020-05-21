@@ -13,8 +13,8 @@
 
 **/
 
-#ifndef __TrailElement_h__
-#define __TrailElement_h__
+#ifndef __TrailEntry_h__
+#define __TrailEntry_h__
 
 #include "PiecewiseLinearCaseSplit.h"
 
@@ -37,7 +37,7 @@ public:
   ~TrailEntry() {};
 };
 
-#endif // TrailElement.h
+#endif // TrailEntry.h
 
 //
 // Local Variables:
