@@ -22,7 +22,7 @@
 #include "PiecewiseLinearConstraint.h"
 #include "Stack.h"
 #include "Statistics.h"
-#include "TrailElement.h"
+#include "TrailEntry.h"
 
 class EngineState;
 class IEngine;
