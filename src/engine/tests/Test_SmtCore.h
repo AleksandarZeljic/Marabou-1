@@ -248,61 +248,63 @@ public:
         // Test CDList of PiecewiseLinearCaseSplits
 
 
-        /* // Split 1 */
-        /* PiecewiseLinearCaseSplit split1; */
-        /* Tightening bound1( 1, 3.0, Tightening::LB ); */
-        /* Tightening bound2( 1, 5.0, Tightening::UB ); */
+        // Split 1
+        PiecewiseLinearCaseSplit split1;
+        Tightening bound1( 1, 3.0, Tightening::LB );
+        Tightening bound2( 1, 5.0, Tightening::UB );
 
-        /* Equation equation1( Equation::EQ ); */
-        /* equation1.addAddend( 1, 0 ); */
-        /* equation1.addAddend( 2, 1 ); */
-        /* equation1.addAddend( -1, 2 ); */
-        /* equation1.setScalar( 11 ); */
+        Equation equation1( Equation::EQ );
+        equation1.addAddend( 1, 0 );
+        equation1.addAddend( 2, 1 );
+        equation1.addAddend( -1, 2 );
+        equation1.setScalar( 11 );
 
-        /* split1.storeBoundTightening( bound1 ); */
-        /* split1.storeBoundTightening( bound2 ); */
-        /* split1.addEquation( equation1 ); */
+        split1.storeBoundTightening( bound1 );
+        split1.storeBoundTightening( bound2 );
+        split1.addEquation( equation1 );
+        split1.setPhase(0u);
 
-        /* // Split 2 */
-        /* PiecewiseLinearCaseSplit split2; */
-        /* Tightening bound3( 2, 13.0, Tightening::UB ); */
-        /* Tightening bound4( 3, 25.0, Tightening::UB ); */
+        // Split 2
+        PiecewiseLinearCaseSplit split2;
+        Tightening bound3( 2, 13.0, Tightening::UB );
+        Tightening bound4( 3, 25.0, Tightening::UB );
 
-        /* Equation equation2( Equation::EQ ); */
-        /* equation2.addAddend( -3, 0 ); */
-        /* equation2.addAddend( 3, 1 ); */
-        /* equation2.setScalar( -5 ); */
+        Equation equation2( Equation::EQ );
+        equation2.addAddend( -3, 0 );
+        equation2.addAddend( 3, 1 );
+        equation2.setScalar( -5 );
 
-        /* split2.storeBoundTightening( bound3 ); */
-        /* split2.storeBoundTightening( bound4 ); */
-        /* split2.addEquation( equation2 ); */
+        split2.storeBoundTightening( bound3 );
+        split2.storeBoundTightening( bound4 );
+        split2.addEquation( equation2 );
+        split2.setPhase(1u);
 
-        /* // Split 3 */
-        /* PiecewiseLinearCaseSplit split3; */
-        /* Tightening bound5( 14, 2.3, Tightening::LB ); */
+        // Split 3
+        PiecewiseLinearCaseSplit split3;
+        Tightening bound5( 14, 2.3, Tightening::LB );
 
-        /* split3.storeBoundTightening( bound5 ); */
-        /* split3.addEquation( equation1 ); */
-        /* split3.addEquation( equation2 ); */
+        split3.storeBoundTightening( bound5 );
+        split3.addEquation( equation1 );
+        split3.addEquation( equation2 );
+        split3.setPhase(2u);
 
-        /* CDList<PiecewiseLinearCaseSplit> trailPWCaseSplits( &context ); */
-        /* context.push(); */
-        /* trailPWCaseSplits.push_back( split1 ); */
-        /* // TS_ASSERT_EQUALS( & split1, & (trailPWCaseSplits.back()) ) */
+        CDList<PiecewiseLinearCaseSplit> trailPWCaseSplits( &context );
+        context.push();
+        trailPWCaseSplits.push_back( split1 );
+        // TS_ASSERT_EQUALS( & split1, & (trailPWCaseSplits.back()) )
 
-        /* context.push(); */
-        /* trailPWCaseSplits.push_back( split2 ); */
-        /* trailPWCaseSplits.push_back( split3 ); */
+        context.push();
+        trailPWCaseSplits.push_back( split2 );
+        trailPWCaseSplits.push_back( split3 );
 
-        /* TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 3U ); */
+        TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 3U );
 
-        /* context.pop(); */
-        /* TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 1U ); */
-        /* TS_ASSERT_EQUALS( trailPWCaseSplits.back(), split1 ); */
+        context.pop();
+        TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 1U );
+        TS_ASSERT_EQUALS( trailPWCaseSplits.back(), split1 );
 
-        /* context.pop(); */
-        /* TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 0U ); */
-        /* context.pop(); */
+        context.pop();
+        TS_ASSERT_EQUALS( trailPWCaseSplits.size(), 0U );
     }
 
 
@@ -310,7 +312,7 @@ public:
      *  Test - Context and Perform split are in sync:
      *   1. Context level advances with performSplit
      *   2. TODO: Context level decreases with popSplit
-     *   3. TODO: perfromImplciation does noteaffect context level.
+     *   3. TODO: perfromImplication does not affect context level.
      *   N. TODO: Additionally, trail and asserted ReLUs are in sync
      */
     void test_context_perform_split()
@@ -334,6 +336,7 @@ public:
         split1.storeBoundTightening( bound1 );
         split1.storeBoundTightening( bound2 );
         split1.addEquation( equation1 );
+        split1.setPhase(0u);
 
         // Split 2
         PiecewiseLinearCaseSplit split2;
@@ -348,6 +351,7 @@ public:
         split2.storeBoundTightening( bound3 );
         split2.storeBoundTightening( bound4 );
         split2.addEquation( equation2 );
+        split2.setPhase(1u);
 
         // Split 3
         PiecewiseLinearCaseSplit split3;
@@ -361,123 +365,131 @@ public:
         constraint.nextSplits.append( split1 );
         constraint.nextSplits.append( split2 );
         constraint.nextSplits.append( split3 );
+        split3.setPhase(2u);
 
-        /* for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i ) */
-        /*     smtCore.reportViolatedConstraint( &constraint ); */
+        for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
+            smtCore.reportViolatedConstraint( &constraint );
 
-        /* engine->lastStoredState = NULL; */
-        /* engine->lastRestoredState = NULL; */
+        engine->lastStoredState = NULL;
+        engine->lastRestoredState = NULL;
 
-        /* unsigned prev_context_level = context.getLevel(); */
+        unsigned prev_context_level = context.getLevel();
 
-        /* TS_ASSERT( smtCore.needToSplit() ); */
-        /* TS_ASSERT_EQUALS( 0U, prev_context_level ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* TS_ASSERT( !constraint.setActiveWasCalled ); */
-        /* TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) ); */
-        /* TS_ASSERT_EQUALS( prev_context_level + 1, static_cast<unsigned>( context.getLevel() ) ); */
-        /* TS_ASSERT( constraint.setActiveWasCalled ); */
-        /* TS_ASSERT( !smtCore.needToSplit() ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U ); */
+        // Assert preconditions
+        TS_ASSERT( smtCore.needToSplit() );
+        TS_ASSERT_EQUALS( 0U, prev_context_level );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT( !constraint.setActiveWasCalled );
 
-        /* // Check that Split1 was performed and tableau state was stored */
-        /* TS_ASSERT_EQUALS( engine->lastLowerBounds.size(), 1U ); */
-        /* TS_ASSERT_EQUALS( engine->lastLowerBounds.begin()->_variable, 1U ); */
-        /* TS_ASSERT_EQUALS( engine->lastLowerBounds.begin()->_bound, 3.0 ); */
+        // Call performSplit
+        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
 
-        /* TS_ASSERT_EQUALS( engine->lastUpperBounds.size(), 1U ); */
-        /* TS_ASSERT_EQUALS( engine->lastUpperBounds.begin()->_variable, 1U ); */
-        /* TS_ASSERT_EQUALS( engine->lastUpperBounds.begin()->_bound, 5.0 ); */
+        // Check postconditions
+        TS_ASSERT( constraint.setActiveWasCalled );
+        TS_ASSERT( !smtCore.needToSplit() );
 
-        /* TS_ASSERT_EQUALS( engine->lastEquations.size(), 1U ); */
-        /* Equation equation4 = equation1; */
-        /* TS_ASSERT_EQUALS( *engine->lastEquations.begin(), equation4 ); */
+        // Check that depth has increased, and exactly one step, both for the trail and stack frames
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+        TS_ASSERT_EQUALS( prev_context_level + 1, static_cast<unsigned>( context.getLevel() ) );
 
-        /* TS_ASSERT( engine->lastStoredState ); */
-        /* TS_ASSERT( !engine->lastRestoredState ); */
+        // Check that Split1 was performed and tableau state was stored
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.size(), 1U );
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.begin()->_variable, 1U );
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.begin()->_bound, 3.0 );
 
-        /* EngineState *originalState = engine->lastStoredState; */
-        /* engine->lastStoredState = NULL; */
-        /* engine->lastLowerBounds.clear(); */
-        /* engine->lastUpperBounds.clear(); */
-        /* engine->lastEquations.clear(); */
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.size(), 1U );
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.begin()->_variable, 1U );
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.begin()->_bound, 5.0 );
 
-        /* // Pop Split1, check that the tableau was restored and that */
-        /* // a Split2 was performed */
-        /* TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() ); */
-        /* // TODO: Enable after popSplit/performSplit refactor */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel()) */
-        /* // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) ); */
+        TS_ASSERT_EQUALS( engine->lastEquations.size(), 1U );
+        Equation equation4 = equation1;
+        TS_ASSERT_EQUALS( *engine->lastEquations.begin(), equation4 );
 
-        /* TS_ASSERT_EQUALS( engine->lastRestoredState, originalState ); */
-        /* TS_ASSERT( !engine->lastStoredState ); */
-        /* engine->lastRestoredState = NULL; */
+        TS_ASSERT( engine->lastStoredState );
+        TS_ASSERT( !engine->lastRestoredState );
 
-        /* TS_ASSERT( engine->lastLowerBounds.empty() ); */
+        EngineState *originalState = engine->lastStoredState;
+        engine->lastStoredState = NULL;
+        engine->lastLowerBounds.clear();
+        engine->lastUpperBounds.clear();
+        engine->lastEquations.clear();
 
-        /* TS_ASSERT_EQUALS( engine->lastUpperBounds.size(), 2U ); */
-        /* auto it = engine->lastUpperBounds.begin(); */
-        /* TS_ASSERT_EQUALS( it->_variable, 2U ); */
-        /* TS_ASSERT_EQUALS( it->_bound, 13.0 ); */
-        /* ++it; */
-        /* TS_ASSERT_EQUALS( it->_variable, 3U ); */
-        /* TS_ASSERT_EQUALS( it->_bound, 25.0 ); */
+        // Pop Split1, check that the tableau was restored and that
+        // a Split2 was performed
+        TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
 
-        /* TS_ASSERT_EQUALS( engine->lastEquations.size(), 1U ); */
-        /* Equation equation5 = equation2; */
-        /* TS_ASSERT_EQUALS( *engine->lastEquations.begin(), equation5 ); */
+        TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
+        TS_ASSERT( !engine->lastStoredState );
+        engine->lastRestoredState = NULL;
 
-        /* engine->lastRestoredState = NULL; */
-        /* engine->lastLowerBounds.clear(); */
-        /* engine->lastUpperBounds.clear(); */
-        /* engine->lastEquations.clear(); */
+        TS_ASSERT( engine->lastLowerBounds.empty() );
 
-        /* // Pop Split2, check that the tableau was restored and that */
-        /* // a Split3 was performed */
-        /* TS_ASSERT( smtCore.popSplit() ); */
-        /* // TODO: Enable after popSplit/performSplit refactor */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel()) */
-        /* // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() ); */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U ); */
-        /* TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) ); */
+        TS_ASSERT_EQUALS( engine->lastUpperBounds.size(), 2U );
+        auto it = engine->lastUpperBounds.begin();
+        TS_ASSERT_EQUALS( it->_variable, 2U );
+        TS_ASSERT_EQUALS( it->_bound, 13.0 );
+        ++it;
+        TS_ASSERT_EQUALS( it->_variable, 3U );
+        TS_ASSERT_EQUALS( it->_bound, 25.0 );
+
+        TS_ASSERT_EQUALS( engine->lastEquations.size(), 1U );
+        Equation equation5 = equation2;
+        TS_ASSERT_EQUALS( *engine->lastEquations.begin(), equation5 );
+
+        engine->lastRestoredState = NULL;
+        engine->lastLowerBounds.clear();
+        engine->lastUpperBounds.clear();
+        engine->lastEquations.clear();
+
+        // Pop Split2, check that the tableau was restored and that
+        // a Split3 was performed
+        TS_ASSERT( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) );
 
 
-        /* TS_ASSERT_EQUALS( engine->lastRestoredState, originalState ); */
-        /* TS_ASSERT( !engine->lastStoredState ); */
-        /* engine->lastRestoredState = NULL; */
+        TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
+        TS_ASSERT( !engine->lastStoredState );
+        engine->lastRestoredState = NULL;
 
-        /* TS_ASSERT_EQUALS( engine->lastLowerBounds.size(), 1U ); */
-        /* it = engine->lastLowerBounds.begin(); */
-        /* TS_ASSERT_EQUALS( it->_variable, 14U ); */
-        /* TS_ASSERT_EQUALS( it->_bound, 2.3 ); */
+        TS_ASSERT_EQUALS( engine->lastLowerBounds.size(), 1U );
+        it = engine->lastLowerBounds.begin();
+        TS_ASSERT_EQUALS( it->_variable, 14U );
+        TS_ASSERT_EQUALS( it->_bound, 2.3 );
 
-        /* TS_ASSERT( engine->lastUpperBounds.empty() ); */
+        TS_ASSERT( engine->lastUpperBounds.empty() );
 
-        /* TS_ASSERT_EQUALS( engine->lastEquations.size(), 2U ); */
-        /* auto equation = engine->lastEquations.begin(); */
-        /* Equation equation6 = equation1; */
-        /* TS_ASSERT_EQUALS( *equation, equation6 ); */
-        /* ++equation; */
-        /* Equation equation7 = equation2; */
-        /* TS_ASSERT_EQUALS( *equation, equation7 ); */
+        TS_ASSERT_EQUALS( engine->lastEquations.size(), 2U );
+        auto equation = engine->lastEquations.begin();
+        Equation equation6 = equation1;
+        TS_ASSERT_EQUALS( *equation, equation6 );
+        ++equation;
+        Equation equation7 = equation2;
+        TS_ASSERT_EQUALS( *equation, equation7 );
 
-        /* engine->lastRestoredState = NULL; */
-        /* engine->lastLowerBounds.clear(); */
-        /* engine->lastUpperBounds.clear(); */
-        /* engine->lastEquations.clear(); */
+        engine->lastRestoredState = NULL;
+        engine->lastLowerBounds.clear();
+        engine->lastUpperBounds.clear();
+        engine->lastEquations.clear();
 
-        /* // Final pop */
-        /* // Potentially context.pop() and smtCore.popSplit have different semantics */
-        /* TS_ASSERT( !smtCore.popSplit() ); */
-        /* TS_ASSERT( !engine->lastRestoredState ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) );*/
+        // Final pop
+        // Potentially context.pop() and smtCore.popSplit have different semantics
+        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT( !engine->lastRestoredState );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) );
     }
 
     /*
@@ -489,155 +501,161 @@ public:
      */
     void test_trail_perform_split()
     {
-        /* Context context; */
-        /* SmtCore smtCore( engine, context ); */
+        Context context;
+        SmtCore smtCore( engine, context );
 
-        /* MockConstraint constraint1; */
+        MockConstraint constraint1;
 
-        /* // Split 1_1 */
-        /* PiecewiseLinearCaseSplit split1_1; */
-        /* Tightening bound1_1( 1, 3.0, Tightening::LB ); */
-        /* Tightening bound1_2( 1, 5.0, Tightening::UB ); */
+        // Split 1_1
+        PiecewiseLinearCaseSplit split1_1;
+        Tightening bound1_1( 1, 3.0, Tightening::LB );
+        Tightening bound1_2( 1, 5.0, Tightening::UB );
 
-        /* Equation equation1_1( Equation::EQ ); */
-        /* equation1_1.addAddend( 1, 0 ); */
-        /* equation1_1.addAddend( 2, 1 ); */
-        /* equation1_1.addAddend( -1, 2 ); */
-        /* equation1_1.setScalar( 11 ); */
+        Equation equation1_1( Equation::EQ );
+        equation1_1.addAddend( 1, 0 );
+        equation1_1.addAddend( 2, 1 );
+        equation1_1.addAddend( -1, 2 );
+        equation1_1.setScalar( 11 );
 
-        /* split1_1.storeBoundTightening( bound1_1 ); */
-        /* split1_1.storeBoundTightening( bound1_2 ); */
-        /* split1_1.addEquation( equation1_1 ); */
+        split1_1.storeBoundTightening( bound1_1 );
+        split1_1.storeBoundTightening( bound1_2 );
+        split1_1.addEquation( equation1_1 );
+        split1_1.setPhase(0u);
 
-        /* // Split 1_2 */
-        /* PiecewiseLinearCaseSplit split1_2; */
-        /* Tightening bound1_3( 2, 13.0, Tightening::UB ); */
-        /* Tightening bound1_4( 3, 25.0, Tightening::UB ); */
+        // Split 1_2
+        PiecewiseLinearCaseSplit split1_2;
+        Tightening bound1_3( 2, 13.0, Tightening::UB );
+        Tightening bound1_4( 3, 25.0, Tightening::UB );
 
-        /* Equation equation1_2( Equation::EQ ); */
-        /* equation1_2.addAddend( -3, 0 ); */
-        /* equation1_2.addAddend( 3, 1 ); */
-        /* equation1_2.setScalar( -5 ); */
+        Equation equation1_2( Equation::EQ );
+        equation1_2.addAddend( -3, 0 );
+        equation1_2.addAddend( 3, 1 );
+        equation1_2.setScalar( -5 );
 
-        /* split1_2.storeBoundTightening( bound1_3 ); */
-        /* split1_2.storeBoundTightening( bound1_4 ); */
-        /* split1_2.addEquation( equation1_2 ); */
+        split1_2.storeBoundTightening( bound1_3 );
+        split1_2.storeBoundTightening( bound1_4 );
+        split1_2.addEquation( equation1_2 );
+        split1_2.setPhase(1u);
 
-        /* // Split 1_3 */
-        /* PiecewiseLinearCaseSplit split1_3; */
-        /* Tightening bound1_5( 14, 2.3, Tightening::LB ); */
+        // Split 1_3
+        PiecewiseLinearCaseSplit split1_3;
+        Tightening bound1_5( 14, 2.3, Tightening::LB );
 
-        /* split1_3.storeBoundTightening( bound1_5 ); */
-        /* split1_3.addEquation( equation1_1 ); */
-        /* split1_3.addEquation( equation1_2 ); */
+        split1_3.storeBoundTightening( bound1_5 );
+        split1_3.addEquation( equation1_1 );
+        split1_3.addEquation( equation1_2 );
+        split1_3.setPhase(2u);
 
-        /* // Store the splits */
-        /* constraint1.nextSplits.append( split1_1 ); */
-        /* constraint1.nextSplits.append( split1_2 ); */
-        /* constraint1.nextSplits.append( split1_3 ); */
+        // Store the splits
+        constraint1.nextSplits.append( split1_1 );
+        constraint1.nextSplits.append( split1_2 );
+        constraint1.nextSplits.append( split1_3 );
 
-        /* MockConstraint constraint2; */
+        MockConstraint constraint2;
 
-        /* // Split2_1 */
-        /* PiecewiseLinearCaseSplit split2_1; */
-        /* Tightening bound2_1( 1, -3.0, Tightening::LB ); */
-        /* Tightening bound2_2( 1, 15.0, Tightening::UB ); */
+        // Split2_1
+        PiecewiseLinearCaseSplit split2_1;
+        Tightening bound2_1( 1, -3.0, Tightening::LB );
+        Tightening bound2_2( 1, 15.0, Tightening::UB );
 
-        /* Equation equation2_1( Equation::EQ ); */
-        /* equation2_1.addAddend( 1.5, 0 ); */
-        /* equation2_1.addAddend( 2.3, 1 ); */
-        /* equation2_1.addAddend( -1.1, 2 ); */
-        /* equation2_1.setScalar( 15 ); */
+        Equation equation2_1( Equation::EQ );
+        equation2_1.addAddend( 1.5, 0 );
+        equation2_1.addAddend( 2.3, 1 );
+        equation2_1.addAddend( -1.1, 2 );
+        equation2_1.setScalar( 15 );
 
-        /* split2_1.storeBoundTightening( bound2_1 ); */
-        /* split2_1.storeBoundTightening( bound2_2 ); */
-        /* split2_1.addEquation( equation2_1 ); */
+        split2_1.storeBoundTightening( bound2_1 );
+        split2_1.storeBoundTightening( bound2_2 );
+        split2_1.addEquation( equation2_1 );
+        split2_1.setPhase(0u);
 
-        /* // Split2_2 */
-        /* PiecewiseLinearCaseSplit split2_2; */
-        /* Tightening bound2_3( 2, 31.0, Tightening::UB ); */
-        /* Tightening bound2_4( 3, 52.0, Tightening::UB ); */
+        // Split2_2
+        PiecewiseLinearCaseSplit split2_2;
+        Tightening bound2_3( 2, 31.0, Tightening::UB );
+        Tightening bound2_4( 3, 52.0, Tightening::UB );
 
-        /* Equation equation2_2( Equation::EQ ); */
-        /* equation2_2.addAddend( -3.5, 0 ); */
-        /* equation2_2.addAddend( 3.5, 1 ); */
-        /* equation2_2.setScalar( -5.5 ); */
+        Equation equation2_2( Equation::EQ );
+        equation2_2.addAddend( -3.5, 0 );
+        equation2_2.addAddend( 3.5, 1 );
+        equation2_2.setScalar( -5.5 );
 
-        /* split2_2.storeBoundTightening( bound2_3 ); */
-        /* split2_2.storeBoundTightening( bound2_4 ); */
-        /* split2_2.addEquation( equation2_2 ); */
+        split2_2.storeBoundTightening( bound2_3 );
+        split2_2.storeBoundTightening( bound2_4 );
+        split2_2.addEquation( equation2_2 );
+        split2_2.setPhase(1u);
 
-        /* // split2_3 */
-        /* PiecewiseLinearCaseSplit split2_3; */
-        /* Tightening bound2_5( 14, 2.3, Tightening::LB ); */
+        // split2_3
+        PiecewiseLinearCaseSplit split2_3;
+        Tightening bound2_5( 14, 2.3, Tightening::LB );
 
-        /* split2_3.storeBoundTightening( bound2_5 ); */
-        /* split2_3.addEquation( equation2_1 ); */
-        /* split2_3.addEquation( equation2_2 ); */
+        split2_3.storeBoundTightening( bound2_5 );
+        split2_3.addEquation( equation2_1 );
+        split2_3.addEquation( equation2_2 );
+        split2_3.setPhase(2u);
 
-        /* // Store the splits */
-        /* constraint2.nextSplits.append( split2_1 ); */
-        /* constraint2.nextSplits.append( split2_2 ); */
-        /* constraint2.nextSplits.append( split2_3 ); */
+        // Store the splits
+        constraint2.nextSplits.append( split2_1 );
+        constraint2.nextSplits.append( split2_2 );
+        constraint2.nextSplits.append( split2_3 );
 
-        /* for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i ) */
-        /*     smtCore.reportViolatedConstraint( &constraint1 ); */
+        for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
+            smtCore.reportViolatedConstraint( &constraint1 );
 
-        /* engine->lastStoredState = NULL; */
-        /* engine->lastRestoredState = NULL; */
+        engine->lastStoredState = NULL;
+        engine->lastRestoredState = NULL;
 
-        /* unsigned prev_context_level = context.getLevel(); */
+        unsigned prev_context_level = context.getLevel();
 
-        /* TS_ASSERT( smtCore.needToSplit() ); */
-        /* TS_ASSERT_EQUALS( 0U, prev_context_level ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* TS_ASSERT( !constraint1.setActiveWasCalled ); */
-        /* TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() ); */
+        TS_ASSERT( smtCore.needToSplit() );
+        TS_ASSERT_EQUALS( 0U, prev_context_level );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT( !constraint1.setActiveWasCalled );
+        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
 
-        /* List<PiecewiseLinearCaseSplit> allSplitsOnStackSoFar; */
-        /* smtCore.allSplitsSoFar( allSplitsOnStackSoFar ); */
+        List<PiecewiseLinearCaseSplit> allSplitsOnStackSoFar;
+        smtCore.allSplitsSoFar( allSplitsOnStackSoFar );
 
-        /* auto trail = smtCore.trailBegin(); */
-        /* auto endtrail = smtCore.trailEnd(); */
-        /* auto splits = allSplitsOnStackSoFar.begin(); */
-        /* auto endsplits = allSplitsOnStackSoFar.end(); */
-        /* for ( ; trail != endtrail && splits != endsplits; ++trail, ++splits ) */
-        /* { */
-        /*     // TS_ASSERT_EQUALS( *trail , *splits ); */
-        /* } */
-        /* TS_ASSERT_EQUALS( trail, endtrail ); */
-        /* TS_ASSERT_EQUALS( splits, endsplits ); */
+        auto trail = smtCore.trailBegin();
+        auto endtrail = smtCore.trailEnd();
+        auto splits = allSplitsOnStackSoFar.begin();
+        auto endsplits = allSplitsOnStackSoFar.end();
+        for ( ; trail != endtrail && splits != endsplits; ++trail, ++splits )
+        {
+            // TS_ASSERT_EQUALS( *trail , *splits );
+        }
+        TS_ASSERT_EQUALS( trail, endtrail );
+        TS_ASSERT_EQUALS( splits, endsplits );
 
-        /* TS_ASSERT( constraint1.setActiveWasCalled ); */
-        /* TS_ASSERT( !smtCore.needToSplit() ); */
+        TS_ASSERT( constraint1.setActiveWasCalled );
+        TS_ASSERT( !smtCore.needToSplit() );
 
 
-        /* // Pop Split1, check that the tableau was restored and that */
-        /* // a Split2 was performed */
-        /* TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() ); */
-        /* // TODO: Enable after popSplit/performSplit refactor */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel()) */
-        /* // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) ); */
+        // Pop Split1, check that the tableau was restored and that
+        // a Split2 was performed
+        TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
 
-        /* // Pop Split2, check that the tableau was restored and that */
-        /* // a Split3 was performed */
-        /* TS_ASSERT( smtCore.popSplit() ); */
-        /* // TODO: Enable after popSplit/performSplit refactor */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel()) */
-        /* // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() ); */
-        /* // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) ); */
+        // Pop Split2, check that the tableau was restored and that
+        // a Split3 was performed
+        TS_ASSERT( smtCore.popSplit() );
+        // TODO: Enable after popSplit/performSplit refactor
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
+        // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() );
+        // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
 
-        /* // Final pop */
-        /* // Potentially context.pop() and smtCore.popSplit have different semantics */
-        /* TS_ASSERT( !smtCore.popSplit() ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U ); */
-        /* TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) ); */
+        // Final pop
+        // Potentially context.pop() and smtCore.popSplit have different semantics
+        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
+        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
     }
 
     void test_perform_split()
