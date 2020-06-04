@@ -29,6 +29,10 @@ enum PWLCPhaseStatus {
                       PHASE_NOT_FIXED = 0,
                       RELU_PHASE_ACTIVE = 1,
                       RELU_PHASE_INACTIVE = 2,
+                      ABS_BOTH_POSITIVE = 4,
+                      ABS_BOTH_NEGATIVE = 5,
+                      ABS_POSITIVE_NEGATIVE = 6,
+                      ABS_NEGATIVE_POSITIVE = 7,
 };
 
 class PiecewiseLinearCaseSplit
@@ -62,8 +66,8 @@ public:
     */
     void updateVariableIndex( unsigned oldIndex, unsigned newIndex );
 
-    PWLCPhaseStatus getPhase() { return _phase; }
-    void setPhase(PWLCPhaseStatus phase) { _phase = phase;}
+    unsigned getPhase() { return _phase; }
+    void setPhase(unsigned phase) { _phase = phase;}
 
 private:
     /*
@@ -79,7 +83,7 @@ private:
     /*
      * PhaseStatus
      */
-    PWLCPhaseStatus _phase;
+    unsigned _phase;
 };
 
 #endif // __PiecewiseLinearCaseSplit_h__
