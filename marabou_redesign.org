@@ -1,4 +1,4 @@
-#+TODO:  TODO(t) NEW(n) | DONE(d)
+#+TODO:  TODO(t) NEW(n) NEXT(x) | DONE(d)
 #+TODO:  Aleks(k) Ahmed(a) Andrew(h) | DONE(d)
 #+TITLE: MARABOU - ReDesign
 #+AUTHOR: Ahmed Irfan
@@ -79,8 +79,8 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Idea: Encapsulate context.pop to return last decision (that is being popped)
 ****** Tests:
 ******* Push/Pop functionality
-******* Sync pushed splitCases with existing search 
-******* Sync popped splitCases with existing search
+******* NEXT Sync pushed splitCases with existing search 
+******* NEXT Sync popped splitCases with existing search
 ***** Push ReLU splits to _trail 
 - Expectation: _trail contains all the currently active PWLCaseSplits in the search
 - Expectation: splitting asserts a PWLCaseSplit on a new decision level
@@ -97,9 +97,9 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Expectation: can perform a split on a particular case of a ReLU
 - Expectation: logic of which case to split on and splitting are separated
 ***** Refactor into two methods:
-****** chooseSplitCase()
+****** chooseSplitCase(  )
 - Expectation: Implements logic of which case should be asserted next
-****** performSplit(PWLCaseSplit case)
+****** performSplit( PWLCaseSplit case )
 - Expectation: the *PWLCaseSplit case* to be asserted is passed as an argument
 ***** @5a: Eliminate state storing 
 **** 4a Refactor popSplit()
