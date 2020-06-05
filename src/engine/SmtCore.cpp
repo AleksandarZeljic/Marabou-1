@@ -167,6 +167,14 @@ void SmtCore::performSplit()
     log( "Performing a ReLU split - DONE");
 
     ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
+
+    // Trail post-condition: TRAIL - STACK equivalence
+    // How are things present on the stack?
+    List<PiecewiseLinearCaseSplit> stackCaseSplits;
+    allSplitsSoFar( stackCaseSplits );
+    for ( TrailEntry trailEntry : _trail )
+        ASSERT( find( stackCaseSplits.begin(), stackCaseSplits.end(), trailEntry.getPiecewiseLinearCaseSplit() ) != stackCaseSplits.end() );
+
 }
 
 unsigned SmtCore::getStackDepth() const
