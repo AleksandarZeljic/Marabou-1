@@ -25,11 +25,26 @@
 class TrailEntry
 {
 public:
-  PiecewiseLinearConstraint * _pwlconstraint;
+  PiecewiseLinearConstraint * _pwlConstraint;
   unsigned _phase; /* Enum for fixed case PiecewiseLinearConstraints, case index otherwise (e.g. Max)*/
 
+  PiecewiseLinearCaseSplit getPiecewiseLinearCaseSplit()
+  {
+      // Assumes that _phase is unique and contained in getCaseSplits
+      List<PiecewiseLinearCaseSplit> cases = _pwlConstraint->getCaseSplits();
+      unsigned myPhase = _phase;
+      auto loc = find_if( cases.begin(), cases.end(), [&](PiecewiseLinearCaseSplit c) { return c.getPhase() == _phase; } );
+      return *loc;
+      /* for ( auto c : cases) */
+      /* { */
+      /*     if ( c.getPhase() == _phase ) */
+      /*         return c; */
+      /* } */
+      /* ASSERT( false ); */
+  }
+
  TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase)
-    : _pwlconstraint(pwlc),
+    : _pwlConstraint(pwlc),
     _phase(phase)
     {
     }
