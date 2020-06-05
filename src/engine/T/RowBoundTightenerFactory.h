@@ -16,6 +16,7 @@
 #ifndef __T__RowBoundTightenerFactory_h__
 #define __T__RowBoundTightenerFactory_h__
 
+#include "BoundManager.h"
 #include "cxxtest/Mock.h"
 
 class IRowBoundTightener;
@@ -23,16 +24,16 @@ class ITableau;
 
 namespace T
 {
-	IRowBoundTightener *createRowBoundTightener( const ITableau &tableau );
-	void discardRowBoundTightener( IRowBoundTightener *rowBoundTightener );
+    IRowBoundTightener *createRowBoundTightener( const ITableau &tableau, BoundManager &boundManager );
+    void discardRowBoundTightener( IRowBoundTightener *rowBoundTightener );
 }
 
 CXXTEST_SUPPLY( createRowBoundTightener,
 				IRowBoundTightener *,
 				createRowBoundTightener,
-				( const ITableau &tableau ),
+        ( const ITableau &tableau, BoundManager & boundManager ),
 				T::createRowBoundTightener,
-				( tableau ) );
+        ( tableau, boundManager ) );
 
 CXXTEST_SUPPLY_VOID( discardRowBoundTightener,
 					 discardRowBoundTightener,

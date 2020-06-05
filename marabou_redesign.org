@@ -121,6 +121,11 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Basic functionality unit test
 **** 3c add BoundManager _boundManager member to the Engine 
 - Expectation: single central object, visible to the SimplexEngine, bound tighteners, SmtCore 
+***** RowBoundTightener
+****** NEXT Add Calls to BoundManager to actually store the bounds
+****** NEXT Add Tests to ensure equivalence in Test_RowBoundTightener 
+***** TODO SymbolicBoundTightener
+***** TODO ConstraintBoundTightener 
 **** 4b mirror all bound update calls to _boundManager  
 - Expectation: _boundManager is in sync with bounds returned by the BoundTighteners 
 ***** Verify correctness at this point! 
@@ -147,7 +152,7 @@ CLOSED: [2020-03-30 Mon 15:45]
 - With bounds and ReLUs stored independently and incrementally there is no need to replay they ReLUs.
 - Fixed size tableau -> eliminates need for replaying
 *** EVALUATE PERFORMANCE 
-* Marabou Engine:
+* Marabou Engine:i
 #+begin_src C++
 Engine::Engine( unsigned verbosity )
     : _rowBoundTightener( *_tableau )
@@ -188,7 +193,7 @@ Seems to serve as a high-level flow-control
 - Refactor old components over time? 
 *** Separate into BoundTighteners, DecisionMakers, ...
 *** Keep restarts/timeoutQuits/IncrementalAPICalls, statistics, etc
-*** Annotate used/unused methods
+*** Annotate used/unused methodsi
 * What are our goals?
 ** Neurify-like behavior
 *** Back-trackable 

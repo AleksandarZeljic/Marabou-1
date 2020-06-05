@@ -33,7 +33,7 @@ public:
         TS_ASSERT( mock = new MockForSymbolicBoundTightener );
     }
 
-    void tearDown()
+    void tearDown(
     {
         TS_ASSERT_THROWS_NOTHING( delete mock );
     }

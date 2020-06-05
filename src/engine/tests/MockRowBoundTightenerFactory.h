@@ -16,6 +16,7 @@
 #ifndef __MockRowBoundTightenerFactory_h__
 #define __MockRowBoundTightenerFactory_h__
 
+#include "BoundManager.h"
 #include "MockRowBoundTightener.h"
 #include "T/RowBoundTightenerFactory.h"
 
@@ -34,10 +35,10 @@ public:
 		}
 	}
 
-	IRowBoundTightener *createRowBoundTightener( const ITableau &tableau )
+	IRowBoundTightener *createRowBoundTightener( const ITableau &tableau, BoundManager &boundManager )
 	{
-		mockRowBoundTightener.mockConstructor( tableau );
-		return &mockRowBoundTightener;
+      mockRowBoundTightener.mockConstructor( tableau, boundManager );
+      return &mockRowBoundTightener;
 	}
 
 	void discardRowBoundTightener( IRowBoundTightener *rowBoundTightener )
