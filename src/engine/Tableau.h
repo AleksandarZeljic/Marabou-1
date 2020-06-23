@@ -16,6 +16,7 @@
 #ifndef __Tableau_h__
 #define __Tableau_h__
 
+#include "BoundManager.h"
 #include "IBasisFactorization.h"
 #include "ITableau.h"
 #include "MString.h"
@@ -36,7 +37,7 @@ class TableauState;
 class Tableau : public ITableau, public IBasisFactorization::BasisColumnOracle
 {
 public:
-    Tableau();
+    Tableau( BoundManager &boundManager );
     ~Tableau();
 
     /*
@@ -457,6 +458,11 @@ private:
       Resize watchers
     */
     List<ResizeWatcher *> _resizeWatchers;
+
+    /*
+     * Stores bounds 
+     */
+    BoundManager &_boundManager;
 
     /*
       The dimensions of matrix A
