@@ -31,7 +31,7 @@ namespace T
 CXXTEST_SUPPLY( createRowBoundTightener,
 				IRowBoundTightener *,
 				createRowBoundTightener,
-        ( const ITableau &tableau, BoundManager & boundManager ),
+        ( const ITableau &tableau, BoundManager &boundManager ),
 				T::createRowBoundTightener,
         ( tableau, boundManager ) );
 

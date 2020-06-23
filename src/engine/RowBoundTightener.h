@@ -27,7 +27,7 @@
 class RowBoundTightener : public IRowBoundTightener
 {
 public:
-    RowBoundTightener( const ITableau &tableau, BoundManager &_boundManager );
+    RowBoundTightener( const ITableau &tableau, BoundManager &boundManager );
     ~RowBoundTightener();
 
     /*
@@ -83,7 +83,7 @@ public:
     void examineConstraintMatrix( bool untilSaturation );
 
     /*
-      Derive and enqueue new bounds immedaitely following a pivot
+      Derive and enqueue new bounds immediately following a pivot
       operation in the given tableau. The tightening is performed for
       the entering variable (which is now basic).
     */

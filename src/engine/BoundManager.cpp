@@ -33,7 +33,7 @@ BoundManager::~BoundManager()
     }
 };
 
-void BoundManager::initialize( unsigned numberOfVariables)
+void BoundManager::initialize( unsigned numberOfVariables )
 {
     ASSERT( 0 == _size);
 
