@@ -33,7 +33,8 @@ using namespace CVC4::context;
 
 Engine::Engine( unsigned verbosity )
     : _context()
-    , _boundManager(_context)
+    , _boundManager( _context )
+    , _tableau( _boundManager )
     , _rowBoundTightener( *_tableau, _boundManager )
     , _symbolicBoundTightener( NULL ) //_boundManager
     , _smtCore( this, _context )
