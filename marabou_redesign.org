@@ -120,11 +120,17 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Basic functionality unit test
 **** 3c add BoundManager _boundManager member to the Engine 
 - Expectation: single central object, visible to the SimplexEngine, bound tighteners, SmtCore 
+***** TODO Add basic tests for BoundManager class
 ***** RowBoundTightener
-****** NEXT Add Calls to BoundManager to actually store the bounds
+****** DONE Add Calls to BoundManager to actually store the bounds
+CLOSED: [2020-06-23 Tue 16:00]
 ****** NEXT Add Tests to ensure equivalence in Test_RowBoundTightener 
 ***** TODO SymbolicBoundTightener
-***** TODO ConstraintBoundTightener 
+***** TODO Tableau 
+****** Add the memeber to the class
+****** Shadowing calls
+****** Mark redundant functions
+***** TODO Add alternative communication with the BoundTighteners
 **** 4b mirror all bound update calls to _boundManager  
 - Expectation: _boundManager is in sync with bounds returned by the BoundTighteners 
 ***** Verify correctness at this point! 
@@ -134,6 +140,8 @@ CLOSED: [2020-03-30 Mon 15:45]
 ***** Remove local bounds 
 **** 4d Tableau obtains local bounds from BoundManager
 - Simplex ensures that bounds are up to date before performing any steps
+***** TODO Remove ConstraintBoundTightener 
+***** TODO Remove communication via Tightenings
 **** 5c (optional) Refactor Tighteners   
 ***** 6a (optional) Create a Tightener interface/superclass
 ***** 7a (optional) Refactor existing tighteners
