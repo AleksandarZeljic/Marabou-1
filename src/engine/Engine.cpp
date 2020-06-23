@@ -1067,7 +1067,6 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         if ( _verbosity > 0 )
             printInputBounds( inputQuery );
 
-        _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
         double *constraintMatrix = createConstraintMatrix();
         removeRedundantEquations( constraintMatrix );
 
@@ -1087,6 +1086,7 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         delete[] constraintMatrix;
         constraintMatrix = createConstraintMatrix();
 
+        _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
         initializeNetworkLevelReasoning();
         initializeTableau( constraintMatrix, initialBasis );
 
