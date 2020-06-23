@@ -31,8 +31,9 @@
 
 #include <string.h>
 
-Tableau::Tableau()
-    : _n ( 0 )
+Tableau::Tableau( BoundManager &boundManager )
+    : _boundManager( boundManager )
+    , _n ( 0 )
     , _m ( 0 )
     , _A( NULL )
     , _sparseColumnsOfA( NULL )
@@ -469,6 +470,7 @@ void Tableau::computeBasicStatus( unsigned basicIndex )
 void Tableau::setLowerBound( unsigned variable, double value )
 {
     ASSERT( variable < _n );
+    _boundManager.updateLowerBound( variable, value );
     _lowerBounds[variable] = value;
     notifyLowerBound( variable, value );
     checkBoundsValid( variable );
@@ -477,6 +479,7 @@ void Tableau::setLowerBound( unsigned variable, double value )
 void Tableau::setUpperBound( unsigned variable, double value )
 {
     ASSERT( variable < _n );
+    _boundManager.updateUpperBound( variable, value );
     _upperBounds[variable] = value;
     notifyUpperBound( variable, value );
     checkBoundsValid( variable );
@@ -485,12 +488,14 @@ void Tableau::setUpperBound( unsigned variable, double value )
 double Tableau::getLowerBound( unsigned variable ) const
 {
     ASSERT( variable < _n );
+    ASSERT( _lowerBounds[variable] == _boundManager.getLowerBound( variable ) );
     return _lowerBounds[variable];
 }
 
 double Tableau::getUpperBound( unsigned variable ) const
 {
     ASSERT( variable < _n );
+    ASSERT( _upperBounds[variable] == _boundManager.getUpperBound( variable ) );
     return _upperBounds[variable];
 }
 

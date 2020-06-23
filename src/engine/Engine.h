@@ -179,6 +179,16 @@ private:
     Statistics _statistics;
 
     /*
+      CVC4 Context Data structure
+    */
+    CVC4::context::Context _context;
+
+    /*
+      Bound Manager
+    */
+    BoundManager _boundManager;
+
+    /*
       The tableau object maintains the equations, assignments and bounds.
     */
     AutoTableau _tableau;
@@ -215,16 +225,6 @@ private:
     DantzigsRule _dantzigsRule;
     AutoProjectedSteepestEdgeRule _projectedSteepestEdgeRule;
     EntrySelectionStrategy *_activeEntryStrategy;
-
-    /*
-      CVC4 Context Data structure
-    */
-    CVC4::context::Context _context;
-
-    /*
-       Bound Manager
-    */
-    BoundManager _boundManager;
 
     /*
       Bound tightener.
