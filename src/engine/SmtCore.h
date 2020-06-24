@@ -25,7 +25,7 @@
 #include "TrailEntry.h"
 
 class EngineState;
-class IEngine;
+class Engine;
 class String;
 
 class SmtCore
@@ -206,6 +206,11 @@ private:
       Split when some relu has been violated for this many times
     */
     unsigned _constraintViolationThreshold;
+
+    /*
+      Helper function to establish equivalence between trail and stack information
+     */
+    bool checkStackTrailEquivalence();
 };
 
 #endif // __SmtCore_h__
