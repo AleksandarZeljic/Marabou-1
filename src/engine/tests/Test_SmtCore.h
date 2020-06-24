@@ -423,7 +423,7 @@ public:
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
         // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
-        TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
+        TS_ASSERT_EQUALS( static_cast<unsigned>( context.getLevel() ), 1u );
 
         TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
         TS_ASSERT( !engine->lastStoredState );

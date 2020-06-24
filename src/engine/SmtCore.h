@@ -27,7 +27,7 @@
 #define SMT_LOG( x, ... ) LOG( GlobalConfiguration::SMT_CORE_LOGGING, "SmtCore: %s\n", x )
 
 class EngineState;
-class IEngine;
+class Engine;
 class String;
 
 class SmtCore
@@ -207,6 +207,11 @@ private:
       Split when some relu has been violated for this many times
     */
     unsigned _constraintViolationThreshold;
+
+    /*
+      Helper function to establish equivalence between trail and stack information
+     */
+    bool checkStackTrailEquivalence();
 };
 
 #endif // __SmtCore_h__
