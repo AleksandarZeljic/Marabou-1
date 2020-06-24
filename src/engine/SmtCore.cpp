@@ -136,7 +136,10 @@ void SmtCore::performSplit()
     StackEntry *stackEntry = new StackEntry;
     // Perform the first split: add bounds and equations
     List<PiecewiseLinearCaseSplit>::iterator split = splits.begin();
+    log( "\tApplying new split..." );
+    split->dump();
     _engine->applySplit( *split );
+    log( "\tApplying new split - DONE" );
     stackEntry->_activeSplit = *split;
 
     // Trail changes require a context push to denote a new decision level
@@ -167,15 +170,56 @@ void SmtCore::performSplit()
     }
     log( "Performing a ReLU split - DONE");
 
-    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
+    //ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
 
+    ASSERT( checkStackTrailEquivalence() );
+}
+
+
+bool SmtCore::checkStackTrailEquivalence()
+{
+    bool result = true;
     // Trail post-condition: TRAIL - STACK equivalence
     // How are things present on the stack?
     List<PiecewiseLinearCaseSplit> stackCaseSplits;
     allSplitsSoFar( stackCaseSplits );
-    for ( TrailEntry trailEntry : _trail )
-        ASSERT( find( stackCaseSplits.begin(), stackCaseSplits.end(), trailEntry.getPiecewiseLinearCaseSplit() ) != stackCaseSplits.end() );
 
+    List<PiecewiseLinearCaseSplit> trailCaseSplits;
+    for ( TrailEntry trailEntry : _trail )
+        trailCaseSplits.append( trailEntry.getPiecewiseLinearCaseSplit() );
+
+   // Equivalence check, assumes the order of stack and trail is identical
+    result = result && ( trailCaseSplits.size() == stackCaseSplits.size() );
+
+    if ( !result )
+    {
+        std::cout << "ASSERTION VIOLATION: ";
+        std::cout << "Trail ( " << trailCaseSplits.size();
+        std::cout << ")and Stack (" << stackCaseSplits.size();
+        std::cout << ") have different number of elements!" << std::endl;
+
+        std::cout << "Trail:" << std::endl;
+        for ( auto split : trailCaseSplits )
+            split.dump();
+
+        std::cout << "Stack:" << std::endl;
+        for ( auto split : stackCaseSplits )
+            split.dump();
+
+    }
+    PiecewiseLinearCaseSplit tCaseSplit, sCaseSplit;
+    while ( result && !stackCaseSplits.empty() )
+    {
+        tCaseSplit = trailCaseSplits.back();
+        sCaseSplit = stackCaseSplits.back();
+
+        result = result && ( tCaseSplit == sCaseSplit );
+
+        trailCaseSplits.popBack();
+        stackCaseSplits.popBack();
+    }
+
+    return result;
 }
 
 unsigned SmtCore::getStackDepth() const
@@ -207,6 +251,7 @@ bool SmtCore::popSplit()
 
     // Remove any entries that have no alternatives
     String error;
+    unsigned popCount = 1;
     while ( _stack.back()->_alternativeSplits.empty() )
     {
         if ( checkSkewFromDebuggingSolution() )
@@ -221,7 +266,7 @@ bool SmtCore::popSplit()
         _stack.popBack();
         ASSERT( _context.getLevel() > 0 );
         log( "Backtracking context ..." );
-        _context.pop();
+        ++popCount;
         log( Stringf( "Backtracking context - %d DONE", _context.getLevel() ) );
         if ( _stack.empty() )
             return false;
@@ -236,6 +281,12 @@ bool SmtCore::popSplit()
 
     StackEntry *stackEntry = _stack.back();
 
+    while ( popCount-- )
+    {
+        _context.pop();
+    }
+
+    _context.push(); //This is just to simulate Stack
     // Restore the state of the engine
     SMT_LOG( "\tRestoring engine state..." );
     _engine->restoreState( *(stackEntry->_engineState) );
@@ -248,12 +299,35 @@ bool SmtCore::popSplit()
     // Erase any valid splits that were learned using the split we just popped
     stackEntry->_impliedValidSplits.clear();
 
-    SMT_LOG( "\tApplying new split..." );
+    // Pop ends here; And this is also a pop loop in fact;
+    // While  ( stackEntry -> noAlternatives )
+    //     popSplit();
+    // decideSplit( getNextAlternative() ) 
+    // {
+    // _context.push();
+    // propagateSplit( );
+    // }
+
+    // implySplit( caseSplit );
+
+    // Stack:
+    // D1 (D1' D1'' D1''') -> I1 I2 I3
+    // D2 -> I4 I5 ...
+
+
+    // Trail:
+    // * D1 (-> C1)
+    //   I1
+    //  ...
+    // * D2
+    // ....
+     SMT_LOG( "\tApplying new split on the Stack..." );
+    split->dump();   
     // At this point this is an implication rather than a decision
     // TODO: _context.pop()
     // To keep generality in mind, if this is not an implication we need to _context.push()
     _engine->applySplit( *split );
-    SMT_LOG( "\tApplying new split - DONE" );
+    SMT_LOG( "\tApplying new split on the Stack - DONE" );
 
     stackEntry->_activeSplit = *split;
     stackEntry->_alternativeSplits.erase( split );
@@ -282,7 +356,11 @@ bool SmtCore::popSplit()
 
     checkSkewFromDebuggingSolution();
 
+    std::cout << "Stack depth: " << getStackDepth() << std::endl;
+    std::cout << "Context depth: " << _context.getLevel() << std::endl;
+
     ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
+    ASSERT( checkStackTrailEquivalence() );
     return true;
 }
 
