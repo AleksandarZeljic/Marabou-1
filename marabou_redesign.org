@@ -116,7 +116,9 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Expectation: provides getter/setter interface for lower and upper bounds for every variable.
 - Expectation: bounds are stored using context-dependent data-structures
 - Expectation: backtracks correctly with the _context
-**** 3c add BoundManager _boundManager memeber to the Engine 
+- Q: Do we need a flexible variable size.
+- Basic functionality unit test
+**** 3c add BoundManager _boundManager member to the Engine 
 - Expectation: single central object, visible to the SimplexEngine, bound tighteners, SmtCore 
 **** 4b mirror all bound update calls to _boundManager  
 - Expectation: _boundManager is in sync with bounds returned by the BoundTighteners 
