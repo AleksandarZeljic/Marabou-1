@@ -16,6 +16,7 @@
 #ifndef __RowBoundTightener_h__
 #define __RowBoundTightener_h__
 
+#include "BoundManager.h"
 #include "Equation.h"
 #include "IRowBoundTightener.h"
 #include "ITableau.h"
@@ -26,7 +27,7 @@
 class RowBoundTightener : public IRowBoundTightener
 {
 public:
-    RowBoundTightener( const ITableau &tableau );
+    RowBoundTightener( const ITableau &tableau, BoundManager &_boundManager );
     ~RowBoundTightener();
 
     /*
@@ -113,6 +114,11 @@ private:
     double *_upperBounds;
     bool *_tightenedLower;
     bool *_tightenedUpper;
+
+    /*
+     * Object that stores current bounds from all the sources
+     */
+    BoundManager &_boundManager;
 
     /*
       Work space for the inverted basis matrix tighteners
