@@ -282,6 +282,7 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
     log( Stringf( "Implication push @ %d DONE", _context.getLevel() ) );
     ASSERT( & validSplit != & (_trail.back()));
 
+    _trail.push_back( validSplit );
     checkSkewFromDebuggingSolution();
 }
 
