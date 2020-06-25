@@ -32,7 +32,6 @@ public:
   {
       // Assumes that _phase is unique and contained in getCaseSplits
       List<PiecewiseLinearCaseSplit> cases = _pwlConstraint->getCaseSplits();
-      unsigned myPhase = _phase;
       auto loc = find_if( cases.begin(), cases.end(), [&](PiecewiseLinearCaseSplit c) { return c.getPhase() == _phase; } );
       return *loc;
       /* for ( auto c : cases) */
