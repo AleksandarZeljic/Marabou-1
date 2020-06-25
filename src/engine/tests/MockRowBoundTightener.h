@@ -16,15 +16,16 @@
 #ifndef __MockRowBoundTightener_h__
 #define __MockRowBoundTightener_h__
 
+#include "BoundManager.h"
 #include "IRowBoundTightener.h"
 
 class MockRowBoundTightener : public IRowBoundTightener
 {
 public:
-	MockRowBoundTightener()
-	{
-		wasCreated = false;
-		wasDiscarded = false;
+    MockRowBoundTightener()
+    {
+        wasCreated = false;
+        wasDiscarded = false;
 
         setDimensionsWasCalled = false;
     }
@@ -33,23 +34,25 @@ public:
     {
     }
 
-	bool wasCreated;
-	bool wasDiscarded;
+    bool wasCreated;
+    bool wasDiscarded;
     const ITableau *lastTableau;
+    BoundManager *_boundManager;
 
-	void mockConstructor( const ITableau &tableau )
-	{
-		TS_ASSERT( !wasCreated );
-		wasCreated = true;
+    void mockConstructor( const ITableau &tableau, BoundManager & boundManager)
+    {
+        _boundManager = & boundManager;
+        TS_ASSERT( !wasCreated );
+        wasCreated = true;
         lastTableau = &tableau;
-	}
+    }
 
-	void mockDestructor()
-	{
-		TS_ASSERT( wasCreated );
-		TS_ASSERT( !wasDiscarded );
-		wasDiscarded = true;
-	}
+    void mockDestructor()
+    {
+        TS_ASSERT( wasCreated );
+        TS_ASSERT( !wasDiscarded );
+        wasDiscarded = true;
+    }
 
     bool setDimensionsWasCalled;
     void setDimensions()

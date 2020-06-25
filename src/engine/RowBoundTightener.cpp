@@ -20,12 +20,13 @@
 #include "SparseUnsortedList.h"
 #include "Statistics.h"
 
-RowBoundTightener::RowBoundTightener( const ITableau &tableau )
+RowBoundTightener::RowBoundTightener( const ITableau &tableau, BoundManager &boundManager )
     : _tableau( tableau )
     , _lowerBounds( NULL )
     , _upperBounds( NULL )
     , _tightenedLower( NULL )
     , _tightenedUpper( NULL )
+    , _boundManager(boundManager)
     , _rows( NULL )
     , _z( NULL )
     , _ciTimesLb( NULL )
@@ -33,6 +34,7 @@ RowBoundTightener::RowBoundTightener( const ITableau &tableau )
     , _ciSign( NULL )
     , _statistics( NULL )
 {
+    _boundManager.getSize();
 }
 
 void RowBoundTightener::setDimensions()
