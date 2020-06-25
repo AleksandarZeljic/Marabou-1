@@ -15,6 +15,9 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "BoundManager.h"
+#include "context/cdlist.h"
+#include "context/context.h"
 #include "MockTableau.h"
 #include "RowBoundTightener.h"
 
@@ -43,7 +46,10 @@ public:
 
     void test_pivot_row__both_bounds_tightened()
     {
-        RowBoundTightener tightener( *tableau );
+        CVC4::context::Context context;
+        BoundManager boundManager(context);
+        boundManager.initialize(5u);
+        RowBoundTightener tightener( *tableau, boundManager );
 
         tableau->setDimensions( 2, 5 );
 
@@ -105,7 +111,10 @@ public:
 
     void test_pivot_row__just_upper_tightend()
     {
-        RowBoundTightener tightener( *tableau );
+        CVC4::context::Context context;
+        BoundManager boundManager(context);
+        boundManager.initialize(5u);
+        RowBoundTightener tightener( *tableau, boundManager );
 
         tableau->setDimensions( 2, 5 );
 
@@ -156,7 +165,10 @@ public:
 
     void test_pivot_row__just_lower_tightend()
     {
-        RowBoundTightener tightener( *tableau );
+        CVC4::context::Context context;
+        BoundManager boundManager(context);
+        boundManager.initialize(5u);
+        RowBoundTightener tightener( *tableau, boundManager );
 
         tableau->setDimensions( 2, 5 );
 
@@ -201,7 +213,10 @@ public:
 
     void test_pivot_row__nothing_tightened()
     {
-        RowBoundTightener tightener( *tableau );
+        CVC4::context::Context context;
+        BoundManager boundManager(context);
+        boundManager.initialize(5u);
+        RowBoundTightener tightener( *tableau, boundManager );
 
         tableau->setDimensions( 2, 5 );
 
@@ -238,7 +253,10 @@ public:
 
     void test_examine_constraint_matrix_single_equation()
     {
-        RowBoundTightener tightener( *tableau );
+        CVC4::context::Context context;
+        BoundManager boundManager(context);
+        boundManager.initialize(5u);
+        RowBoundTightener tightener( *tableau, boundManager );
 
         tableau->setDimensions( 1, 5 );
 
@@ -299,7 +317,12 @@ public:
 
     void test_examine_constraint_matrix_multiple_equations()
     {
-        RowBoundTightener tightener( *tableau );
+        CVC4::context::Context context;
+        BoundManager boundManager(context);
+        boundManager.initialize(5u);
+        RowBoundTightener tightener( *tableau, boundManager );
+
+        //        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
 
