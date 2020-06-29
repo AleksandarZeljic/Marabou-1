@@ -170,13 +170,13 @@ void SmtCore::performSplit()
     log( "Performing a ReLU split - DONE");
 
     //ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
-
     ASSERT( checkStackTrailEquivalence() );
 }
 
 
 bool SmtCore::checkStackTrailEquivalence()
 {
+    std::cout << "Checking STEQ ... ";
     bool result = true;
     // Trail post-condition: TRAIL - STACK equivalence
     // How are things present on the stack?
@@ -217,6 +217,10 @@ bool SmtCore::checkStackTrailEquivalence()
         trailCaseSplits.popBack();
         stackCaseSplits.popBack();
     }
+    if ( result )
+        std::cout << "OK";
+    else
+        std::cout << "FAILED!!!!";
 
     return result;
 }
