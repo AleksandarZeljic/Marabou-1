@@ -1561,6 +1561,7 @@ bool Engine::applyValidConstraintCaseSplit( PiecewiseLinearConstraint *constrain
         constraint->setActiveConstraint( false );
         PiecewiseLinearCaseSplit validSplit = constraint->getValidCaseSplit();
         _smtCore.recordImpliedValidSplit( validSplit );
+        _smtCore.recordImpliedValidCaseSplit( constraint, validSplit.getPhase() );
         applySplit( validSplit );
         ++_numPlConstraintsDisabledByValidSplits;
 
