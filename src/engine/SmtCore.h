@@ -83,6 +83,11 @@ public:
     void recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit );
 
     /*
+      Let the smt core trail know of an implied valid case split that was discovered.
+    */
+    void recordImpliedValidCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase );
+
+    /*
       Return a list of all splits performed so far, both SMT-originating and valid ones,
       in the correct order.
     */

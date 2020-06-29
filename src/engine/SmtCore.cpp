@@ -379,8 +379,15 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
     log( Stringf( "Implication push @ %d DONE", _context.getLevel() ) );
     //ASSERT( & validSplit != & (_trail.back()));
 
-    _trail.push_back( validSplit );
-    checkSkewFromDebuggingSolution();
+      checkSkewFromDebuggingSolution();
+}
+
+void SmtCore::recordImpliedValidCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase )
+{
+    log( "Implication... " );
+    TrailEntry te( constraint, phase );
+    _trail.push_back( te );
+    log( Stringf( "Implication @ %d DONE", _context.getLevel() ) );
 }
 
 void SmtCore::allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const
@@ -396,6 +403,13 @@ void SmtCore::allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const
         for ( const auto &impliedSplit : it->_impliedValidSplits )
             result.append( impliedSplit );
     }
+
+    // auto removed = std::remove_if( result.begin(), result.end(),
+    //                                []( PiecewiseLinearCaseSplit plcs )
+    //                                { return plcs.getBoundTightenings().empty()
+    //                                         && plcs.getEquations().empty(); } );
+
+    // result.erase( removed, result.end() );
 }
 
 void SmtCore::setStatistics( Statistics *statistics )
