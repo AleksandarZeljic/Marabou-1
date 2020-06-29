@@ -40,18 +40,23 @@ List<Equation> PiecewiseLinearCaseSplit::getEquations() const
 void PiecewiseLinearCaseSplit::dump( String &output ) const
 {
     output = String( "\nDumping piecewise linear case split\n" );
-    output += String( "\tBounds are:\n" );
-    for ( const auto &bound : _bounds )
+    if ( !_bounds.empty() )
     {
-        output += Stringf( "\t\tVariable: %u. New bound: %.2lf. Bound type: %s\n",
-                           bound._variable, bound._value, bound._type == Tightening::LB ? "lower" : "upper" );
+        output += String( "\tBounds are:\n" );
+        for ( const auto &bound : _bounds )
+        {
+            output += Stringf( "\t\tVariable: %u. New bound: %.2lf. Bound type: %s\n",
+                               bound._variable, bound._value, bound._type == Tightening::LB ? "lower" : "upper" );
+        }
     }
-
-    output += String( "\n\tEquations are:\n" );
-    for ( const auto &equation : _equations )
+    if ( !_equations.empty() )
     {
-        output += String( "\t\t" );
-        equation.dump();
+        output += String( "\n\tEquations are:\n" );
+        for ( const auto &equation : _equations )
+        {
+            output += String( "\t\t" );
+            equation.dump();
+        }
     }
 }
 
