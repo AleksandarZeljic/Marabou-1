@@ -393,6 +393,9 @@ unsigned RowBoundTightener::tightenOnSingleInvertedBasisRow( const TableauRow &r
     // Then, when we consider xi we adjust the computed lower and upper
     // boudns accordingly.
 
+    ASSERT ( _boundManager.getLowerBound( y ) == _lowerBounds[y] );
+    ASSERT ( _boundManager.getUpperBound( y ) == _upperBounds[y] );
+
     double auxLb = _lowerBounds[y] - row._scalar;
     double auxUb = _upperBounds[y] - row._scalar;
 
