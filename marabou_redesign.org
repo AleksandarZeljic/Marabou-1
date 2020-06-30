@@ -120,15 +120,23 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Basic functionality unit test
 **** 3c add BoundManager _boundManager member to the Engine 
 - Expectation: single central object, visible to the SimplexEngine, bound tighteners, SmtCore 
-***** TODO Add basic tests for BoundManager class
+***** DONE Add basic tests for BoundManager class
+CLOSED: [2020-06-30 Tue 16:05]
+****** NEW Consider other interactions - inconsistent bounds, redundant updates,... 
 ***** RowBoundTightener
 ****** DONE Add Calls to BoundManager to actually store the bounds
 CLOSED: [2020-06-23 Tue 16:00]
 ****** NEXT Add Tests to ensure equivalence in Test_RowBoundTightener 
+******* Hypothesis: failing because not everything is updated (waiting on Tableau and SBT)
 ***** TODO SymbolicBoundTightener
+******* Integrate master SBT 
+******* Add shadowing calls 
+******* Ensure equivalence  
 ***** TODO Tableau 
-****** Add the memeber to the class
-****** Shadowing calls
+****** DONE Add the member to the class
+CLOSED: [2020-06-30 Tue 16:16]
+****** NEW Shadowing calls
+******* Partially done, revisit
 ****** Mark redundant functions
 ***** TODO Add alternative communication with the BoundTighteners
 **** 4b mirror all bound update calls to _boundManager  
