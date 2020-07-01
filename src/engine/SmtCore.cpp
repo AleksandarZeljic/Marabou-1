@@ -140,6 +140,7 @@ void SmtCore::performSplit()
     _engine->applySplit( *split );
     log( "\tApplying new split - DONE" );
     stackEntry->_activeSplit = *split;
+    stackEntry->_sourceConstraint= _constraintForSplitting;
 
     // Trail changes require a context push to denote a new decision level
     log( "New decision level ..." );
@@ -345,7 +346,8 @@ bool SmtCore::popSplit()
     // _context.push();
     // TODO: Assert negated Literal
     log( "Trail push... " );
-    TrailEntry te( _constraintForSplitting, stackEntry->_activeSplit.getPhase() );
+    TrailEntry te( stackEntry->_sourceConstraint, stackEntry->_activeSplit.getPhase() );
+    te.getPiecewiseLinearCaseSplit().dump();
     _trail.push_back( te );
     log( Stringf( "\"Decision\" push @ %d DONE", _context.getLevel() ) );
 
