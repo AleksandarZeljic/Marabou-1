@@ -34,6 +34,12 @@ void PiecewiseLinearConstraint::registerConstraintBoundTightener( IConstraintBou
     _constraintBoundTightener = tightener;
 }
 
+void PiecewiseLinearConstraint::dump() const
+{
+    String output;
+    dump( output );
+    printf( "%s", output.ascii() );
+}
 //
 // Local Variables:
 // compile-command: "make -C ../.. "
