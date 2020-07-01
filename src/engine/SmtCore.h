@@ -147,6 +147,7 @@ private:
     {
     public:
         PiecewiseLinearCaseSplit _activeSplit;
+        PiecewiseLinearConstraint *_sourceConstraint;
         List<PiecewiseLinearCaseSplit> _impliedValidSplits;
         List<PiecewiseLinearCaseSplit> _alternativeSplits;
         EngineState *_engineState;
