@@ -185,10 +185,14 @@ bool SmtCore::checkStackTrailEquivalence()
     List<PiecewiseLinearCaseSplit> stackCaseSplits;
     allSplitsSoFar( stackCaseSplits );
 
+    std::cout << "Collected all splits on stack" <<std::endl;
     List<PiecewiseLinearCaseSplit> trailCaseSplits;
+    std::cout << "Trail size: " << _trail.size() <<std::endl;
     for ( TrailEntry trailEntry : _trail )
         trailCaseSplits.append( trailEntry.getPiecewiseLinearCaseSplit() );
 
+    std::cout << "Collected case splits: " << trailCaseSplits.size() <<std::endl;
+    std::cout << "Collected all splits on trail" <<std::endl;
    // Equivalence check, assumes the order of stack and trail is identical
     result = result && ( trailCaseSplits.size() == stackCaseSplits.size() );
 
@@ -208,22 +212,49 @@ bool SmtCore::checkStackTrailEquivalence()
             split.dump();
 
     }
+
+    std::cout << "Size matches!" <<std::endl;
     PiecewiseLinearCaseSplit tCaseSplit, sCaseSplit;
+    int ind = trailCaseSplits.size();
     while ( result && !stackCaseSplits.empty() )
     {
         tCaseSplit = trailCaseSplits.back();
         sCaseSplit = stackCaseSplits.back();
-
         result = result && ( tCaseSplit == sCaseSplit );
+        if ( !result )
+        {
+            std::cout << "FAILED at position " << ind << "!!!!" <<std::endl;
+            std::cout << "Trail case split: ";
+            tCaseSplit.dump();
+
+            auto sloc = find_if( stackCaseSplits.begin(),
+                                stackCaseSplits.end(),
+                                [&](PiecewiseLinearCaseSplit c) { return c == tCaseSplit; } );
+
+            if ( stackCaseSplits.end() == sloc )
+                std::cout << "Missing from the stack!";
+
+            std::cout << "Stack case split: ";
+            sCaseSplit.dump();
+            auto tloc = find_if( trailCaseSplits.begin(),
+                                trailCaseSplits.end(),
+                                [&](PiecewiseLinearCaseSplit c) { return c == sCaseSplit; } );
+
+            if ( trailCaseSplits.end() == tloc )
+                std::cout << "Missing from the stack!";
+
+
+        }
+
+        --ind;
 
         trailCaseSplits.popBack();
         stackCaseSplits.popBack();
     }
-    if ( result )
-        std::cout << "OK";
-    else
-        std::cout << "FAILED!!!!";
 
+    if ( result )
+        std::cout << "OK" << std::endl;
+    std::cout << "--------------------------------------------------------" << std::endl;
     return result;
 }
 
@@ -270,9 +301,8 @@ bool SmtCore::popSplit()
         delete _stack.back();
         _stack.popBack();
         ASSERT( _context.getLevel() > 0 );
-        log( "Backtracking context ..." );
         ++popCount;
-        log( Stringf( "Backtracking context - %d DONE", _context.getLevel() ) );
+
         if ( _stack.empty() )
             return false;
     }
@@ -288,7 +318,9 @@ bool SmtCore::popSplit()
 
     while ( popCount-- )
     {
+        log( "Backtracking context ..." );
         _context.pop();
+        log( Stringf( "Backtracking context - %d DONE", _context.getLevel() ) );
     }
 
     _context.push(); //This is just to simulate Stack

@@ -30,8 +30,14 @@ public:
 
   PiecewiseLinearCaseSplit getPiecewiseLinearCaseSplit()
   {
+      /* std::cout << " Accessing constraint : "; */
+      /* _pwlConstraint->dump(); */
+      /* std::cout << " Phase: " << _phase << std::endl; */
+
       // Assumes that _phase is unique and contained in getCaseSplits
       List<PiecewiseLinearCaseSplit> cases = _pwlConstraint->getCaseSplits();
+
+      /* std::cout << " Cases: "; */
       auto loc = find_if( cases.begin(), cases.end(), [&](PiecewiseLinearCaseSplit c) { return c.getPhase() == _phase; } );
       return *loc;
       /* for ( auto c : cases) */
