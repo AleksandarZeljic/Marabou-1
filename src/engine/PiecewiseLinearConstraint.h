@@ -150,6 +150,11 @@ public:
     /*
       Dump the current state of the constraint.
     */
+    void dump() const;
+
+    /*
+      Dump the current state of the constraint.
+    */
     virtual void dump( String & ) const {}
 
     /*
