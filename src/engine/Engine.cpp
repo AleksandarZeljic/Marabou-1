@@ -1078,6 +1078,13 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         List<unsigned> initialBasis;
         List<unsigned> basicRows;
         selectInitialVariablesForBasis( constraintMatrix, initialBasis, basicRows );
+        // TODO: Find the right spot for initialization in terms of number of variables at this point in time 
+        _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
+        for ( unsigned i = 0; i < _preprocessedQuery.getNumberOfVariables(); ++i )
+        {
+                _boundManager.updateLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
+                _boundManager.updateUpperBound( i, _preprocessedQuery.getLowerBound( i ) );
+        }
         addAuxiliaryVariables();
         augmentInitialBasisIfNeeded( initialBasis, basicRows );
 
@@ -1087,12 +1094,6 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         delete[] constraintMatrix;
         constraintMatrix = createConstraintMatrix();
 
-        _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
-        for ( unsigned i = 0; i < _preprocessedQuery.getNumberOfVariables(); ++i )
-        {
-            _boundManager.updateLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
-            _boundManager.updateUpperBound( i, _preprocessedQuery.getLowerBound( i ) );
-        }
 
         initializeNetworkLevelReasoning();
         initializeTableau( constraintMatrix, initialBasis );
@@ -1449,6 +1450,7 @@ void Engine::applySplit( const PiecewiseLinearCaseSplit &split )
 
         if ( !columnsSuccessfullyMerged )
         {
+            ASSERT( false ); //UNREACHABLE!
             // General case: add a new equation to the tableau
             unsigned auxVariable = _tableau->addEquation( equation );
             _activeEntryStrategy->resizeHook( _tableau );
