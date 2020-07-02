@@ -37,9 +37,9 @@ SmtCore::SmtCore( IEngine *engine, Context &ctx )
     , _constraintViolationThreshold
       ( GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD )
 {
-    //log( "Decision level 0 ..." );
+    //SMT_LOG( "Decision level 0 ..." );
     //_context.push();
-    //log( "Decision level 0 - DONE" );
+    //SMT_LOG( "Decision level 0 - DONE" );
 }
 
 SmtCore::~SmtCore()
@@ -96,7 +96,7 @@ void SmtCore::performSplit()
 {
     ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     ASSERT( _needToSplit );
-    log( "Performing a ReLU split" );
+    SMT_LOG( "Performing a ReLU split" );
 
     // Maybe the constraint has already become inactive - if so, ignore
     // TODO: Ideally we will not ever reach this point
@@ -136,21 +136,21 @@ void SmtCore::performSplit()
     StackEntry *stackEntry = new StackEntry;
     // Perform the first split: add bounds and equations
     List<PiecewiseLinearCaseSplit>::iterator split = splits.begin();
-    log( "\tApplying new split..." );
+    SMT_LOG( "\tApplying new split..." );
     split->dump();
     _engine->applySplit( *split );
-    log( "\tApplying new split - DONE" );
+    SMT_LOG( "\tApplying new split - DONE" );
     stackEntry->_activeSplit = *split;
     stackEntry->_sourceConstraint= _constraintForSplitting;
 
     // Trail changes require a context push to denote a new decision level
-    log( "New decision level ..." );
+    SMT_LOG( "New decision level ..." );
     _context.push();
-    log( Stringf("> New decision level %d", _context.getLevel() ) );
-    log( "New decision ..." );
+    SMT_LOG( Stringf("> New decision level %d", _context.getLevel() ) );
+    SMT_LOG( "New decision ..." );
     TrailEntry te( _constraintForSplitting, stackEntry->_activeSplit.getPhase() );
     _trail.push_back(te);
-    log( Stringf( "Decision push @ %d DONE", _context.getLevel() ) );
+    SMT_LOG( Stringf( "Decision push @ %d DONE", _context.getLevel() ) );
 
     // Store the remaining splits on the stack, for later
     stackEntry->_engineState = stateBeforeSplits;
@@ -162,14 +162,14 @@ void SmtCore::performSplit()
     }
 
     _stack.append( stackEntry );
-    log( Stringf( "> New stack depth: %d", getStackDepth() ) );
+    SMT_LOG( Stringf( "> New stack depth: %d", getStackDepth() ) );
     if ( _statistics )
     {
         _statistics->setCurrentStackDepth( getStackDepth() );
         struct timespec end = TimeUtils::sampleMicro();
         _statistics->addTimeSmtCore( TimeUtils::timePassed( start, end ) );
     }
-    log( "Performing a ReLU split - DONE");
+    SMT_LOG( "Performing a ReLU split - DONE");
 
     //ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     ASSERT( checkStackTrailEquivalence() );
@@ -318,9 +318,9 @@ bool SmtCore::popSplit()
 
     while ( popCount-- )
     {
-        log( "Backtracking context ..." );
+        SMT_LOG( "Backtracking context ..." );
         _context.pop();
-        log( Stringf( "Backtracking context - %d DONE", _context.getLevel() ) );
+        SMT_LOG( Stringf( "Backtracking context - %d DONE", _context.getLevel() ) );
     }
 
     _context.push(); //This is just to simulate Stack
@@ -379,11 +379,11 @@ bool SmtCore::popSplit()
     // TODO: Trail bookkeeping - where each level begins
     // _context.push();
     // TODO: Assert negated Literal
-    log( "Trail push... " );
+    SMT_LOG( "Trail push... " );
     TrailEntry te( stackEntry->_sourceConstraint, stackEntry->_activeSplit.getPhase() );
     te.getPiecewiseLinearCaseSplit().dump();
     _trail.push_back( te );
-    log( Stringf( "\"Decision\" push @ %d DONE", _context.getLevel() ) );
+    SMT_LOG( Stringf( "\"Decision\" push @ %d DONE", _context.getLevel() ) );
 
     if ( _statistics )
     {
@@ -414,9 +414,9 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
         _impliedValidSplitsAtRoot.append( validSplit );
     else
         _stack.back()->_impliedValidSplits.append( validSplit );
-    log( "Pushing implication ..." );
+    SMT_LOG( "Pushing implication ..." );
     //_trail.push_back( validSplit );
-    log( Stringf( "Implication push @ %d DONE", _context.getLevel() ) );
+    SMT_LOG( Stringf( "Implication push @ %d DONE", _context.getLevel() ) );
     //ASSERT( & validSplit != & (_trail.back()));
 
       checkSkewFromDebuggingSolution();
@@ -424,10 +424,10 @@ void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
 
 void SmtCore::recordImpliedValidCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase )
 {
-    log( "Implication... " );
+    SMT_LOG( "Implication... " );
     TrailEntry te( constraint, phase );
     _trail.push_back( te );
-    log( Stringf( "Implication @ %d DONE", _context.getLevel() ) );
+    SMT_LOG( Stringf( "Implication @ %d DONE", _context.getLevel() ) );
 }
 
 void SmtCore::allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const
