@@ -470,6 +470,7 @@ void Tableau::computeBasicStatus( unsigned basicIndex )
 void Tableau::setLowerBound( unsigned variable, double value )
 {
     ASSERT( variable < _n );
+    ASSERT( variable < _boundManager.getSize() );
     _boundManager.updateLowerBound( variable, value );
     _lowerBounds[variable] = value;
     notifyLowerBound( variable, value );
@@ -479,6 +480,7 @@ void Tableau::setLowerBound( unsigned variable, double value )
 void Tableau::setUpperBound( unsigned variable, double value )
 {
     ASSERT( variable < _n );
+    ASSERT( variable < _boundManager.getSize() );
     _boundManager.updateUpperBound( variable, value );
     _upperBounds[variable] = value;
     notifyUpperBound( variable, value );
@@ -1774,7 +1776,8 @@ unsigned Tableau::addEquation( const Equation &equation )
     // The fresh auxiliary variable assigned to the equation is _n.
     // This variable is implicitly added to the equation, with
     // coefficient 1.
-    unsigned auxVariable = _n;
+    ASSERT ( _boundManager.getSize() == _n );
+    unsigned auxVariable = _boundManager.registerNewVariable();
 
     // Adjust the data structures
     addRow();
