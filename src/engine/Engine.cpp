@@ -36,7 +36,6 @@ Engine::Engine( unsigned verbosity )
     , _boundManager( _context )
     , _tableau( _boundManager )
     , _rowBoundTightener( *_tableau, _boundManager )
-    , _symbolicBoundTightener( NULL ) //_boundManager
     , _smtCore( this, _context )
     , _numPlConstraintsDisabledByValidSplits( 0 )
     , _preprocessingEnabled( false )
