@@ -15,7 +15,7 @@ option(RUN_PYTHON_TEST "run python API tests if building with python" OFF)
 option(ENABLE_GUROBI "Enable use the Gurobi optimizer" OFF)
 option(ENABLE_OPENBLAS "Do symbolic bound tighting using blas" ON) # Not available on windows
 option(CODE_COVERAGE "add code coverage" OFF)  # Available only in debug mode
-option(RUN_ASAN "compile with ASAN ON" ON)
+option(RUN_ASAN "compile with ASAN ON" OFF)
 
 set(DEFAULT_PYTHON_VERSION "3" CACHE STRING "Default Python version 2/3")
 set(PYTHON_VERSIONS_SUPPORTED 2 3)
@@ -43,13 +43,16 @@ set(BOOST_DIR "${TOOLS_DIR}/boost_1_68_0")
 set(OPENBLAS_DIR "${TOOLS_DIR}/OpenBLAS-0.3.9")
 set(COMMON_DIR "${SRC_DIR}/common")
 set(BASIS_DIR "${SRC_DIR}/basis_factorization")
-set(CVC4_DIR "${DEPS_DIR}/CVC4")
 
+set(CVC4_DIR "${DEPS_DIR}/CVC4")
 set(CONTEXT_DIR "${CVC4_DIR}/context")
 set(CVC4BASE_DIR "${CVC4_DIR}/base")
 
 file(GLOB DEPS_CVC4_CONTEXT "${CONTEXT_DIR}/*.cpp")
 file(GLOB DEPS_CVC4_BASE "${CVC4BASE_DIR}/*.cpp")
+
+include_directories(SYSTEM ${CVC4_DIR} ${CVC4_DIR}/include)
+
 set(OPENBLAS_LIB openblas)
 
 set(BIN_DIR "${CMAKE_BINARY_DIR}/bin")
@@ -68,9 +71,6 @@ set(MPS_PARSER mps)
 set(ACAS_PARSER acas)
 set(BERKELEY_PARSER berkeley)
 set(INPUT_PARSERS_DIR input_parsers)
-
-
-include_directories(SYSTEM ${CVC4_DIR} ${CVC4_DIR}/include)
 
 #-----------------------------------------------------------------------------#
 # Determine number of threads available, used to configure (default) parallel
@@ -376,7 +376,6 @@ add_dependencies(build_input_parsers ${MPS_PARSER} ${ACAS_PARSER}
 add_subdirectory(${SRC_DIR})
 add_subdirectory(${TOOLS_DIR})
 add_subdirectory(${REGRESS_DIR})
-
 
 execute_process(
   COMMAND git rev-parse --abbrev-ref HEAD
