@@ -15,7 +15,7 @@ option(RUN_PYTHON_TEST "run python API tests if building with python" OFF)
 option(ENABLE_GUROBI "Enable use the Gurobi optimizer" OFF)
 option(ENABLE_OPENBLAS "Do symbolic bound tighting using blas" ON) # Not available on windows
 option(CODE_COVERAGE "add code coverage" OFF)  # Available only in debug mode
-option(RUN_ASAN "compile with ASAN ON" ON)
+option(RUN_ASAN "compile with ASAN ON" OFF)
 
 set(DEFAULT_PYTHON_VERSION "3" CACHE STRING "Default Python version 2/3")
 set(PYTHON_VERSIONS_SUPPORTED 2 3)
