@@ -36,7 +36,7 @@ public:
     void setDimensions();
 
     /*
-      Initialize tightest lower/upper bounds using the talbeau.
+      Initialize tightest lower/upper bounds using the tableau.
     */
     void resetBounds();
 
@@ -51,6 +51,12 @@ public:
     */
     void notifyLowerBound( unsigned variable, double bound );
     void notifyUpperBound( unsigned variable, double bound );
+
+    /*
+     * Local register new bound functions
+     */
+    unsigned registerTighterUpperBound( unsigned variable, double bound );
+    unsigned registerTighterLowerBound( unsigned variable, double bound );
 
     /*
       Callback from the Tableau, to inform of a change in dimensions

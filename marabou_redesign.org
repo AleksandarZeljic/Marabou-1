@@ -112,7 +112,8 @@ CLOSED: [2020-03-30 Mon 15:45]
 **** 4a Add push calls for other cases (pop used to do this)
 - Expectation: Backtracking mechanism works as intended. 
 *** 2b Introduce BoundManager
-**** write BoundManager class 
+**** DONE write BoundManager class 
+CLOSED: [2020-07-08 Wed 11:10]
 - Expectation: provides getter/setter interface for lower and upper bounds for every variable.
 - Expectation: bounds are stored using context-dependent data-structures
 - Expectation: backtracks correctly with the _context
@@ -132,6 +133,7 @@ CLOSED: [2020-06-23 Tue 16:00]
 ******* Integrate master SBT 
 ******* Add shadowing calls 
 ******* Ensure equivalence  
+***** TODO ConstraintBoundTightener
 ***** TODO Tableau 
 ****** DONE Add the member to the class
 CLOSED: [2020-06-30 Tue 16:16]
