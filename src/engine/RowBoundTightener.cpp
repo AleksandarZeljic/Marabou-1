@@ -329,8 +329,13 @@ unsigned RowBoundTightener::tightenOnSingleInvertedBasisRow( const TableauRow &r
         _ciSign[i] = FloatUtils::isPositive( ci ) ? POSITIVE : NEGATIVE;
 
         unsigned xi = row._row[i]._var;
+
+        ASSERT( _lowerBounds[xi] == _boundManager.getLowerBound( xi ) );
+        ASSERT( _upperBounds[xi] == _boundManager.getUpperBound( xi ) );
         _ciTimesLb[i] = ci * _lowerBounds[xi];
         _ciTimesUb[i] = ci * _upperBounds[xi];
+        ASSERT( _ciTimesLb[i] == ci * _boundManager.getLowerBound( xi ) );
+        ASSERT( _ciTimesUb[i] == ci * _boundManager.getUpperBound( xi ) );
     }
 
     // Start with a pass for y
@@ -355,23 +360,8 @@ unsigned RowBoundTightener::tightenOnSingleInvertedBasisRow( const TableauRow &r
         }
     }
 
-    if ( FloatUtils::lt( _lowerBounds[y], lowerBound ) )
-    {
-        _boundManager.updateLowerBound( y, lowerBound );
-
-        _lowerBounds[y] = lowerBound;
-        _tightenedLower[y] = true;
-        ++result;
-    }
-
-    if ( FloatUtils::gt( _upperBounds[y], upperBound ) )
-    {
-        _boundManager.updateUpperBound( y, upperBound );
-
-        _upperBounds[y] = upperBound;
-        _tightenedUpper[y] = true;
-        ++result;
-    }
+    result += registerTighterLowerBound( y, lowerBound );
+    result += registerTighterUpperBound( y, upperBound );
 
     if ( FloatUtils::gt( _lowerBounds[y], _upperBounds[y] ) )
     {
@@ -393,6 +383,8 @@ unsigned RowBoundTightener::tightenOnSingleInvertedBasisRow( const TableauRow &r
     // Then, when we consider xi we adjust the computed lower and upper
     // boudns accordingly.
 
+    if ( _boundManager.getLowerBound( y ) != _lowerBounds[y] )
+        throw MarabouError( MarabouError::BOUND_MANAGER_MISMATCH_WITH_LOCAL_BOUNDS, "Local bounds don't match BoundManager" );
     ASSERT ( _boundManager.getLowerBound( y ) == _lowerBounds[y] );
     ASSERT ( _boundManager.getUpperBound( y ) == _upperBounds[y] );
 
@@ -453,23 +445,8 @@ unsigned RowBoundTightener::tightenOnSingleInvertedBasisRow( const TableauRow &r
 
         // If a tighter bound is found, store it
         xi = row._row[i]._var;
-        if ( FloatUtils::lt( _lowerBounds[xi], lowerBound ) )
-        {
-            ASSERT( FloatUtils::lt( _boundManager.getLowerBound( xi ), lowerBound ) );
-
-            _lowerBounds[xi] = lowerBound;
-            _tightenedLower[xi] = true;
-            ++result;
-        }
-
-        if ( FloatUtils::gt( _upperBounds[xi], upperBound ) )
-        {
-            ASSERT( FloatUtils::gt( _boundManager.getUpperBound( xi ), upperBound ) );
-
-            _upperBounds[xi] = upperBound;
-            _tightenedUpper[xi] = true;
-            ++result;
-        }
+        result += registerTighterLowerBound( xi, lowerBound );
+        result += registerTighterUpperBound( xi, upperBound );
 
         if ( FloatUtils::gt( _lowerBounds[xi], _upperBounds[xi] ) )
         {
@@ -527,7 +504,25 @@ unsigned RowBoundTightener::tightenOnSingleConstraintRow( unsigned row )
       We first compute the lower and upper bounds for the expression
 
           sum ci xi - b
-    */
+          if ( FloatUtils::lt( _lowerBounds[xi], lowerBound ) )
+          {
+          ASSERT( FloatUtils::lt( _boundManager.getLowerBound( xi ), lowerBound ) );
+
+          _lowerBounds[xi] = lowerBound;
+          _tightenedLower[xi] = true;
+          ++result;
+          }
+
+          if ( FloatUtils::gt( _upperBounds[xi], upperBound ) )
+          {
+          ASSERT( FloatUtils::gt( _boundManager.getUpperBound( xi ), upperBound ) );
+
+          _upperBounds[xi] = upperBound;
+          _tightenedUpper[xi] = true;
+          ++result;
+          }
+
+   */
     unsigned n = _tableau.getN();
 
     unsigned result = 0;
@@ -634,23 +629,8 @@ unsigned RowBoundTightener::tightenOnSingleConstraintRow( unsigned row )
         }
 
         // If a tighter bound is found, store it
-        if ( FloatUtils::lt( _lowerBounds[index], lowerBound ) )
-        {
-            ASSERT( FloatUtils::lt( _boundManager.getLowerBound( index ), lowerBound ) );
-
-            _lowerBounds[index] = lowerBound;
-            _tightenedLower[index] = true;
-            ++result;
-        }
-
-        if ( FloatUtils::gt( _upperBounds[index], upperBound ) )
-        {
-            ASSERT( FloatUtils::gt( _boundManager.getUpperBound( index ), upperBound ) );
-
-            _upperBounds[index] = upperBound;
-            _tightenedUpper[index] = true;
-            ++result;
-        }
+        result += registerTighterLowerBound( index, lowerBound );
+        result += registerTighterUpperBound( index, upperBound );
 
         if ( FloatUtils::gt( _lowerBounds[index], _upperBounds[index] ) )
         {
@@ -698,8 +678,39 @@ void RowBoundTightener::setStatistics( Statistics *statistics )
     _statistics = statistics;
 }
 
+unsigned RowBoundTightener::registerTighterLowerBound( unsigned variable, double newLowerBound)
+{
+    ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
+    if ( FloatUtils::lt( _lowerBounds[variable], newLowerBound ) )
+    {
+        _boundManager.updateLowerBound( variable, newLowerBound );
+
+        _lowerBounds[variable] = newLowerBound;
+        _tightenedLower[variable] = true;
+        return 1u;
+    }
+
+    return 0u;
+}
+
+unsigned RowBoundTightener::registerTighterUpperBound( unsigned variable, double newUpperBound)
+{
+    ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
+    if ( FloatUtils::gt( _upperBounds[variable], newUpperBound ) )
+    {
+        _boundManager.updateUpperBound( variable, newUpperBound);
+
+        _upperBounds[variable] = newUpperBound;
+        _tightenedUpper[variable] = true;
+
+        return 1u;
+    }
+    return 0u;
+}
+
 void RowBoundTightener::notifyLowerBound( unsigned variable, double bound )
 {
+    ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
     // TODO: To be removed
     if ( FloatUtils::gt( bound, _lowerBounds[variable] ) )
     {
@@ -708,10 +719,12 @@ void RowBoundTightener::notifyLowerBound( unsigned variable, double bound )
         _lowerBounds[variable] = bound;
         _tightenedLower[variable] = false;
     }
+    ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
 }
 
 void RowBoundTightener::notifyUpperBound( unsigned variable, double bound )
 {
+    ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
     // TODO: To be removed
     if ( FloatUtils::lt( bound, _upperBounds[variable] ) )
     {
@@ -719,7 +732,9 @@ void RowBoundTightener::notifyUpperBound( unsigned variable, double bound )
 
         _upperBounds[variable] = bound;
         _tightenedUpper[variable] = false;
+
     }
+   ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
 }
 
 void RowBoundTightener::notifyDimensionChange( unsigned /* m */ , unsigned /* n */ )
