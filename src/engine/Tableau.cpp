@@ -471,7 +471,7 @@ void Tableau::setLowerBound( unsigned variable, double value )
 {
     ASSERT( variable < _n );
     ASSERT( variable < _boundManager.getSize() );
-    _boundManager.updateLowerBound( variable, value );
+    _boundManager.setLowerBound( variable, value );
     _lowerBounds[variable] = value;
     notifyLowerBound( variable, value );
     checkBoundsValid( variable );
@@ -481,7 +481,7 @@ void Tableau::setUpperBound( unsigned variable, double value )
 {
     ASSERT( variable < _n );
     ASSERT( variable < _boundManager.getSize() );
-    _boundManager.updateUpperBound( variable, value );
+    _boundManager.setUpperBound( variable, value );
     _upperBounds[variable] = value;
     notifyUpperBound( variable, value );
     checkBoundsValid( variable );
