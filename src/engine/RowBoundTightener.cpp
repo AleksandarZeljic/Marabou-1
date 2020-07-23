@@ -683,7 +683,7 @@ unsigned RowBoundTightener::registerTighterLowerBound( unsigned variable, double
     ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
     if ( FloatUtils::lt( _lowerBounds[variable], newLowerBound ) )
     {
-        _boundManager.updateLowerBound( variable, newLowerBound );
+        _boundManager.setLowerBound( variable, newLowerBound );
 
         _lowerBounds[variable] = newLowerBound;
         _tightenedLower[variable] = true;
@@ -698,7 +698,7 @@ unsigned RowBoundTightener::registerTighterUpperBound( unsigned variable, double
     ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
     if ( FloatUtils::gt( _upperBounds[variable], newUpperBound ) )
     {
-        _boundManager.updateUpperBound( variable, newUpperBound);
+        _boundManager.setUpperBound( variable, newUpperBound);
 
         _upperBounds[variable] = newUpperBound;
         _tightenedUpper[variable] = true;
@@ -714,7 +714,7 @@ void RowBoundTightener::notifyLowerBound( unsigned variable, double bound )
     // TODO: To be removed
     if ( FloatUtils::gt( bound, _lowerBounds[variable] ) )
     {
-        _boundManager.updateLowerBound( variable, bound );
+        _boundManager.setLowerBound( variable, bound );
 
         _lowerBounds[variable] = bound;
         _tightenedLower[variable] = false;
@@ -728,7 +728,7 @@ void RowBoundTightener::notifyUpperBound( unsigned variable, double bound )
     // TODO: To be removed
     if ( FloatUtils::lt( bound, _upperBounds[variable] ) )
     {
-        _boundManager.updateUpperBound( variable, bound );
+        _boundManager.setUpperBound( variable, bound );
 
         _upperBounds[variable] = bound;
         _tightenedUpper[variable] = false;
