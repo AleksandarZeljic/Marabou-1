@@ -142,6 +142,7 @@ CLOSED: [2020-06-30 Tue 16:16]
 ****** Mark redundant functions
 ***** TODO BoundManager::setLowerBound( var, value, SOURCE); to control propagation 
 ***** TODO Migrate Tableau::checkBoundsValid to BoundManager 
+***** TODO BoundManager::notifyDimensionChange?
 ***** TODO Add alternative communication with the BoundTighteners
 **** 4b mirror all bound update calls to _boundManager  
 - Expectation: _boundManager is in sync with bounds returned by the BoundTighteners 
@@ -591,3 +592,20 @@ Two versions: One stores all bound inferences (might be desireable for explainab
 *** Travis support  
 **** Small test cases (regression)
 **** Andrew Setup Travis
+
+*
+* RBT -> tightens bounds -> list of bound tightenings 
+* Foreach tightening examine each PWLC -> list of new tightenings 
+
+1: x y z
+2: y z d
+3: z x d
+
+Centralized information
+Boolean flag
+
+new bound x: 1-> y (go through watchers of y, set flag RBT), 3->z (go through watchers of z, set flag 1)
+** 1 -> y (set flag CBT)
+*** 2 -> z, ( go through watchers of z again)
+
+1->y; [2->z] 3->z; 2->z;
