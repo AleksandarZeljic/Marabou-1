@@ -30,7 +30,7 @@ public:
     void setDimensions();
 
     /*
-      Initialize tightest lower/upper bounds using the talbeau.
+      Initialize tightest lower/upper bounds using the tableau.
     */
     void resetBounds();
 

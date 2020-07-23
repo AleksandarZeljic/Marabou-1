@@ -1090,8 +1090,8 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
         for ( unsigned i = 0; i < _preprocessedQuery.getNumberOfVariables(); ++i )
         {
-                _boundManager.updateLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
-                _boundManager.updateUpperBound( i, _preprocessedQuery.getLowerBound( i ) );
+                _boundManager.setLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
+                _boundManager.setUpperBound( i, _preprocessedQuery.getLowerBound( i ) );
         }
         addAuxiliaryVariables();
         augmentInitialBasisIfNeeded( initialBasis, basicRows );
