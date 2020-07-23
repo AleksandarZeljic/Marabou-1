@@ -30,7 +30,7 @@ class RowBoundTightenerTestSuite : public CxxTest::TestSuite
 {
 public:
     MockForRowBoundTightener *mock;
-    MockTableau *tableau;
+    MockTableau *tableau
 
     void setUp()
     {
@@ -220,7 +220,7 @@ public:
         RowBoundTightener tightener( *tableau, boundManager );
 
         tableau->setDimensions( 2, 5 );
-        TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 0, -112) );
+        TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 0, -112 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setUpperBound( 0, 101 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 1, 5 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setUpperBound( 1, 10 ) );
@@ -228,7 +228,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( tableau->setUpperBound( 2, 3 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 3, -5 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setUpperBound( 3, 5 ) );
-        TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 4, -100) );
+        TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 4, -100 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setUpperBound( 4, 100 ) );
 
         TS_ASSERT_THROWS_NOTHING( tightener.setDimensions() );
@@ -320,15 +320,15 @@ public:
     void test_examine_constraint_matrix_multiple_equations()
     {
         CVC4::context::Context context;
-        BoundManager boundManager(context);
-        boundManager.initialize(5u);
+        BoundManager boundManager( context );
+        boundManager.initialize( 5u );
         RowBoundTightener tightener( *tableau, boundManager );
 
         //        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
 
-        TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 0, 0) );
+        TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 0, 0 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setUpperBound( 0, 3 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 1, -1 ) );
         TS_ASSERT_THROWS_NOTHING( tableau->setUpperBound( 1, 2 ) );

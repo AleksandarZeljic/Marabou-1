@@ -140,6 +140,8 @@ CLOSED: [2020-06-30 Tue 16:16]
 ****** NEW Shadowing calls
 ******* Partially done, revisit
 ****** Mark redundant functions
+***** TODO BoundManager::setLowerBound( var, value, SOURCE); to control propagation 
+***** TODO Migrate Tableau::checkBoundsValid to BoundManager 
 ***** TODO Add alternative communication with the BoundTighteners
 **** 4b mirror all bound update calls to _boundManager  
 - Expectation: _boundManager is in sync with bounds returned by the BoundTighteners 
