@@ -92,7 +92,7 @@ bool SmtCore::needToSplit() const
     return _needToSplit;
 }
 
-void SmtCore::performSplit()
+void SmtCore::decideSplit()
 {
     ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     ASSERT( _needToSplit );
@@ -268,6 +268,46 @@ unsigned SmtCore::getStackDepth() const
 
 bool SmtCore::popSplit()
 {
+    if ( _stack.empty() )
+        return false;
+
+    if ( _statistics )
+        _statistics->incNumPops();
+
+    delete _stack.back()->_engineState;
+    delete _stack.back();
+    _stack.popBack();
+    return true;
+}
+
+bool SmtCore::popSplitFromStack( List<PiecewiseLinearCaseSplit> &alternativeSplits )
+{
+    alternativeSplits.clear();
+    alternativeSplits.assign( _stack.back()->_alternativeSplits.begin(), _stack.back()->_alternativeSplits.end() );
+
+    return popSplit();
+}
+
+
+
+void SmtCore::popDecisionLevel()
+{
+    SMT_LOG( "Backtracking context ..." );
+    _context.pop();
+    SMT_LOG( "Backtracking context - %d DONE", _context.getLevel() );
+}
+
+void SmtCore::interruptIfCompliantWithDebugSolution()
+{
+    if ( checkSkewFromDebuggingSolution() )
+    {
+        SMT_LOG( "Error! Popping from a compliant stack\n" );
+        throw MarabouError( MarabouError::DEBUGGING_ERROR );
+    }
+}
+
+bool SmtCore::backtrackAndContinue()
+{
     ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     SMT_LOG( "Performing a pop" );
 
@@ -278,112 +318,54 @@ bool SmtCore::popSplit()
     struct timespec start = TimeUtils::sampleMicro();
 
     if ( _statistics )
-    {
-        _statistics->incNumPops();
-        // A pop always sends us to a state that we haven't seen before - whether
-        // from a sibling split, or from a lower level of the tree.
         _statistics->incNumVisitedTreeStates();
-    }
+
+    // Counter for Stack pops to be matched by trail pops
+    // Starts at one, because Stack does not distinguish implications
+    // (temp feature, to be factored out)
+    unsigned popCount = 1;
+    List<PiecewiseLinearCaseSplit> alternatives;
 
     // Remove any entries that have no alternatives
-    String error;
-    unsigned popCount = 1;
+
     while ( _stack.back()->_alternativeSplits.empty() )
     {
-        if ( checkSkewFromDebuggingSolution() )
-        {
-            // Pops should not occur from a compliant stack!
-            printf( "Error! Popping from a compliant stack\n" );
-            throw MarabouError( MarabouError::DEBUGGING_ERROR );
-        }
+        interruptIfCompliantWithDebugSolution();
 
-        delete _stack.back()->_engineState;
-        delete _stack.back();
-        _stack.popBack();
-        ASSERT( _context.getLevel() > 0 );
-        ++popCount;
-
-        if ( _stack.empty() )
+        if ( popSplit() )
+            ++popCount;
+        else
             return false;
     }
 
-    if ( checkSkewFromDebuggingSolution() )
-    {
-        // Pops should not occur from a compliant stack!
-        printf( "Error! Popping from a compliant stack\n" );
-        throw MarabouError( MarabouError::DEBUGGING_ERROR );
-    }
+    interruptIfCompliantWithDebugSolution();
 
     StackEntry *stackEntry = _stack.back();
-
-    while ( popCount-- )
-    {
-        SMT_LOG( "Backtracking context ..." );
-        _context.pop();
-        SMT_LOG( "Backtracking context - %d DONE", _context.getLevel() );
-    }
-
-    _context.push(); //This is just to simulate Stack
-    // Restore the state of the engine
     SMT_LOG( "\tRestoring engine state..." );
     _engine->restoreState( *(stackEntry->_engineState) );
     SMT_LOG(  "\tRestoring engine state %d - DONE", getStackDepth() );
 
-    // Apply the new split and erase it from the list
-    // TODO: Rename split to implication?
-    auto split = stackEntry->_alternativeSplits.begin();
-
-    // Erase any valid splits that were learned using the split we just popped
+    // Clear any implications learned using the split we just popped
     stackEntry->_impliedValidSplits.clear();
 
-    // Pop ends here; And this is also a pop loop in fact;
-    // While  ( stackEntry -> noAlternatives )
-    //     popSplit();
-    // decideSplit( getNextAlternative() ) 
-    // {
-    // _context.push();
-    // propagateSplit( );
-    // }
+    while ( popCount-- )
+        popDecisionLevel();
 
-    // implySplit( caseSplit );
+    auto split = stackEntry->_alternativeSplits.begin();
 
-    // Stack:
-    // D1 (D1' D1'' D1''') -> I1 I2 I3
-    // D2 -> I4 I5 ...
+    // TODO: Make a distinction between a decision and an implication
+    // TODO: Refactor decideSplit to take case split as an argument
 
-
-    // Trail:
-    // * D1 (-> C1)
-    //   I1
-    //  ...
-    // * D2
-    // ....
-     SMT_LOG( "\tApplying new split on the Stack..." );
-    split->dump();   
-    // At this point this is an implication rather than a decision
-    // TODO: _context.pop()
-    // To keep generality in mind, if this is not an implication we need to _context.push()
+    SMT_LOG( "\tApplying new case split to stack/engine ..." );
     _engine->applySplit( *split );
-    SMT_LOG( "\tApplying new split on the Stack - DONE" );
-
+    SMT_LOG( "\tApplying new case split to stack/engine - DONE" );
     stackEntry->_activeSplit = *split;
     stackEntry->_alternativeSplits.erase( split );
 
-    // Check whether this is an implication and if it is pop
-    // if ( stackEntry->_alternativeSplits.empty() )
-    //    _context.pop();
 
-    // To keep generality in mind, if this is not an implication we need to
-    // _context.push();
-
-    // TODO: Trail bookkeeping - where each level begins
-    // _context.push();
-    // TODO: Assert negated Literal
-    SMT_LOG( "Trail push... " );
-    TrailEntry te( stackEntry->_sourceConstraint, stackEntry->_activeSplit.getPhase() );
-    te.getPiecewiseLinearCaseSplit().dump();
-    _trail.push_back( te );
-    SMT_LOG( "\"Decision\" push @ %d DONE", _context.getLevel() );
+    // This is to simulate Stack and ensure STACK/TRAIL size compliance
+    _context.push();
+    implyCaseSplit( stackEntry->_sourceConstraint, stackEntry->_activeSplit.getPhase() );
 
     if ( _statistics )
     {
@@ -408,26 +390,27 @@ void SmtCore::resetReportedViolations()
     _needToSplit = false;
 }
 
-void SmtCore::recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit )
+void SmtCore::implyValidSplit( PiecewiseLinearCaseSplit &validSplit )
 {
+    SMT_LOG( "Push implication on stack @t%d ...", getStackDepth() );
+    // validSplit.dump()
     if ( _stack.empty() )
         _impliedValidSplitsAtRoot.append( validSplit );
     else
         _stack.back()->_impliedValidSplits.append( validSplit );
-    SMT_LOG( "Pushing implication ..." );
-    //_trail.push_back( validSplit );
-    SMT_LOG( "Implication push @ %d DONE", _context.getLevel() );
-    //ASSERT( & validSplit != & (_trail.back()));
 
-      checkSkewFromDebuggingSolution();
+    SMT_LOG( "Push implication on stack DONE" );
+
+    checkSkewFromDebuggingSolution();
 }
 
-void SmtCore::recordImpliedValidCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase )
+void SmtCore::implyCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase )
 {
-    SMT_LOG( "Implication... " );
+    SMT_LOG( "Push implication on trail @s%d ... ", _context.getLevel() );
     TrailEntry te( constraint, phase );
+    //te.getPiecewiseLinearCaseSplit().dump();
     _trail.push_back( te );
-    SMT_LOG( "Implication @ %d DONE", _context.getLevel() );
+    SMT_LOG( "Push implication on trail DONE"  );
 }
 
 void SmtCore::allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const

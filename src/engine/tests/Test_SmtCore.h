@@ -310,7 +310,7 @@ public:
 
     /*
      *  Test - Context and Perform split are in sync:
-     *   1. Context level advances with performSplit
+     *   1. Context level advances with decideSplit
      *   2. TODO: Context level decreases with popSplit
      *   3. TODO: perfromImplication does not affect context level.
      *   N. TODO: Additionally, trail and asserted ReLUs are in sync
@@ -381,8 +381,8 @@ public:
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT( !constraint.setActiveWasCalled );
 
-        // Call performSplit
-        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        // Call decideSplit
+        TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
 
         // Check postconditions
         TS_ASSERT( constraint.setActiveWasCalled );
@@ -417,11 +417,11 @@ public:
 
         // Pop Split1, check that the tableau was restored and that
         // a Split2 was performed
-        TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() );
-        // TODO: Enable after popSplit/performSplit refactor
+        TS_ASSERT_THROWS_NOTHING( smtCore.backtrackAndContinue() );
+        // TODO: Enable after popSplit/decideSplit refactor
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
-        // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        // TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
         TS_ASSERT_EQUALS( static_cast<unsigned>( context.getLevel() ), 1u );
 
@@ -450,8 +450,8 @@ public:
 
         // Pop Split2, check that the tableau was restored and that
         // a Split3 was performed
-        TS_ASSERT( smtCore.popSplit() );
-        // TODO: Enable after popSplit/performSplit refactor
+        TS_ASSERT( smtCore.backtrackAndContinue() );
+        // TODO: Enable after popSplit/decideSplit refactor
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
         // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() );
@@ -486,8 +486,9 @@ public:
 
         // Final pop
         // Potentially context.pop() and smtCore.popSplit have different semantics
-        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT( !smtCore.backtrackAndContinue() );
         TS_ASSERT( !engine->lastRestoredState );
+        TS_ASSERT_EQUALS( static_cast<unsigned>( context.getLevel() ), 0U );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         // Stack and trail depth differ at depth zero
         //TS_ASSERT( smtCore.getStackDepth() >= static_cast<unsigned>( context.getLevel() ) );
@@ -611,7 +612,7 @@ public:
         TS_ASSERT_EQUALS( 0U, prev_context_level );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT( !constraint1.setActiveWasCalled );
-        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
 
         List<PiecewiseLinearCaseSplit> allSplitsOnStackSoFar;
         smtCore.allSplitsSoFar( allSplitsOnStackSoFar );
@@ -633,18 +634,18 @@ public:
 
         // Pop Split1, check that the tableau was restored and that
         // a Split2 was performed
-        TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() );
-        // TODO: Enable after popSplit/performSplit refactor
+        TS_ASSERT_THROWS_NOTHING( smtCore.backtrackAndContinue() );
+        // TODO: Enable after popSplit/decideSplit refactor
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
-        // TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        // TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
 
         // Pop Split2, check that the tableau was restored and that
         // a Split3 was performed
-        TS_ASSERT( smtCore.popSplit() );
-        // TODO: Enable after popSplit/performSplit refactor
+        TS_ASSERT( smtCore.backtrackAndContinue() );
+        // TODO: Enable after popSplit/decideSplit refactor
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
         // TS_ASSERT_THROWS_NOTHING( smtCore.performImplication() );
@@ -654,7 +655,7 @@ public:
 
         // Final pop
         // Potentially context.pop() and smtCore.popSplit have different semantics
-        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT( !smtCore.backtrackAndContinue() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         //TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
     }
@@ -718,7 +719,7 @@ public:
         TS_ASSERT( smtCore.needToSplit() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT( !constraint.setActiveWasCalled );
-        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
         TS_ASSERT( constraint.setActiveWasCalled );
         TS_ASSERT( !smtCore.needToSplit() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
@@ -747,7 +748,7 @@ public:
 
         // Pop Split1, check that the tableau was restored and that
         // a Split2 was performed
-        TS_ASSERT( smtCore.popSplit() );
+        TS_ASSERT( smtCore.backtrackAndContinue() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
 
         TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
@@ -775,7 +776,7 @@ public:
 
         // Pop Split2, check that the tableau was restored and that
         // a Split3 was performed
-        TS_ASSERT( smtCore.popSplit() );
+        TS_ASSERT( smtCore.backtrackAndContinue() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
 
         TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );
@@ -803,7 +804,7 @@ public:
         engine->lastEquations.clear();
 
         // Final pop
-        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT( !smtCore.backtrackAndContinue() );
         TS_ASSERT( !engine->lastRestoredState );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
     }
@@ -863,7 +864,7 @@ public:
         constraint.nextIsActive = false;
 
         TS_ASSERT( smtCore.needToSplit() );
-        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
         TS_ASSERT( !smtCore.needToSplit() );
 
         // Check that no split was performed
@@ -920,7 +921,7 @@ public:
         constraint.nextIsActive = true;
 
         TS_ASSERT( smtCore.needToSplit() );
-        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
         TS_ASSERT( !smtCore.needToSplit() );
 
         // Register a valid split
@@ -931,7 +932,7 @@ public:
         Tightening bound5( 14, 2.3, Tightening::LB );
 
         split3.storeBoundTightening( bound5 );
-        // TS_ASSERT_THROWS_NOTHING( smtCore.recordImpliedValidCaseSplit( split3 ) );
+        // TS_ASSERT_THROWS_NOTHING( smtCore.implyCaseSplit( split3 ) );
 
         // Do another real split
 
@@ -955,7 +956,7 @@ public:
         constraint2.nextIsActive = true;
 
         TS_ASSERT( smtCore.needToSplit() );
-        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
         TS_ASSERT( !smtCore.needToSplit() );
 
         // Check that everything is received in the correct order

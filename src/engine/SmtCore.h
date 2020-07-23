@@ -63,16 +63,33 @@ public:
     bool needToSplit() const;
 
     /*
-      Perform the split according to the constraint marked for
+      Decide a case split to apply, according to the constraint marked for
       splitting. Update bounds, add equations and update the stack.
     */
-    void performSplit();
+    void decideSplit();
 
     /*
-      Pop an old split from the stack, and perform a new split as
-      needed. Return true if successful, false if the stack is empty.
+      Backtrack the search, by popping stacks with no alternatives, and perform
+      a decision or an implication as needed.
+    */
+    bool backtrackAndContinue();
+
+    /*
+      Pop a stack frame, copying alternativeSplits if any. Return
+      true if successful, false if the stack is empty.
+    */
+    bool popSplitFromStack( List<PiecewiseLinearCaseSplit> &alternativeSplits );
+
+    /*
+      Pop a stack frame. Return true if successful, false if the stack is empty.
     */
     bool popSplit();
+
+    /*
+      Pop a context level, lazily backtracking trail, bounds, etc. Return true
+      if successful, false if the stack is empty.
+    */
+    void popDecisionLevel();
 
     /*
       The current stack depth.
@@ -82,12 +99,12 @@ public:
     /*
       Let the smt core know of an implied valid case split that was discovered.
     */
-    void recordImpliedValidSplit( PiecewiseLinearCaseSplit &validSplit );
+    void implyValidSplit( PiecewiseLinearCaseSplit &validSplit );
 
     /*
       Let the smt core trail know of an implied valid case split that was discovered.
     */
-    void recordImpliedValidCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase );
+    void implyCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase );
 
     /*
       Return a list of all splits performed so far, both SMT-originating and valid ones,
@@ -136,7 +153,7 @@ public:
     void storeDebuggingSolution( const Map<unsigned, double> &debuggingSolution );
     bool checkSkewFromDebuggingSolution();
     bool splitAllowsStoredSolution( const PiecewiseLinearCaseSplit &split, String &error ) const;
-
+    void interruptIfCompliantWithDebugSolution();
 private:
     /*
       A stack entry consists of the engine state before the split,

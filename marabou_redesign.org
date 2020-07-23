@@ -86,30 +86,30 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Expectation: splitting asserts a PWLCaseSplit on a new decision level
 - Expectation: TODO: add to test implication asserts a PWLCaseSplit on the same decision level
 - PWLCaseSplits are asserted in two ways:
-- by splitting (in SmtCore::performSplit())
+- by splitting (in SmtCore::decideSplit())
 - by implication (i.e. bound propagation)
 - NOTE: The decision/implication distinction should come for free, by correctly
   positioning the call to _context.push()
 ***** Pop ReLU splits from the _trail
 - Expectation: _trail contains all the currently active PWLCaseSplits in the search
 ***** (optional) Abstract Trail from case splits to literals (CDCL)
-**** 3a Refactor performSplit
+**** 3a Refactor decideSplit
 - Expectation: can perform a split on a particular case of a ReLU
 - Expectation: logic of which case to split on and splitting are separated
 ***** Refactor into two methods:
 ****** chooseSplitCase(  )
 - Expectation: Implements logic of which case should be asserted next
-****** performSplit( PWLCaseSplit case )
+****** decideSplit( PWLCaseSplit case )
 - Expectation: the *PWLCaseSplit case* to be asserted is passed as an argument
 ***** @5a: Eliminate state storing 
 **** 4a Refactor popSplit()
 - Expectation: popSplit() only pops a PWLCaseSplit
-- Expectation: asserting alternative cases is done using chooseSplitCase() and  performSplit(case)
+- Expectation: asserting alternative cases is done using chooseSplitCase() and  decideSplit(case)
 - Simplify to just pop() the trail 
 ***** Separate into: 
 ****** _context.pop()
 ****** chooseSplitCase()
-****** performSplit()
+****** decideSplit()
 **** 4a Add push calls for other cases (pop used to do this)
 - Expectation: Backtracking mechanism works as intended. 
 *** 2b Introduce BoundManager
@@ -347,7 +347,7 @@ SMTCore as the forum where all the different kinds of reasoning meet
 ** Adding Context object which will dictate backtracking using
 advanceDecisionLevel and backtrack.
 
-New implementation of performSplit and popSplit
+New implementation of decideSplit and popSplit
 
 Implementation of terms and literals
 
@@ -403,7 +403,7 @@ should move to a decisionMaking logic
 **** Engine:pickSplitPLConstraint
 *** _needToSplit - might become more complex, who wants to split, how?
 **** Might become an enum
-*** performSplit
+*** decideSplit
 Assumes it know what to split on
 **** Separate ReLU Splitting logic from general splitting logic
 **** No negations -> ReLU Splitting and Disjunction splitting.
@@ -414,7 +414,7 @@ Assumes it know what to split on
 ***** Just the pop()
 ***** Separate decide of alternative splits 
 ***** What does checkSkewFromDebuggingSolution() does?
-**** recordImpliedValidSplit -> Implications, could be more than just ReLUs in the future.
+**** implyValidSplit -> Implications, could be more than just ReLUs in the future.
 **** allSplitsSoFar -> getAllReLUPhases
 
 * Simplex Core
