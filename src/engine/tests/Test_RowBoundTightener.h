@@ -30,7 +30,7 @@ class RowBoundTightenerTestSuite : public CxxTest::TestSuite
 {
 public:
     MockForRowBoundTightener *mock;
-    MockTableau *tableau
+    MockTableau *tableau;
 
     void setUp()
     {
