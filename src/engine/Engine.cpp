@@ -198,7 +198,7 @@ bool Engine::solve( unsigned timeoutInSeconds )
             // Perform any SmtCore-initiated case splits
             if ( _smtCore.needToSplit() )
             {
-                _smtCore.performSplit();
+                _smtCore.decideSplit();
                 splitJustPerformed = true;
                 continue;
             }
@@ -289,7 +289,7 @@ bool Engine::solve( unsigned timeoutInSeconds )
         {
             // The current query is unsat, and we need to pop.
             // If we're at level 0, the whole query is unsat.
-            if ( !_smtCore.popSplit() )
+            if ( !_smtCore.backtrackAndContinue() )
             {
                 if ( _verbosity > 0 )
                 {
@@ -1559,8 +1559,8 @@ bool Engine::applyValidConstraintCaseSplit( PiecewiseLinearConstraint *constrain
 
         constraint->setActiveConstraint( false );
         PiecewiseLinearCaseSplit validSplit = constraint->getValidCaseSplit();
-        _smtCore.recordImpliedValidSplit( validSplit );
-        _smtCore.recordImpliedValidCaseSplit( constraint, validSplit.getPhase() );
+        _smtCore.implyValidSplit( validSplit );
+        _smtCore.implyCaseSplit( constraint, validSplit.getPhase() );
         applySplit( validSplit );
         ++_numPlConstraintsDisabledByValidSplits;
 

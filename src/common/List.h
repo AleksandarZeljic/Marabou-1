@@ -39,6 +39,11 @@ public:
     {
     }
 
+    void assign( const List<T>::iterator begin, const List<T>::iterator end )
+    {
+        _container.assign( begin, end );
+    }
+
     void append( const List<T> &other )
     {
         for ( const auto &element : other )
