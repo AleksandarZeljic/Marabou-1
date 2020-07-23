@@ -16,6 +16,7 @@
 #ifndef __ConstraintBoundTightener_h__
 #define __ConstraintBoundTightener_h__
 
+#include "BoundManager.h"
 #include "IConstraintBoundTightener.h"
 
 class ConstraintBoundTightener : public IConstraintBoundTightener
@@ -68,6 +69,7 @@ private:
     unsigned _n;
     unsigned _m;
 
+    BoundManager &_boundManager;
     /*
       Work space for the tightener to derive tighter bounds. These
       represent the tightest bounds currently known, either taken

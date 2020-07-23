@@ -20,6 +20,7 @@
 
 ConstraintBoundTightener::ConstraintBoundTightener( const ITableau &tableau )
     : _tableau( tableau )
+    , _boundManager ( _tableau.getBoundManager() )
     , _lowerBounds( NULL )
     , _upperBounds( NULL )
     , _tightenedLower( NULL )
@@ -105,20 +106,29 @@ void ConstraintBoundTightener::setStatistics( Statistics *statistics )
 
 void ConstraintBoundTightener::notifyLowerBound( unsigned variable, double bound )
 {
+    ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
     if ( bound > _lowerBounds[variable] )
     {
+        _boundManager.setLowerBound( variable, bound );
         _lowerBounds[variable] = bound;
         _tightenedLower[variable] = false;
     }
+
+    ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
 }
 
 void ConstraintBoundTightener::notifyUpperBound( unsigned variable, double bound )
 {
+    ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
+
     if ( bound < _upperBounds[variable] )
     {
+        _boundManager.setUpperBound( variable, bound );
         _upperBounds[variable] = bound;
         _tightenedUpper[variable] = false;
     }
+
+    ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
 }
 
 void ConstraintBoundTightener::notifyDimensionChange( unsigned /* m */ , unsigned /* n */ )
@@ -128,20 +138,27 @@ void ConstraintBoundTightener::notifyDimensionChange( unsigned /* m */ , unsigne
 
 void ConstraintBoundTightener::registerTighterLowerBound( unsigned variable, double bound )
 {
+    // Might not hold
+    ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
     if ( bound > _lowerBounds[variable] )
     {
+        _boundManager.setLowerBound( variable, bound );
         _lowerBounds[variable] = bound;
         _tightenedLower[variable] = true;
     }
+    ASSERT( _boundManager.getLowerBound( variable ) == _lowerBounds[variable] );
 }
 
 void ConstraintBoundTightener::registerTighterUpperBound( unsigned variable, double bound )
 {
+    ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
     if ( bound < _upperBounds[variable] )
     {
+        _boundManager.setUpperBound( variable, bound );
         _upperBounds[variable] = bound;
         _tightenedUpper[variable] = true;
     }
+    ASSERT( _boundManager.getUpperBound( variable ) == _upperBounds[variable] );
 }
 
 void ConstraintBoundTightener::getConstraintTightenings( List<Tightening> &tightenings ) const

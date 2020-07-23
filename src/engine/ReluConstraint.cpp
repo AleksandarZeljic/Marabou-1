@@ -128,7 +128,7 @@ void ReluConstraint::notifyLowerBound( unsigned variable, double bound )
     if ( _lowerBounds.exists( variable ) && !FloatUtils::gt( bound, _lowerBounds[variable] ) )
         return;
 
-    _lowerBounds[variable] = bound;
+    _lowerBounds[variable] = bound; // TODO: Replace local copies with calls to BoundManager
 
     if ( variable == _f && FloatUtils::isPositive( bound ) )
         setPhaseStatus( PhaseStatus::PHASE_ACTIVE );
