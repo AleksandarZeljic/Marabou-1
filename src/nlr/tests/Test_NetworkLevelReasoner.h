@@ -327,29 +327,30 @@ public:
         NLR::NetworkLevelReasoner nlr;
         populateNetwork( nlr );
 
-        MockTableau tableau;
+        MockTableau tableau1;
+        tableau1.getBoundManager().initialize( 14u );
 
         // Initialize the bounds
-        tableau.setLowerBound( 0, -1 );
-        tableau.setUpperBound( 0, 1 );
-        tableau.setLowerBound( 1, -1 );
-        tableau.setUpperBound( 1, 1 );
+        tableau1.setLowerBound( 0, -1 );
+        tableau1.setUpperBound( 0, 1 );
+        tableau1.setLowerBound( 1, -1 );
+        tableau1.setUpperBound( 1, 1 );
 
         double large = 1000;
-        tableau.setLowerBound( 2, -large ); tableau.setUpperBound( 2, large );
-        tableau.setLowerBound( 3, -large ); tableau.setUpperBound( 3, large );
-        tableau.setLowerBound( 4, -large ); tableau.setUpperBound( 4, large );
-        tableau.setLowerBound( 5, -large ); tableau.setUpperBound( 5, large );
-        tableau.setLowerBound( 6, -large ); tableau.setUpperBound( 6, large );
-        tableau.setLowerBound( 7, -large ); tableau.setUpperBound( 7, large );
-        tableau.setLowerBound( 8, -large ); tableau.setUpperBound( 8, large );
-        tableau.setLowerBound( 9, -large ); tableau.setUpperBound( 9, large );
-        tableau.setLowerBound( 10, -large ); tableau.setUpperBound( 10, large );
-        tableau.setLowerBound( 11, -large ); tableau.setUpperBound( 11, large );
-        tableau.setLowerBound( 12, -large ); tableau.setUpperBound( 12, large );
-        tableau.setLowerBound( 13, -large ); tableau.setUpperBound( 13, large );
+        tableau1.setLowerBound( 2, -large ); tableau1.setUpperBound( 2, large );
+        tableau1.setLowerBound( 3, -large ); tableau1.setUpperBound( 3, large );
+        tableau1.setLowerBound( 4, -large ); tableau1.setUpperBound( 4, large );
+        tableau1.setLowerBound( 5, -large ); tableau1.setUpperBound( 5, large );
+        tableau1.setLowerBound( 6, -large ); tableau1.setUpperBound( 6, large );
+        tableau1.setLowerBound( 7, -large ); tableau1.setUpperBound( 7, large );
+        tableau1.setLowerBound( 8, -large ); tableau1.setUpperBound( 8, large );
+        tableau1.setLowerBound( 9, -large ); tableau1.setUpperBound( 9, large );
+        tableau1.setLowerBound( 10, -large ); tableau1.setUpperBound( 10, large );
+        tableau1.setLowerBound( 11, -large ); tableau1.setUpperBound( 11, large );
+        tableau1.setLowerBound( 12, -large ); tableau1.setUpperBound( 12, large );
+        tableau1.setLowerBound( 13, -large ); tableau1.setUpperBound( 13, large );
 
-        nlr.setTableau( &tableau );
+        nlr.setTableau( &tableau1 );
 
         // Initialize
         TS_ASSERT_THROWS_NOTHING( nlr.obtainCurrentBounds() );
@@ -396,24 +397,29 @@ public:
         for ( const auto &bound : expectedBounds )
             TS_ASSERT( bounds.exists( bound ) );
 
-        // Change the current bounds
-        tableau.setLowerBound( 0, -3 );
-        tableau.setUpperBound( 0, 1 );
-        tableau.setLowerBound( 1, -1 );
-        tableau.setUpperBound( 1, 2 );
+        MockTableau tableau2;
+        tableau2.getBoundManager().initialize( 14u );
 
-        tableau.setLowerBound( 2, -large ); tableau.setUpperBound( 2, large );
-        tableau.setLowerBound( 3, -large ); tableau.setUpperBound( 3, large );
-        tableau.setLowerBound( 4, -large ); tableau.setUpperBound( 4, large );
-        tableau.setLowerBound( 5, -large ); tableau.setUpperBound( 5, large );
-        tableau.setLowerBound( 6, -large ); tableau.setUpperBound( 6, large );
-        tableau.setLowerBound( 7, -large ); tableau.setUpperBound( 7, large );
-        tableau.setLowerBound( 8, -large ); tableau.setUpperBound( 8, large );
-        tableau.setLowerBound( 9, -large ); tableau.setUpperBound( 9, large );
-        tableau.setLowerBound( 10, -large ); tableau.setUpperBound( 10, large );
-        tableau.setLowerBound( 11, -large ); tableau.setUpperBound( 11, large );
-        tableau.setLowerBound( 12, -large ); tableau.setUpperBound( 12, large );
-        tableau.setLowerBound( 13, -large ); tableau.setUpperBound( 13, large );
+        // Change the current bounds
+        tableau2.setLowerBound( 0, -3 );
+        tableau2.setUpperBound( 0, 1 );
+        tableau2.setLowerBound( 1, -1 );
+        tableau2.setUpperBound( 1, 2 );
+
+        tableau2.setLowerBound( 2, -large ); tableau2.setUpperBound( 2, large );
+        tableau2.setLowerBound( 3, -large ); tableau2.setUpperBound( 3, large );
+        tableau2.setLowerBound( 4, -large ); tableau2.setUpperBound( 4, large );
+        tableau2.setLowerBound( 5, -large ); tableau2.setUpperBound( 5, large );
+        tableau2.setLowerBound( 6, -large ); tableau2.setUpperBound( 6, large );
+        tableau2.setLowerBound( 7, -large ); tableau2.setUpperBound( 7, large );
+        tableau2.setLowerBound( 8, -large ); tableau2.setUpperBound( 8, large );
+        tableau2.setLowerBound( 9, -large ); tableau2.setUpperBound( 9, large );
+        tableau2.setLowerBound( 10, -large ); tableau2.setUpperBound( 10, large );
+        tableau2.setLowerBound( 11, -large ); tableau2.setUpperBound( 11, large );
+        tableau2.setLowerBound( 12, -large ); tableau2.setUpperBound( 12, large );
+        tableau2.setLowerBound( 13, -large ); tableau2.setUpperBound( 13, large );
+
+        nlr.setTableau( &tableau2 );
 
         // Initialize
         TS_ASSERT_THROWS_NOTHING( nlr.obtainCurrentBounds() );
@@ -532,29 +538,30 @@ public:
         nlr.setNeuronVariable( NLR::NeuronIndex( 5, 0 ), 12 );
         nlr.setNeuronVariable( NLR::NeuronIndex( 5, 1 ), 13 );
 
-        MockTableau tableau;
+        MockTableau tableau1;
+        tableau1.getBoundManager().initialize( 14u );
 
         // Initialize the bounds
-        tableau.setLowerBound( 0, -1 );
-        tableau.setUpperBound( 0, 2 );
-        tableau.setLowerBound( 1, -1 );
-        tableau.setUpperBound( 1, 2 );
+        tableau1.setLowerBound( 0, -1 );
+        tableau1.setUpperBound( 0, 2 );
+        tableau1.setLowerBound( 1, -1 );
+        tableau1.setUpperBound( 1, 2 );
 
         double large = 1000;
-        tableau.setLowerBound( 2, -large ); tableau.setUpperBound( 2, large );
-        tableau.setLowerBound( 3, -large ); tableau.setUpperBound( 3, large );
-        tableau.setLowerBound( 4, -large ); tableau.setUpperBound( 4, large );
-        tableau.setLowerBound( 5, -large ); tableau.setUpperBound( 5, large );
-        tableau.setLowerBound( 6, -large ); tableau.setUpperBound( 6, large );
-        tableau.setLowerBound( 7, -large ); tableau.setUpperBound( 7, large );
-        tableau.setLowerBound( 8, -large ); tableau.setUpperBound( 8, large );
-        tableau.setLowerBound( 9, -large ); tableau.setUpperBound( 9, large );
-        tableau.setLowerBound( 10, -large ); tableau.setUpperBound( 10, large );
-        tableau.setLowerBound( 11, -large ); tableau.setUpperBound( 11, large );
-        tableau.setLowerBound( 12, -large ); tableau.setUpperBound( 12, large );
-        tableau.setLowerBound( 13, -large ); tableau.setUpperBound( 13, large );
+        tableau1.setLowerBound( 2, -large ); tableau1.setUpperBound( 2, large );
+        tableau1.setLowerBound( 3, -large ); tableau1.setUpperBound( 3, large );
+        tableau1.setLowerBound( 4, -large ); tableau1.setUpperBound( 4, large );
+        tableau1.setLowerBound( 5, -large ); tableau1.setUpperBound( 5, large );
+        tableau1.setLowerBound( 6, -large ); tableau1.setUpperBound( 6, large );
+        tableau1.setLowerBound( 7, -large ); tableau1.setUpperBound( 7, large );
+        tableau1.setLowerBound( 8, -large ); tableau1.setUpperBound( 8, large );
+        tableau1.setLowerBound( 9, -large ); tableau1.setUpperBound( 9, large );
+        tableau1.setLowerBound( 10, -large ); tableau1.setUpperBound( 10, large );
+        tableau1.setLowerBound( 11, -large ); tableau1.setUpperBound( 11, large );
+        tableau1.setLowerBound( 12, -large ); tableau1.setUpperBound( 12, large );
+        tableau1.setLowerBound( 13, -large ); tableau1.setUpperBound( 13, large );
 
-        nlr.setTableau( &tableau );
+        nlr.setTableau( &tableau1 );
 
         // Initialize
         TS_ASSERT_THROWS_NOTHING( nlr.obtainCurrentBounds() );
@@ -600,24 +607,29 @@ public:
         for ( const auto &bound : expectedBounds )
             TS_ASSERT( bounds.exists( bound ) );
 
-        // Change the current bounds
-        tableau.setLowerBound( 0, -3 );
-        tableau.setUpperBound( 0, 1 );
-        tableau.setLowerBound( 1, -1 );
-        tableau.setUpperBound( 1, 2 );
+        MockTableau tableau2;
+        tableau2.getBoundManager().initialize( 14u );
 
-        tableau.setLowerBound( 2, -large ); tableau.setUpperBound( 2, large );
-        tableau.setLowerBound( 3, -large ); tableau.setUpperBound( 3, large );
-        tableau.setLowerBound( 4, -large ); tableau.setUpperBound( 4, large );
-        tableau.setLowerBound( 5, -large ); tableau.setUpperBound( 5, large );
-        tableau.setLowerBound( 6, -large ); tableau.setUpperBound( 6, large );
-        tableau.setLowerBound( 7, -large ); tableau.setUpperBound( 7, large );
-        tableau.setLowerBound( 8, -large ); tableau.setUpperBound( 8, large );
-        tableau.setLowerBound( 9, -large ); tableau.setUpperBound( 9, large );
-        tableau.setLowerBound( 10, -large ); tableau.setUpperBound( 10, large );
-        tableau.setLowerBound( 11, -large ); tableau.setUpperBound( 11, large );
-        tableau.setLowerBound( 12, -large ); tableau.setUpperBound( 12, large );
-        tableau.setLowerBound( 13, -large ); tableau.setUpperBound( 13, large );
+        // Change the current bounds
+        tableau2.setLowerBound( 0, -3 );
+        tableau2.setUpperBound( 0, 1 );
+        tableau2.setLowerBound( 1, -1 );
+        tableau2.setUpperBound( 1, 2 );
+
+        tableau2.setLowerBound( 2, -large ); tableau2.setUpperBound( 2, large );
+        tableau2.setLowerBound( 3, -large ); tableau2.setUpperBound( 3, large );
+        tableau2.setLowerBound( 4, -large ); tableau2.setUpperBound( 4, large );
+        tableau2.setLowerBound( 5, -large ); tableau2.setUpperBound( 5, large );
+        tableau2.setLowerBound( 6, -large ); tableau2.setUpperBound( 6, large );
+        tableau2.setLowerBound( 7, -large ); tableau2.setUpperBound( 7, large );
+        tableau2.setLowerBound( 8, -large ); tableau2.setUpperBound( 8, large );
+        tableau2.setLowerBound( 9, -large ); tableau2.setUpperBound( 9, large );
+        tableau2.setLowerBound( 10, -large ); tableau2.setUpperBound( 10, large );
+        tableau2.setLowerBound( 11, -large ); tableau2.setUpperBound( 11, large );
+        tableau2.setLowerBound( 12, -large ); tableau2.setUpperBound( 12, large );
+        tableau2.setLowerBound( 13, -large ); tableau2.setUpperBound( 13, large );
+
+        nlr.setTableau( &tableau2 );
 
         // Initialize
         TS_ASSERT_THROWS_NOTHING( nlr.obtainCurrentBounds() );
@@ -730,6 +742,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
         populateNetworkSBT( nlr, tableau );
 
@@ -800,6 +813,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
         populateNetworkSBT( nlr, tableau );
 
@@ -874,6 +888,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
         populateNetworkSBT( nlr, tableau );
 
@@ -952,6 +967,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
         populateNetworkSBT( nlr, tableau );
 
@@ -1029,6 +1045,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
 
         // Create the layers
@@ -1141,6 +1158,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
 
         // Create the layers
@@ -1257,6 +1275,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
 
         // Create the layers
@@ -1376,6 +1395,7 @@ public:
 
         NLR::NetworkLevelReasoner nlr;
         MockTableau tableau;
+        tableau.getBoundManager().initialize( 7u );
         nlr.setTableau( &tableau );
 
         // Create the layers

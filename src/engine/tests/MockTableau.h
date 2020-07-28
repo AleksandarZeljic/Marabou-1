@@ -30,6 +30,7 @@ class MockTableau : public ITableau
 {
 public:
     MockTableau()
+    : _context()
     {
         wasCreated = false;
         wasDiscarded = false;
@@ -48,8 +49,7 @@ public:
 
         nextLinearlyDependentResult = false;
 
-        CVC4::context::Context ctx;
-        _boundManager = new BoundManager( ctx );
+        _boundManager = new BoundManager( _context );
     }
 
     ~MockTableau()
@@ -136,6 +136,8 @@ public:
 
         lastBtranInput = new double[m];
         nextBtranOutput = new double[m];
+
+        _boundManager->initialize( n );
     }
 
     double *lastEntries;
@@ -187,22 +189,28 @@ public:
     Map<unsigned, double> lowerBounds;
     double getLowerBound( unsigned variable ) const
     {
+        TS_ASSERT_EQUALS( lowerBounds[variable],
+                          _boundManager->getLowerBound( variable ) );
         return lowerBounds[variable];
     }
 
     void setLowerBound( unsigned variable, double value )
     {
+        _boundManager->setLowerBound( variable, value );
         lowerBounds[variable] = value;
     }
 
     Map<unsigned, double> upperBounds;
     double getUpperBound( unsigned variable ) const
     {
+        TS_ASSERT_EQUALS( upperBounds[variable],
+                          _boundManager->getUpperBound( variable ) );
         return upperBounds[variable];
     }
 
     void setUpperBound( unsigned variable, double value )
     {
+        _boundManager->setUpperBound( variable, value );
         upperBounds[variable] = value;
     }
 
@@ -606,6 +614,7 @@ public:
         return 0;
     }
 
+    CVC4::context::Context _context;
     BoundManager *_boundManager;
     BoundManager &getBoundManager() const
     {
