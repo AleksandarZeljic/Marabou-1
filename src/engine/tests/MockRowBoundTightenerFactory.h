@@ -35,9 +35,9 @@ public:
 		}
 	}
 
-	IRowBoundTightener *createRowBoundTightener( const ITableau &tableau, BoundManager &boundManager )
+	IRowBoundTightener *createRowBoundTightener( const ITableau &tableau )
 	{
-      mockRowBoundTightener.mockConstructor( tableau, boundManager );
+      mockRowBoundTightener.mockConstructor( tableau );
       return &mockRowBoundTightener;
 	}
 

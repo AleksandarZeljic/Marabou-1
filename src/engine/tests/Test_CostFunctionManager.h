@@ -86,12 +86,16 @@ public:
         tableau.nextBasicIndexToVariable[1] = 6;
         tableau.nextBasicIndexToVariable[2] = 7;
 
-        tableau.lowerBounds[5] = 0;
-        tableau.upperBounds[5] = 1;
-        tableau.lowerBounds[6] = 0;
-        tableau.upperBounds[6] = 1;
-        tableau.lowerBounds[7] = 0;
-        tableau.upperBounds[7] = 1;
+        TS_ASSERT_EQUALS( tableau.getBoundManager().registerNewVariable(), 5u );
+        TS_ASSERT_EQUALS( tableau.getBoundManager().registerNewVariable(), 6u );
+        TS_ASSERT_EQUALS( tableau.getBoundManager().registerNewVariable(), 7u );
+
+        tableau.setLowerBound( 5, 0 );
+        tableau.setUpperBound( 5, 1 );
+        tableau.setLowerBound( 6, 0 );
+        tableau.setUpperBound( 6, 1 );
+        tableau.setLowerBound( 7, 0 );
+        tableau.setUpperBound( 7, 1 );
 
         tableau.nextValues[5] = 10; // Too high
         tableau.nextValues[6] = -10; // Too low
@@ -145,12 +149,16 @@ public:
         tableau.nextBasicIndexToVariable[1] = 6;
         tableau.nextBasicIndexToVariable[2] = 7;
 
-        tableau.lowerBounds[5] = 0;
-        tableau.upperBounds[5] = 1;
-        tableau.lowerBounds[6] = 0;
-        tableau.upperBounds[6] = 1;
-        tableau.lowerBounds[7] = 0;
-        tableau.upperBounds[7] = 1;
+        TS_ASSERT_EQUALS( tableau.getBoundManager().registerNewVariable(), 5u );
+        TS_ASSERT_EQUALS( tableau.getBoundManager().registerNewVariable(), 6u );
+        TS_ASSERT_EQUALS( tableau.getBoundManager().registerNewVariable(), 7u );
+
+        tableau.setLowerBound( 5, 0 );
+        tableau.setUpperBound( 5, 1 );
+        tableau.setLowerBound( 6, 0 );
+        tableau.setUpperBound( 6, 1 );
+        tableau.setLowerBound( 7, 0 );
+        tableau.setUpperBound( 7, 1 );
 
         tableau.nextValues[5] = 10; // Too high
         tableau.nextValues[6] = -10; // Too low

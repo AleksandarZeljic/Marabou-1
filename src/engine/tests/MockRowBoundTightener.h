@@ -39,9 +39,9 @@ public:
     const ITableau *lastTableau;
     BoundManager *_boundManager;
 
-    void mockConstructor( const ITableau &tableau, BoundManager & boundManager)
+    void mockConstructor( const ITableau &tableau )
     {
-        _boundManager = & boundManager;
+        _boundManager = &( tableau.getBoundManager() );
         TS_ASSERT( !wasCreated );
         wasCreated = true;
         lastTableau = &tableau;

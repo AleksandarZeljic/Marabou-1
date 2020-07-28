@@ -27,7 +27,7 @@
 class RowBoundTightener : public IRowBoundTightener
 {
 public:
-    RowBoundTightener( const ITableau &tableau, BoundManager &boundManager );
+    RowBoundTightener( const ITableau &tableau );
     ~RowBoundTightener();
 
     /*

@@ -46,10 +46,7 @@ public:
 
     void test_pivot_row__both_bounds_tightened()
     {
-        CVC4::context::Context context;
-        BoundManager boundManager(context);
-        boundManager.initialize(5u);
-        RowBoundTightener tightener( *tableau, boundManager );
+        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
 
@@ -114,7 +111,7 @@ public:
         CVC4::context::Context context;
         BoundManager boundManager(context);
         boundManager.initialize(5u);
-        RowBoundTightener tightener( *tableau, boundManager );
+        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
 
@@ -169,7 +166,7 @@ public:
         CVC4::context::Context context;
         BoundManager boundManager(context);
         boundManager.initialize(5u);
-        RowBoundTightener tightener( *tableau, boundManager );
+        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
 
@@ -217,7 +214,7 @@ public:
         CVC4::context::Context context;
         BoundManager boundManager(context);
         boundManager.initialize(5u);
-        RowBoundTightener tightener( *tableau, boundManager );
+        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
         TS_ASSERT_THROWS_NOTHING( tableau->setLowerBound( 0, -112 ) );
@@ -257,7 +254,7 @@ public:
         CVC4::context::Context context;
         BoundManager boundManager(context);
         boundManager.initialize(5u);
-        RowBoundTightener tightener( *tableau, boundManager );
+        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 1, 5 );
 
@@ -322,7 +319,7 @@ public:
         CVC4::context::Context context;
         BoundManager boundManager( context );
         boundManager.initialize( 5u );
-        RowBoundTightener tightener( *tableau, boundManager );
+        RowBoundTightener tightener( *tableau );
 
         //        RowBoundTightener tightener( *tableau );
 
