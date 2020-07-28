@@ -336,6 +336,10 @@ bool SmtCore::backtrackAndContinue()
             ++popCount;
         else
             return false;
+
+        if (_stack.empty()) {
+            return false;
+        }
     }
 
     interruptIfCompliantWithDebugSolution();
