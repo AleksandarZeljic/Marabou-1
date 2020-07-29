@@ -38,7 +38,8 @@
 - Check performance (if it makes sense)
 ** M1 - Introducing incremental and modular problem representation
 *** Refactor SMTCore 
-**** 1a Add Context 
+**** DONE 1a Add Context 
+CLOSED: [2020-07-27 Mon 09:55]
 ***** Start using namespaces (look at the proposal of logical decomposition)
 ****** Retain CVC4::Context namespace
 ****** Introduce Marabou namespace
@@ -68,7 +69,8 @@ CLOSED: [2020-03-30 Mon 15:45]
 - Test: Start with one element on stack, pop decision, expect and empty _context s
 ****** Both:
 - Inv: Context decision level is in sync with depth of the existing search  
-**** 2a Add Trail (of PiecewiseLinearCaseSplits)
+**** DONE 2a Add Trail (of PiecewiseLinearCaseSplits)
+CLOSED: [2020-07-27 Mon 09:55]
 ***** Add _trail, of type CDList<PiecewiseLinearCaseSplit>, to SMTCore
 - Expectation: _trail is associated with _context
 - Long-term goal, move to CDList<Literals>?
@@ -95,7 +97,7 @@ CLOSED: [2020-03-30 Mon 15:45]
 **** 3a Refactor performSplit
 - Expectation: can perform a split on a particular case of a ReLU
 - Expectation: logic of which case to split on and splitting are separated
-***** Refactor into two methods:
+***** TODO Refactor into two methods:
 ****** chooseSplitCase()
 - Expectation: Implements logic of which case should be asserted next
 ****** performSplit(PWLCaseSplit case)
@@ -109,8 +111,10 @@ CLOSED: [2020-03-30 Mon 15:45]
 ****** _context.pop()
 ****** chooseSplitCase()
 ****** performSplit()
+***** TODO Broken unit test, figuring out if it is a spoof or an actual issue
 **** 4a Add push calls for other cases (pop used to do this)
 - Expectation: Backtracking mechanism works as intended. 
+***** For now I retained existing code as backtrackAndContinue
 *** 2b Introduce BoundManager
 **** DONE write BoundManager class 
 CLOSED: [2020-07-08 Wed 11:10]
@@ -124,26 +128,38 @@ CLOSED: [2020-07-08 Wed 11:10]
 ***** DONE Add basic tests for BoundManager class
 CLOSED: [2020-06-30 Tue 16:05]
 ****** NEW Consider other interactions - inconsistent bounds, redundant updates,... 
-***** RowBoundTightener
+***** DONE RowBoundTightener
+CLOSED: [2020-07-27 Mon 09:58]
 ****** DONE Add Calls to BoundManager to actually store the bounds
 CLOSED: [2020-06-23 Tue 16:00]
 ****** NEXT Add Tests to ensure equivalence in Test_RowBoundTightener 
 ******* Hypothesis: failing because not everything is updated (waiting on Tableau and SBT)
+***** TODO ConstraintBoundTightener
+****** Shadows calls to BoundManager for now
+****** TODO Migrate Flags to indicate who sourced the new bound to BM
+
+****** Will be factored out eventually
+***** TODO Tableau 
+****** DONE Add the member to the class
+CLOSED: [2020-06-30 Tue 16:16]
+****** TODO Shadowing calls
+******* Partially done, revisit
+****** Mark redundant functions
+***** Constraints
+****** Have local copies of bounds
+****** Want to replace them with central versions 
 ***** TODO SymbolicBoundTightener
 ******* Integrate master SBT 
 ******* Add shadowing calls 
 ******* Ensure equivalence  
-***** TODO ConstraintBoundTightener
-***** TODO Tableau 
-****** DONE Add the member to the class
-CLOSED: [2020-06-30 Tue 16:16]
-****** NEW Shadowing calls
-******* Partially done, revisit
-****** Mark redundant functions
 ***** TODO BoundManager::setLowerBound( var, value, SOURCE); to control propagation 
 ***** TODO Migrate Tableau::checkBoundsValid to BoundManager 
 ***** TODO BoundManager::notifyDimensionChange?
 ***** TODO Add alternative communication with the BoundTighteners
+***** Invariants? 
+****** It is currently too strong to expect that BM is perfectly in sync with all the bound
+****** BM has <= bounds than any other store bounds
+****** Still looking into this
 **** 4b mirror all bound update calls to _boundManager  
 - Expectation: _boundManager is in sync with bounds returned by the BoundTighteners 
 ***** Verify correctness at this point! 
