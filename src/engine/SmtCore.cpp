@@ -323,7 +323,6 @@ bool SmtCore::backtrackAndContinue()
     // Counter for Stack pops to be matched by trail pops
     // Starts at one, because Stack does not distinguish implications
     // (temp feature, to be factored out)
-    unsigned popCount = 1;
     List<PiecewiseLinearCaseSplit> alternatives;
 
     // Remove any entries that have no alternatives
@@ -333,7 +332,7 @@ bool SmtCore::backtrackAndContinue()
         interruptIfCompliantWithDebugSolution();
 
         if ( popSplit() )
-            ++popCount;
+            popDecisionLevel();
         else
             return false;
 
@@ -352,8 +351,7 @@ bool SmtCore::backtrackAndContinue()
     // Clear any implications learned using the split we just popped
     stackEntry->_impliedValidSplits.clear();
 
-    while ( popCount-- )
-        popDecisionLevel();
+    popDecisionLevel();
 
     auto split = stackEntry->_alternativeSplits.begin();
 
