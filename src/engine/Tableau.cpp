@@ -2359,9 +2359,9 @@ void Tableau::updateAssignmentForPivot()
         }
 
         if ( basicGoingToUpperBound )
-            basicDelta = _upperBounds[currentBasic] - currentBasicValue;
+            basicDelta = upperBound( currentBasic ) - currentBasicValue;
         else
-            basicDelta = _lowerBounds[currentBasic] - currentBasicValue;
+            basicDelta = lowerBound( currentBasic ) - currentBasicValue;
 
         // Now that we know by how much the leaving variable changes,
         // we can calculate by how much the entering variable is going
