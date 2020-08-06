@@ -85,7 +85,7 @@ public:
     virtual void restoreState( const PiecewiseLinearConstraint *state ) = 0;
 
     /*
-      Register/unregister the constraint with a talbeau.
+      Register/unregister the constraint with a tableau.
     */
     virtual void registerAsWatcher( ITableau *tableau ) = 0;
     virtual void unregisterAsWatcher( ITableau *tableau ) = 0;
