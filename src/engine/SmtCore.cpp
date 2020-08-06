@@ -153,7 +153,7 @@ void SmtCore::performSplit()
 
 unsigned SmtCore::getStackDepth() const
 {
-    ASSERT( _stack.size() == static_cast<unsigned>( _context.getLevel() ) );
+    //ASSERT( _stack.size() == static_cast<unsigned>( _context.getLevel() ) );
     return _stack.size();
 }
 
@@ -189,7 +189,7 @@ bool SmtCore::popSplit()
         delete _stack.back()->_engineState;
         delete _stack.back();
         _stack.popBack();
-        _context.pop(); 
+        _context.pop();
         if ( _stack.empty() )
             return false;
     }
@@ -208,6 +208,8 @@ bool SmtCore::popSplit()
     _engine->restoreState( *(stackEntry->_engineState) );
     SMT_LOG( "\tRestoring engine state - DONE" );
 
+    _context.pop();
+
     // Apply the new split and erase it from the list
     auto split = stackEntry->_alternativeSplits.begin();
 
@@ -223,6 +225,8 @@ bool SmtCore::popSplit()
 
     stackEntry->_activeSplit = *split;
     stackEntry->_alternativeSplits.erase( split );
+
+    _context.push();
 
     if ( _statistics )
     {
