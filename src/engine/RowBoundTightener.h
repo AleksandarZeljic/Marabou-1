@@ -122,6 +122,14 @@ private:
     bool *_tightenedUpper;
 
     /*
+      Replacement calls for _lowerBounds and _upperBounds
+    */
+    inline double upperBound( unsigned variable ) const { return _boundManager.getUpperBound( variable ); }
+    inline double lowerBound( unsigned variable ) const { return _boundManager.getLowerBound( variable ); }
+
+
+
+    /*
      * Object that stores current bounds from all the sources
      */
     BoundManager &_boundManager;
