@@ -189,7 +189,6 @@ bool Engine::solve( unsigned timeoutInSeconds )
 
             if ( splitJustPerformed )
             {
-                checkBoundConsistency();
                 do
                 {
                     performSymbolicBoundTightening();
@@ -201,7 +200,6 @@ bool Engine::solve( unsigned timeoutInSeconds )
             // Perform any SmtCore-initiated case splits
             if ( _smtCore.needToSplit() )
             {
-                checkBoundConsistency();
                 _smtCore.performSplit();
                 splitJustPerformed = true;
                 continue;
@@ -2035,16 +2033,6 @@ PiecewiseLinearConstraint *Engine::pickSplitPLConstraint()
 void Engine::setConstraintViolationThreshold( unsigned threshold )
 {
     _smtCore.setConstraintViolationThreshold( threshold );
-}
-
-void Engine::checkBoundConsistency()
-{
-    for ( unsigned variable = 0; variable <  _preprocessedQuery.getNumberOfVariables(); ++variable )
-    {
-        //std::cout << _boundManager.getUpperBound( variable ) << " " << _tableau->getUpperBound( variable ) << std::endl;
-        ASSERT( FloatUtils::areEqual( _boundManager.getLowerBound( variable ), _tableau->getLowerBound( variable ) ) );
-        ASSERT( FloatUtils::areEqual( _boundManager.getUpperBound( variable ), _tableau->getUpperBound( variable ) ) );
-    }
 }
 
 

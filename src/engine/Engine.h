@@ -487,8 +487,6 @@ private:
     */
     void updateDirections();
 
-    void checkBoundConsistency();
-
 };
 
 #endif // __Engine_h__
