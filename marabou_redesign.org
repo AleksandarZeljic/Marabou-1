@@ -134,24 +134,32 @@ CLOSED: [2020-07-27 Mon 09:58]
 CLOSED: [2020-06-23 Tue 16:00]
 ****** NEXT Add Tests to ensure equivalence in Test_RowBoundTightener 
 ******* Hypothesis: failing because not everything is updated (waiting on Tableau and SBT)
-***** TODO ConstraintBoundTightener
-****** Shadows calls to BoundManager for now
-****** TODO Migrate Flags to indicate who sourced the new bound to BM
-
-****** Will be factored out eventually
-***** TODO Tableau 
+***** DONE ConstraintBoundTightener
+CLOSED: [2020-07-29 Wed 13:29]
+****** DONE Shadows calls to BoundManager for now
+CLOSED: [2020-07-29 Wed 13:23]
+***** DONE Tableau 
+CLOSED: [2020-07-29 Wed 13:30]
 ****** DONE Add the member to the class
 CLOSED: [2020-06-30 Tue 16:16]
-****** TODO Shadowing calls
+****** DONE Shadowing calls
+CLOSED: [2020-07-29 Wed 13:23]
 ******* Partially done, revisit
 ****** Mark redundant functions
-***** Constraints
-****** Have local copies of bounds
-****** Want to replace them with central versions 
+***** Fix all the tests! 
+***** Perform an assertions run with debugging on 
 ***** TODO SymbolicBoundTightener
-******* Integrate master SBT 
-******* Add shadowing calls 
-******* Ensure equivalence  
+****** Replace tableau with boundManager (still copies things around)
+****** Consider whether copying can be eliminated?
+***** TODO Constraints
+****** Have local copies of bounds, used in pre-processing for omnidirectional propagation
+****** Want to replace them with central versions eventually, not urgent
+****** Phase of constraint should be a CDO
+***** TODO Refactor/Remove ConstraintBoundTightener
+Migrate Flags to indicate who sourced the new bound to BM
+
+****** Will be factored out eventually
+
 ***** TODO BoundManager::setLowerBound( var, value, SOURCE); to control propagation 
 ***** TODO Migrate Tableau::checkBoundsValid to BoundManager 
 ***** TODO BoundManager::notifyDimensionChange?
