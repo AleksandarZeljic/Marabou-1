@@ -189,6 +189,7 @@ bool Engine::solve( unsigned timeoutInSeconds )
 
             if ( splitJustPerformed )
             {
+                checkBoundConsistency();
                 do
                 {
                     performSymbolicBoundTightening();
@@ -200,6 +201,7 @@ bool Engine::solve( unsigned timeoutInSeconds )
             // Perform any SmtCore-initiated case splits
             if ( _smtCore.needToSplit() )
             {
+                checkBoundConsistency();
                 _smtCore.decideSplit();
                 splitJustPerformed = true;
                 continue;
@@ -1086,15 +1088,16 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         List<unsigned> initialBasis;
         List<unsigned> basicRows;
         selectInitialVariablesForBasis( constraintMatrix, initialBasis, basicRows );
-        // TODO: Find the right spot for initialization in terms of number of variables at this point in time 
+        // TODO: Find the right spot for initialization in terms of number of variables at this point in time
+        addAuxiliaryVariables();
+        augmentInitialBasisIfNeeded( initialBasis, basicRows );
+
         _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
         for ( unsigned i = 0; i < _preprocessedQuery.getNumberOfVariables(); ++i )
         {
-                _boundManager.setLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
-                _boundManager.setUpperBound( i, _preprocessedQuery.getLowerBound( i ) );
+            _boundManager.setLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
+            _boundManager.setUpperBound( i, _preprocessedQuery.getUpperBound( i ) );
         }
-        addAuxiliaryVariables();
-        augmentInitialBasisIfNeeded( initialBasis, basicRows );
 
         storeEquationsInDegradationChecker();
 
@@ -2041,6 +2044,17 @@ void Engine::setConstraintViolationThreshold( unsigned threshold )
 {
     _smtCore.setConstraintViolationThreshold( threshold );
 }
+
+void Engine::checkBoundConsistency()
+{
+    for ( unsigned variable = 0; variable <  _preprocessedQuery.getNumberOfVariables(); ++variable )
+    {
+        //std::cout << _boundManager.getUpperBound( variable ) << " " << _tableau->getUpperBound( variable ) << std::endl;
+        ASSERT( FloatUtils::areEqual( _boundManager.getLowerBound( variable ), _tableau->getLowerBound( variable ) ) );
+        ASSERT( FloatUtils::areEqual( _boundManager.getUpperBound( variable ), _tableau->getUpperBound( variable ) ) );
+    }
+}
+
 
 //
 // Local Variables:

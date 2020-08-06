@@ -487,6 +487,9 @@ private:
       to handle case splits
     */
     void updateDirections();
+
+    void checkBoundConsistency();
+
 };
 
 #endif // __Engine_h__
