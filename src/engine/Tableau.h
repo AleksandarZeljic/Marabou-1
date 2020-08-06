@@ -550,6 +550,12 @@ private:
     double *_upperBounds;
 
     /*
+      Replacement calls for _lowerBounds and _upperBounds
+     */
+    inline double upperBound( unsigned variable ) const { return _boundManager.getUpperBound( variable ); }
+    inline double lowerBound( unsigned variable ) const { return _boundManager.getLowerBound( variable ); }
+
+    /*
       Whether all variables have valid bounds (l <= u).
     */
     bool _boundsValid;
