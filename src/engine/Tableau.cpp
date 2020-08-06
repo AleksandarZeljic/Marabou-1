@@ -2033,6 +2033,7 @@ void Tableau::addRow()
     _upperBounds = newUpperBounds;
 
     // Mark the new variable as unbounded
+    _boundManager.registerNewVariable();
     _lowerBounds[_n] = FloatUtils::negativeInfinity();
     _upperBounds[_n] = FloatUtils::infinity();
 
