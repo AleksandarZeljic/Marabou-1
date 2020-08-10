@@ -396,7 +396,8 @@ public:
       Callback from the BoundManager to ensure that non-basic variable
       assignment is consistent with the new bounds.
      */
-    void ensureNonBasicVariablesWithinBounds();
+    void ensureNonBasicVariableGTLB( unsigned variable, double value );
+    void ensureNonBasicVariableLTUB( unsigned variable, double value );
 
     /*
       True if the basic variable is out of bounds
