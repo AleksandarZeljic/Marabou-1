@@ -20,9 +20,9 @@
 
 using namespace CVC4::context;
 
-BoundManager::BoundManager( Context &context)
-    : _context(context)
-    , _size(0)
+BoundManager::BoundManager( Context &context )
+    : _context( context )
+    , _size( 0 )
 {
 };
 
@@ -64,21 +64,13 @@ void BoundManager::initialize( unsigned numberOfVariables )
     ASSERT( numberOfVariables == _size );
 }
 
-
-void BoundManager::registerTableauReference( Tableau *tableau )
-{
-    if ( NULL == _tableau )
-        _tableau = tableau;
-}
-
 bool BoundManager::setLowerBound( unsigned variable, double value )
 {
     ASSERT( variable < _size );
     if ( value > getLowerBound( variable ) )
     {
         *_lowerBounds[variable] = value;
-        if ( nullptr != _tableau )
-            _tableau->ensureNonBasicVariableGTLB( variable, value );
+        _tableau->ensureNonBasicVariableGTLB( variable, value );
         return true;
     }
     return false;
@@ -90,8 +82,7 @@ bool BoundManager::setUpperBound( unsigned variable, double value )
     if ( value < getUpperBound( variable ) )
     {
         *_upperBounds[variable] = value ;
-        if ( nullptr != _tableau )
-            _tableau->ensureNonBasicVariableLTUB( variable, value );
+        _tableau->ensureNonBasicVariableLTUB( variable, value );
         return true;
     }
     return false;
@@ -108,6 +99,11 @@ double BoundManager::getUpperBound( unsigned variable )
 {
   ASSERT( variable < _size );
   return *_upperBounds[variable];
+}
+
+void BoundManager::registerTableauReference( Tableau *ptrTableau )
+{
+    _tableau = ptrTableau;
 }
 
 unsigned BoundManager::getSize( )

@@ -111,6 +111,8 @@ public:
     virtual void setUpperBound( unsigned variable, double value ) = 0;
     virtual void tightenLowerBound( unsigned variable, double value ) = 0;
     virtual void tightenUpperBound( unsigned variable, double value ) = 0;
+    virtual void ensureNonBasicVariableGTLB( unsigned variable, double value );
+    virtual void ensureNonBasicVariableLTUB( unsigned variable, double value );
     virtual unsigned getBasicStatus( unsigned basic ) = 0;
     virtual unsigned getBasicStatusByIndex( unsigned basicIndex ) = 0;
     virtual bool existsBasicOutOfBounds() const = 0;
