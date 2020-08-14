@@ -21,7 +21,6 @@
 #include "Vector.h"
 
 class Tableau;
-
 class BoundManager
 {
 public:
@@ -50,8 +49,8 @@ public:
 private:
 
     CVC4::context::Context &_context;
-    Tableau *_tableau;
-    unsigned _size; // TODO: Make context sensitive, to account for growing 
+    Tableau *_tableau = nullptr;
+    unsigned _size; // TODO: Make context sensitive, to account for growing
     // For now, assume variable number is the vector index
     Vector<CVC4::context::CDO<double> *> _lowerBounds;
     Vector<CVC4::context::CDO<double> *> _upperBounds;
