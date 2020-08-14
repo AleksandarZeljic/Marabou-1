@@ -28,6 +28,7 @@
 #include "Preprocessor.h"
 #include "TableauRow.h"
 #include "TimeUtils.h"
+#include "Tableau.h"
 
 using namespace CVC4::context;
 
@@ -1083,11 +1084,12 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
         augmentInitialBasisIfNeeded( initialBasis, basicRows );
 
         _boundManager.initialize( _preprocessedQuery.getNumberOfVariables() );
-        for ( unsigned i = 0; i < _preprocessedQuery.getNumberOfVariables(); ++i )
-        {
-            _boundManager.setLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
-            _boundManager.setUpperBound( i, _preprocessedQuery.getUpperBound( i ) );
-        }
+
+        // for ( unsigned i = 0; i < _preprocessedQuery.getNumberOfVariables(); ++i )
+        // {
+        //     _boundManager.setLowerBound( i, _preprocessedQuery.getLowerBound( i ) );
+        //     _boundManager.setUpperBound( i, _preprocessedQuery.getUpperBound( i ) );
+        // }
 
         storeEquationsInDegradationChecker();
 
@@ -1098,7 +1100,7 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
 
         initializeNetworkLevelReasoning();
         initializeTableau( constraintMatrix, initialBasis );
-
+        _boundManager.registerTableauReference( dynamic_cast<Tableau*>( &*_tableau ) );
         if ( GlobalConfiguration::WARM_START )
             warmStart();
 
