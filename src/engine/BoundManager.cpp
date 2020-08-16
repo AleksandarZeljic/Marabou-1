@@ -70,7 +70,8 @@ bool BoundManager::setLowerBound( unsigned variable, double value )
     if ( value > getLowerBound( variable ) )
     {
         *_lowerBounds[variable] = value;
-        _tableau->ensureNonBasicVariableGTLB( variable, value );
+        if ( nullptr != _tableau)
+            _tableau->ensureNonBasicVariableGTLB( variable, value );
         return true;
     }
     return false;
@@ -82,7 +83,8 @@ bool BoundManager::setUpperBound( unsigned variable, double value )
     if ( value < getUpperBound( variable ) )
     {
         *_upperBounds[variable] = value ;
-        _tableau->ensureNonBasicVariableLTUB( variable, value );
+        if ( nullptr != _tableau)
+            _tableau->ensureNonBasicVariableLTUB( variable, value );
         return true;
     }
     return false;

@@ -1100,7 +1100,6 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
 
         initializeNetworkLevelReasoning();
         initializeTableau( constraintMatrix, initialBasis );
-        _boundManager.registerTableauReference( dynamic_cast<Tableau*>( &*_tableau ) );
         if ( GlobalConfiguration::WARM_START )
             warmStart();
 
