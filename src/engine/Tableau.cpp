@@ -61,11 +61,11 @@ Tableau::Tableau( BoundManager &boundManager )
     , _costFunctionManager( NULL )
     , _rhsIsAllZeros( true )
 {
+    _boundManager.registerTableauReference( this );
 }
 
 Tableau::~Tableau()
 {
-    _boundManager.registerTableauReference( this );
     freeMemoryIfNeeded();
 }
 
