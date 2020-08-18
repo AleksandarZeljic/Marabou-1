@@ -15,7 +15,6 @@
 
 #include "Debug.h"
 #include "FloatUtils.h"
-#include "IConstraintBoundTightener.h"
 #include "ITableau.h"
 #include "InputQuery.h"
 #include "List.h"
@@ -144,7 +143,7 @@ void MaxConstraint::notifyLowerBound( unsigned variable, double value )
 	if ( maxErased )
 		resetMaxIndex();
 
-    if ( isActive() && _constraintBoundTightener )
+    if ( isActive() && _boundManager )
     {
         // TODO: optimize this. Don't need to recompute ALL possible bounds,
         // can focus only on the newly learned bound and possible consequences.
@@ -153,9 +152,9 @@ void MaxConstraint::notifyLowerBound( unsigned variable, double value )
         for ( const auto &tightening : tightenings )
         {
             if ( tightening._type == Tightening::LB )
-                _constraintBoundTightener->registerTighterLowerBound( tightening._variable, tightening._value );
+                _boundManager->tightenLowerBound( tightening._variable, tightening._value );
             else if ( tightening._type == Tightening::UB )
-                _constraintBoundTightener->registerTighterUpperBound( tightening._variable, tightening._value );
+                _boundManager->tightenUpperBound( tightening._variable, tightening._value );
         }
     }
 }
@@ -177,7 +176,7 @@ void MaxConstraint::notifyUpperBound( unsigned variable, double value )
 
     // There is no need to recompute the max lower bound and max index here.
 
-    if ( isActive() && _constraintBoundTightener )
+    if ( isActive() && _boundManager )
     {
         // TODO: optimize this. Don't need to recompute ALL possible bounds,
         // can focus only on the newly learned bound and possible consequences.
@@ -186,9 +185,9 @@ void MaxConstraint::notifyUpperBound( unsigned variable, double value )
         for ( const auto &tightening : tightenings )
         {
             if ( tightening._type == Tightening::LB )
-                _constraintBoundTightener->registerTighterLowerBound( tightening._variable, tightening._value );
+                _boundManager->tightenLowerBound( tightening._variable, tightening._value );
             else if ( tightening._type == Tightening::UB )
-                _constraintBoundTightener->registerTighterUpperBound( tightening._variable, tightening._value );
+                _boundManager->tightenUpperBound( tightening._variable, tightening._value );
         }
     }
 }

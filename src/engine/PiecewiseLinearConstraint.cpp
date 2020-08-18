@@ -19,7 +19,7 @@
 PiecewiseLinearConstraint::PiecewiseLinearConstraint()
     : _constraintActive( true )
     , _score( -1 )
-    , _constraintBoundTightener( NULL )
+    , _boundManager( NULL )
     , _statistics( NULL )
 {
 }
@@ -29,9 +29,9 @@ void PiecewiseLinearConstraint::setStatistics( Statistics *statistics )
     _statistics = statistics;
 }
 
-void PiecewiseLinearConstraint::registerConstraintBoundTightener( IConstraintBoundTightener *tightener )
+void PiecewiseLinearConstraint::registerBoundManager( BoundManager *boundManager)
 {
-    _constraintBoundTightener = tightener;
+    _boundManager = boundManager;
 }
 
 //
