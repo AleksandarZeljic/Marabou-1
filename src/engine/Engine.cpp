@@ -47,7 +47,6 @@ Engine::Engine( unsigned verbosity )
     , _costFunctionManager( _tableau )
     , _quitRequested( false )
     , _exitCode( Engine::NOT_DONE )
-    , _constraintBoundTightener( *_tableau ) //boundManager
     , _numVisitedStatesAtPreviousRestoration( 0 )
     , _networkLevelReasoner( NULL )
     , _verbosity( verbosity )
@@ -57,7 +56,7 @@ Engine::Engine( unsigned verbosity )
     _smtCore.setStatistics( &_statistics );
     _tableau->setStatistics( &_statistics );
     _rowBoundTightener->setStatistics( &_statistics );
-    _constraintBoundTightener->setStatistics( &_statistics );
+    //TODO: newMeans of tracking CBT statistics
     _preprocessor.setStatistics( &_statistics );
 
     _activeEntryStrategy = _projectedSteepestEdgeRule;
@@ -1030,15 +1029,13 @@ void Engine::initializeTableau( const double *constraintMatrix, const List<unsig
     _tableau->registerToWatchAllVariables( _rowBoundTightener );
     _tableau->registerResizeWatcher( _rowBoundTightener );
 
-    _tableau->registerToWatchAllVariables( _constraintBoundTightener );
-    _tableau->registerResizeWatcher( _constraintBoundTightener );
+    // TODO: Check with Guy if BM should become a watcher instead
 
     _rowBoundTightener->setDimensions();
-    _constraintBoundTightener->setDimensions();
 
-    // Register the constraint bound tightener to all the PL constraints
+    // Register the boundManager with all the PL constraints
     for ( auto &plConstraint : _preprocessedQuery.getPiecewiseLinearConstraints() )
-        plConstraint->registerConstraintBoundTightener( _constraintBoundTightener );
+        plConstraint->registerBoundManager( &_boundManager );
 
     _plConstraints = _preprocessedQuery.getPiecewiseLinearConstraints();
     for ( const auto &constraint : _plConstraints )
@@ -1282,7 +1279,6 @@ void Engine::restoreState( const EngineState &state )
 
     // Make sure the data structures are initialized to the correct size
     _rowBoundTightener->setDimensions();
-    _constraintBoundTightener->setDimensions();
     adjustWorkMemorySize();
     _activeEntryStrategy->resizeHook( _tableau );
     _costFunctionManager->initialize();
@@ -1491,7 +1487,6 @@ void Engine::applySplit( const PiecewiseLinearCaseSplit &split )
     adjustWorkMemorySize();
 
     _rowBoundTightener->resetBounds();
-    _constraintBoundTightener->resetBounds();
 
     for ( auto &bound : bounds )
     {
@@ -1531,8 +1526,8 @@ void Engine::applyAllConstraintTightenings()
 {
     List<Tightening> entailedTightenings;
 
-    _constraintBoundTightener->getConstraintTightenings( entailedTightenings );
-
+    _boundManager.getConstraintTightenings( entailedTightenings );
+    // TODO: Meaningful pruning to take place
     for ( const auto &tightening : entailedTightenings )
     {
         _statistics.incNumBoundsProposedByPlConstraints();
@@ -1670,7 +1665,7 @@ void Engine::performPrecisionRestoration( PrecisionRestorer::RestoreBasics resto
 
     _statistics.incNumPrecisionRestorations();
     _rowBoundTightener->clear();
-    _constraintBoundTightener->resetBounds();
+    //_constraintBoundTightener->resetBounds();
 
     // debug
     double after = _degradationChecker.computeDegradation( *_tableau );
@@ -1692,7 +1687,7 @@ void Engine::performPrecisionRestoration( PrecisionRestorer::RestoreBasics resto
         _statistics.incNumPrecisionRestorations();
 
         _rowBoundTightener->clear();
-        _constraintBoundTightener->resetBounds();
+        //_constraintBoundTightener->resetBounds();
 
         // debug
         double afterSecond = _degradationChecker.computeDegradation( *_tableau );
@@ -1857,7 +1852,7 @@ void Engine::resetStatistics()
     _smtCore.setStatistics( &_statistics );
     _tableau->setStatistics( &_statistics );
     _rowBoundTightener->setStatistics( &_statistics );
-    _constraintBoundTightener->setStatistics( &_statistics );
+    //_constraintBoundTightener->setStatistics( &_statistics );
     _preprocessor.setStatistics( &_statistics );
     _activeEntryStrategy->setStatistics( &_statistics );
 
@@ -1884,7 +1879,7 @@ void Engine::resetExitCode()
 
 void Engine::resetBoundTighteners()
 {
-    _constraintBoundTightener->resetBounds();
+    //_constraintBoundTightener->resetBounds();
     _rowBoundTightener->resetBounds();
 }
 

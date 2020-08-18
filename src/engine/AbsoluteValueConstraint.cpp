@@ -13,7 +13,6 @@
  **/
 
 #include "AbsoluteValueConstraint.h"
-#include "ConstraintBoundTightener.h"
 #include "Debug.h"
 #include "FloatUtils.h"
 #include "ITableau.h"
@@ -80,14 +79,14 @@ void AbsoluteValueConstraint::notifyLowerBound( unsigned variable, double bound 
     fixPhaseIfNeeded();
 
     // Update partner's bound
-    if ( isActive() && _constraintBoundTightener )
+    if ( isActive() && _boundManager )
     {
         if ( variable == _b )
         {
             if ( bound < 0 )
             {
                 double fUpperBound = FloatUtils::max( -bound, _upperBounds[_b] );
-                _constraintBoundTightener->registerTighterUpperBound( _f, fUpperBound );
+                _boundManager->tightenUpperBound( _f, fUpperBound );
             }
             else
             {
@@ -101,7 +100,7 @@ void AbsoluteValueConstraint::notifyLowerBound( unsigned variable, double bound 
             // bother.  The only exception is if the lower bound is,
             // for some reason, negative
             if ( bound < 0 )
-                _constraintBoundTightener->registerTighterLowerBound( _f, 0 );
+                _boundManager->tightenLowerBound( _f, 0 );
         }
     }
 }
@@ -120,14 +119,14 @@ void AbsoluteValueConstraint::notifyUpperBound( unsigned variable, double bound 
     fixPhaseIfNeeded();
 
     // Update partner's bound
-    if ( isActive() && _constraintBoundTightener )
+    if ( isActive() && _boundManager )
     {
         if ( variable == _b )
         {
             if ( bound > 0 )
             {
                 double fUpperBound = FloatUtils::max( bound, -_lowerBounds[_b] );
-                _constraintBoundTightener->registerTighterUpperBound( _f, fUpperBound );
+                _boundManager->tightenUpperBound( _f, fUpperBound );
             }
             else
             {
@@ -138,10 +137,10 @@ void AbsoluteValueConstraint::notifyUpperBound( unsigned variable, double bound 
         {
             // F's upper bound can restrict both bounds of B
             if ( bound < _upperBounds[_b] )
-                _constraintBoundTightener->registerTighterUpperBound( _b, bound );
+                _boundManager->tightenUpperBound( _b, bound );
 
             if ( -bound > _lowerBounds[_b] )
-                _constraintBoundTightener->registerTighterLowerBound( _b, -bound );
+                _boundManager->tightenLowerBound( _b, -bound );
         }
     }
 }
