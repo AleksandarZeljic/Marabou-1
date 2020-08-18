@@ -27,7 +27,7 @@
 #include "Tightening.h"
 
 class Equation;
-class IConstraintBoundTightener;
+class BoundManager;
 class ITableau;
 class InputQuery;
 class String;
@@ -205,11 +205,11 @@ public:
     virtual String serializeToString() const = 0;
 
     /*
-      Register a constraint bound tightener. If a tightener is registered,
+      Register a bound manager. If a bound manager is registered,
       this piecewise linear constraint will inform the tightener whenever
       it discovers a tighter (entailed) bound.
     */
-    void registerConstraintBoundTightener( IConstraintBoundTightener *tightener );
+    void registerBoundManager( BoundManager *boundManager );
 
     /*
       Return true if and only if this piecewise linear constraint supports
@@ -276,8 +276,7 @@ protected:
      */
     double _score;
 
-    IConstraintBoundTightener *_constraintBoundTightener;
-
+    BoundManager *_boundManager;
     /*
       Statistics collection
     */
