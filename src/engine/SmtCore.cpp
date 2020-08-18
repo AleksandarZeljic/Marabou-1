@@ -365,6 +365,8 @@ bool SmtCore::backtrackAndContinue()
 
     interruptIfCompliantWithDebugSolution();
 
+    _context.pop();
+
     StackEntry *stackEntry = _stack.back();
     SMT_LOG( "\tRestoring engine state..." );
     _engine->restoreState( *(stackEntry->_engineState) );
@@ -375,6 +377,7 @@ bool SmtCore::backtrackAndContinue()
 
     popDecisionLevel();
 
+    // Apply the new split and erase it from the list
     auto split = stackEntry->_alternativeSplits.begin();
 
     // TODO: Make a distinction between a decision and an implication
