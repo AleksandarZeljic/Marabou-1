@@ -144,8 +144,8 @@ public:
     /*
       Get the lower/upper bounds for a variable.
     */
-    double getLowerBound( unsigned variable ) const;
-    double getUpperBound( unsigned variable ) const;
+    inline double getLowerBound( unsigned variable ) const { return lowerBound( variable ); };
+    inline double getUpperBound( unsigned variable ) const { return upperBound( variable ); };
 
     /*
       Get all lower and upper bounds.
