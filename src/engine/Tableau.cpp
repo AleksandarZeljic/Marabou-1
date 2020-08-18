@@ -488,20 +488,6 @@ void Tableau::setUpperBound( unsigned variable, double value )
     checkBoundsValid( variable );
 }
 
-double Tableau::getLowerBound( unsigned variable ) const
-{
-    ASSERT( variable < _n );
-    ASSERT(FloatUtils::gte( _boundManager.getLowerBound( variable ), _lowerBounds[variable] ) );
-    return _boundManager.getLowerBound( variable );
-}
-
-double Tableau::getUpperBound( unsigned variable ) const
-{
-    ASSERT( variable < _n );
-    ASSERT(FloatUtils::lte( _boundManager.getUpperBound( variable ), _upperBounds[variable] ) );
-    return _boundManager.getUpperBound( variable );
-}
-
 const double *Tableau::getLowerBounds() const
 {
     return _lowerBounds;
