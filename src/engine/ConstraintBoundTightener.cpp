@@ -109,7 +109,7 @@ void ConstraintBoundTightener::notifyLowerBound( unsigned variable, double bound
     ASSERT( FloatUtils::gte( _boundManager.getLowerBound( variable ), _lowerBounds[variable] ) );
     if ( bound > _lowerBounds[variable] )
     {
-        _boundManager.setLowerBound( variable, bound );
+        _boundManager.tightenLowerBound( variable, bound );
         _lowerBounds[variable] = bound;
         _tightenedLower[variable] = false;
     }
@@ -121,7 +121,7 @@ void ConstraintBoundTightener::notifyUpperBound( unsigned variable, double bound
     ASSERT( FloatUtils::lte( _boundManager.getUpperBound( variable ), _upperBounds[variable] ) );
     if ( bound < _upperBounds[variable] )
     {
-        _boundManager.setUpperBound( variable, bound );
+        _boundManager.tightenUpperBound( variable, bound );
         _upperBounds[variable] = bound;
         _tightenedUpper[variable] = false;
     }
@@ -139,7 +139,7 @@ void ConstraintBoundTightener::registerTighterLowerBound( unsigned variable, dou
     ASSERT( FloatUtils::gte( _boundManager.getLowerBound( variable ), _lowerBounds[variable] ) );
     if ( bound > _lowerBounds[variable] )
     {
-        _boundManager.setLowerBound( variable, bound );
+        _boundManager.tightenLowerBound( variable, bound );
         _lowerBounds[variable] = bound;
         _tightenedLower[variable] = true;
     }
@@ -151,7 +151,7 @@ void ConstraintBoundTightener::registerTighterUpperBound( unsigned variable, dou
     ASSERT( FloatUtils::lte( _boundManager.getUpperBound( variable ), _upperBounds[variable] ) );
     if ( bound < _upperBounds[variable] )
     {
-        _boundManager.setUpperBound( variable, bound );
+        _boundManager.tightenUpperBound( variable, bound );
         _upperBounds[variable] = bound;
         _tightenedUpper[variable] = true;
     }

@@ -92,8 +92,8 @@ void RowBoundTightener::resetBounds()
 
     for ( unsigned i = 0; i < _n; ++i )
     {
-        _lowerBounds[i] = _tableau.getLowerBound( i );
-        _upperBounds[i] = _tableau.getUpperBound( i );
+        _lowerBounds[i] = _boundManager.getLowerBound( i );
+        _upperBounds[i] = _boundManager.getUpperBound( i );
     }
 };
 
@@ -676,7 +676,7 @@ unsigned RowBoundTightener::registerTighterLowerBound( unsigned variable, double
     ASSERT( FloatUtils::gte( _boundManager.getLowerBound( variable ), _lowerBounds[variable] ) );
     if ( FloatUtils::lt( lowerBound( variable ), newLowerBound ) )
     {
-        _boundManager.setLowerBound( variable, newLowerBound );
+        _boundManager.tightenLowerBound( variable, newLowerBound );
 
         _lowerBounds[variable] = newLowerBound;
         _tightenedLower[variable] = true;
@@ -691,7 +691,7 @@ unsigned RowBoundTightener::registerTighterUpperBound( unsigned variable, double
     ASSERT( FloatUtils::lte( _boundManager.getUpperBound( variable ), _upperBounds[variable] ) );
     if ( FloatUtils::gt( upperBound( variable ), newUpperBound ) )
     {
-        _boundManager.setUpperBound( variable, newUpperBound);
+        _boundManager.tightenUpperBound( variable, newUpperBound);
 
         _upperBounds[variable] = newUpperBound;
         _tightenedUpper[variable] = true;
@@ -707,7 +707,7 @@ void RowBoundTightener::notifyLowerBound( unsigned variable, double bound )
     // TODO: To be removed
     if ( FloatUtils::gt( bound, lowerBound( variable ) ) )
     {
-        _boundManager.setLowerBound( variable, bound );
+        _boundManager.tightenLowerBound( variable, bound );
 
         _lowerBounds[variable] = bound;
         _tightenedLower[variable] = false;
@@ -721,7 +721,7 @@ void RowBoundTightener::notifyUpperBound( unsigned variable, double bound )
     // TODO: To be removed
     if ( FloatUtils::lt( bound, upperBound( variable ) ) )
     {
-        _boundManager.setUpperBound( variable, bound );
+        _boundManager.tightenUpperBound( variable, bound );
 
         _upperBounds[variable] = bound;
         _tightenedUpper[variable] = false;
