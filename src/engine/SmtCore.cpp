@@ -201,14 +201,14 @@ bool SmtCore::popSplit()
         throw MarabouError( MarabouError::DEBUGGING_ERROR );
     }
 
+    _context.pop();
+
     StackEntry *stackEntry = _stack.back();
 
     // Restore the state of the engine
     SMT_LOG( "\tRestoring engine state..." );
     _engine->restoreState( *(stackEntry->_engineState) );
     SMT_LOG( "\tRestoring engine state - DONE" );
-
-    _context.pop();
 
     // Apply the new split and erase it from the list
     auto split = stackEntry->_alternativeSplits.begin();
