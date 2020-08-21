@@ -128,7 +128,7 @@ double BoundManager::getUpperBound( unsigned variable )
   return *_upperBounds[variable];
 }
 
-void BoundManager::getConstraintTightenings( List<Tightening> &tightenings ) 
+void BoundManager::getTightenings( List<Tightening> &tightenings ) 
 {
     for ( unsigned i = 0; i < _size; ++i )
     {

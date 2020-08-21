@@ -47,7 +47,7 @@ public:
     double getLowerBound( unsigned variable );
     double getUpperBound( unsigned variable );
 
-    void getConstraintTightenings( List<Tightening> &tightenings );
+    void getTightenings( List<Tightening> &tightenings );
 
     unsigned getSize(); //TODO: Rename to getNumberOfVariables
 

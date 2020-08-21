@@ -41,22 +41,16 @@ public:
     void resetBounds();
 
     /*
-      Clear all learned bounds, without reallocating memory.
-    */
-    void clear();
-
-    /*
-      Callbacks from the Tableau, to inform of bounds tightened by,
-      e.g., the PL constraints.
-    */
-    void notifyLowerBound( unsigned variable, double bound );
-    void notifyUpperBound( unsigned variable, double bound );
-
-    /*
      * Local register new bound functions
      */
-    unsigned registerTighterUpperBound( unsigned variable, double bound );
-    unsigned registerTighterLowerBound( unsigned variable, double bound );
+    inline unsigned registerTighterLowerBound( unsigned variable, double newLowerBound)
+    {
+        return _boundManager.tightenLowerBound( variable, newLowerBound ) ? 1u : 0u;
+    }
+    inline unsigned registerTighterUpperBound( unsigned variable, double newLowerBound)
+    {
+        return _boundManager.tightenUpperBound( variable, newLowerBound ) ? 1u : 0u;
+    }
 
     /*
       Callback from the Tableau, to inform of a change in dimensions
@@ -98,7 +92,7 @@ public:
     /*
       Get the tightenings entailed by the constraint.
     */
-    void getRowTightenings( List<Tightening> &tightenings ) const;
+    // void getRowTightenings( List<Tightening> &tightenings ) const;
 
     /*
       Have the Bound Tightener start reporting statistics.
@@ -109,17 +103,6 @@ private:
     const ITableau &_tableau;
     unsigned _n;
     unsigned _m;
-
-    /*
-      Work space for the tightener to derive tighter bounds. These
-      represent the tightest bounds currently known, either taken
-      from the tableau or derived by the tightener. The flags indicate
-      whether each bound has been tightened by the tightener.
-    */
-    double *_lowerBounds;
-    double *_upperBounds;
-    bool *_tightenedLower;
-    bool *_tightenedUpper;
 
     /*
       Replacement calls for _lowerBounds and _upperBounds

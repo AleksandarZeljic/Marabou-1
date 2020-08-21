@@ -1037,7 +1037,7 @@ public:
         boundManager.initialize( 11 );
         List<Tightening> tightenings;
 
-        boundManager.getConstraintTightenings( tightenings );
+        boundManager.getTightenings( tightenings );
 
         // Initial state: b in [-10, 15], f in [0, 15], aux in [0, 10]
 
@@ -1045,27 +1045,27 @@ public:
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager );
 
             relu.notifyLowerBound( b, -20 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
             relu.notifyLowerBound( f, -3 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
             relu.notifyLowerBound( aux, -5 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
             relu.notifyUpperBound( b, 20 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
             relu.notifyUpperBound( f, 23 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
             relu.notifyUpperBound( aux, 35 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
         }
 
@@ -1073,7 +1073,7 @@ public:
             // Tighter lower bound for b that is negative
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager );
             relu.notifyLowerBound( b, -8 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( aux, 8, Tightening::UB ) ) );
         }
 
@@ -1081,7 +1081,7 @@ public:
             // Tighter upper bound for aux that is positive
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager );
             relu.notifyUpperBound( aux, 7 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( b, -7, Tightening::LB ) ) );
         }
 
@@ -1089,11 +1089,11 @@ public:
             // Tighter upper bound for b/f that is positive
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager );
             relu.notifyUpperBound( b, 13 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( f, 13, Tightening::UB ) ) );
 
             relu.notifyUpperBound( f, 12 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( b, 12, Tightening::UB ) ) );
         }
 
@@ -1101,7 +1101,7 @@ public:
             // Tighter upper bound 0 for f
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager );
             relu.notifyUpperBound( f, 0 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
 
             TS_ASSERT( tightenings.exists( Tightening( b, 0, Tightening::UB ) ) );
         }
@@ -1110,7 +1110,7 @@ public:
             // Tighter negative upper bound for b
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager );
             relu.notifyUpperBound( b, -1 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
 
             TS_ASSERT( tightenings.exists( Tightening( f, 0, Tightening::UB ) ) );
             TS_ASSERT( tightenings.exists( Tightening( aux, 1, Tightening::LB ) ) );
@@ -1120,7 +1120,7 @@ public:
             // Tighter positive lower bound for aux
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager );
             relu.notifyLowerBound( aux, 1 );
-            boundManager.getConstraintTightenings( tightenings );
+            boundManager.getTightenings( tightenings );
 
             TS_ASSERT( tightenings.exists( Tightening( f, 0, Tightening::UB ) ) );
             TS_ASSERT( tightenings.exists( Tightening( b, -1, Tightening::UB ) ) );
