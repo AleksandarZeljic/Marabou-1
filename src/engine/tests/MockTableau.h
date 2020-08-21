@@ -503,6 +503,14 @@ public:
         tightenedUpperBounds[variable] = value;
     }
 
+    void notifyLowerBound( unsigned /*variable*/, double /*value*/ )
+    {
+    }
+
+    void notifyUpperBound( unsigned /*variable*/, double /*value*/ )
+    {
+    }
+
     void applySplit( const PiecewiseLinearCaseSplit &/* split */)
     {
     }
