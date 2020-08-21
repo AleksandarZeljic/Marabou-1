@@ -30,16 +30,6 @@ public:
     virtual void setDimensions() = 0;
 
     /*
-      Initialize tightest lower/upper bounds using the talbeau.
-    */
-    virtual void resetBounds() = 0;
-
-    /*
-      Clear all learned bounds, without reallocating memory.
-    */
-    virtual void clear() = 0;
-
-    /*
       Derive and enqueue new bounds for all varaibles, using the
       inverse of the explicit basis matrix, inv(B0), which should be available
       through the tableau. Can also do this until saturation, meaning that we
@@ -70,11 +60,6 @@ public:
       the entering variable (which is now basic).
     */
     virtual void examinePivotRow() = 0;
-
-    /*
-      Get the tightenings entailed by the constraint.
-    */
-    virtual void getRowTightenings( List<Tightening> &tightenings ) const = 0;
 
     /*
       Have the Bound Tightener start reporting statistics.

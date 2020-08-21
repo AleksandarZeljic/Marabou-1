@@ -1486,8 +1486,6 @@ void Engine::applySplit( const PiecewiseLinearCaseSplit &split )
 
     adjustWorkMemorySize();
 
-    _rowBoundTightener->resetBounds();
-
     for ( auto &bound : bounds )
     {
         unsigned variable = _tableau->getVariableAfterMerging( bound._variable );
@@ -1508,34 +1506,19 @@ void Engine::applySplit( const PiecewiseLinearCaseSplit &split )
     ENGINE_LOG( "Done with split\n" );
 }
 
-void Engine::applyAllRowTightenings()
-{
-    List<Tightening> rowTightenings;
-    _rowBoundTightener->getRowTightenings( rowTightenings );
-
-    for ( const auto &tightening : rowTightenings )
-    {
-        if ( tightening._type == Tightening::LB )
-            _tableau->tightenLowerBound( tightening._variable, tightening._value );
-        else
-            _tableau->tightenUpperBound( tightening._variable, tightening._value );
-    }
-}
-
 void Engine::applyAllConstraintTightenings()
 {
     List<Tightening> entailedTightenings;
 
-    _boundManager.getConstraintTightenings( entailedTightenings );
-    // TODO: Meaningful pruning to take place
+    _boundManager.getTightenings( entailedTightenings );
     for ( const auto &tightening : entailedTightenings )
     {
         _statistics.incNumBoundsProposedByPlConstraints();
-
+        //TODO: consider making the bound manager a watcher, and move this method there.
         if ( tightening._type == Tightening::LB )
-            _tableau->tightenLowerBound( tightening._variable, tightening._value );
+            _tableau->notifyLowerBound( tightening._variable, tightening._value );
         else
-            _tableau->tightenUpperBound( tightening._variable, tightening._value );
+            _tableau->notifyUpperBound( tightening._variable, tightening._value );
     }
 }
 
@@ -1543,7 +1526,6 @@ void Engine::applyAllBoundTightenings()
 {
     struct timespec start = TimeUtils::sampleMicro();
 
-    applyAllRowTightenings();
     applyAllConstraintTightenings();
 
     struct timespec end = TimeUtils::sampleMicro();
@@ -1664,8 +1646,6 @@ void Engine::performPrecisionRestoration( PrecisionRestorer::RestoreBasics resto
     _statistics.addTimeForPrecisionRestoration( TimeUtils::timePassed( start, end ) );
 
     _statistics.incNumPrecisionRestorations();
-    _rowBoundTightener->clear();
-    //_constraintBoundTightener->resetBounds();
 
     // debug
     double after = _degradationChecker.computeDegradation( *_tableau );
@@ -1685,9 +1665,6 @@ void Engine::performPrecisionRestoration( PrecisionRestorer::RestoreBasics resto
         end = TimeUtils::sampleMicro();
         _statistics.addTimeForPrecisionRestoration( TimeUtils::timePassed( start, end ) );
         _statistics.incNumPrecisionRestorations();
-
-        _rowBoundTightener->clear();
-        //_constraintBoundTightener->resetBounds();
 
         // debug
         double afterSecond = _degradationChecker.computeDegradation( *_tableau );
@@ -1841,7 +1818,6 @@ void Engine::reset()
     resetStatistics();
     clearViolatedPLConstraints();
     resetSmtCore();
-    resetBoundTighteners();
     resetExitCode();
 }
 
@@ -1875,12 +1851,6 @@ void Engine::resetSmtCore()
 void Engine::resetExitCode()
 {
     _exitCode = Engine::NOT_DONE;
-}
-
-void Engine::resetBoundTighteners()
-{
-    //_constraintBoundTightener->resetBounds();
-    _rowBoundTightener->resetBounds();
 }
 
 void Engine::warmStart()

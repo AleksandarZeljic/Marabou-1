@@ -22,10 +22,6 @@
 
 RowBoundTightener::RowBoundTightener( const ITableau &tableau )
     : _tableau( tableau )
-    , _lowerBounds( NULL )
-    , _upperBounds( NULL )
-    , _tightenedLower( NULL )
-    , _tightenedUpper( NULL )
     , _boundManager( tableau.getBoundManager() )
     , _rows( NULL )
     , _z( NULL )
@@ -43,24 +39,6 @@ void RowBoundTightener::setDimensions()
 
     _n = _tableau.getN();
     _m = _tableau.getM();
-
-    _lowerBounds = new double[_n];
-    if ( !_lowerBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "RowBoundTightener::lowerBounds" );
-
-    _upperBounds = new double[_n];
-    if ( !_upperBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "RowBoundTightener::upperBounds" );
-
-    _tightenedLower = new bool[_n];
-    if ( !_tightenedLower )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "RowBoundTightener::tightenedLower" );
-
-    _tightenedUpper = new bool[_n];
-    if ( !_tightenedUpper )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "RowBoundTightener::tightenedUpper" );
-
-    resetBounds();
 
     if ( GlobalConfiguration::EXPLICIT_BASIS_BOUND_TIGHTENING_TYPE ==
          GlobalConfiguration::COMPUTE_INVERTED_BASIS_MATRIX )
@@ -84,24 +62,6 @@ void RowBoundTightener::setDimensions()
     _ciSign = new char[_n];
 }
 
-//TODO: REMOVE
-void RowBoundTightener::resetBounds()
-{
-    std::fill( _tightenedLower, _tightenedLower + _n, false );
-    std::fill( _tightenedUpper, _tightenedUpper + _n, false );
-
-    for ( unsigned i = 0; i < _n; ++i )
-    {
-        _lowerBounds[i] = _boundManager.getLowerBound( i );
-        _upperBounds[i] = _boundManager.getUpperBound( i );
-    }
-};
-
-void RowBoundTightener::clear()
-{
-    resetBounds();
-}
-
 RowBoundTightener::~RowBoundTightener()
 {
     freeMemoryIfNeeded();
@@ -109,30 +69,6 @@ RowBoundTightener::~RowBoundTightener()
 
 void RowBoundTightener::freeMemoryIfNeeded()
 {
-    if ( _lowerBounds )
-    {
-        delete[] _lowerBounds;
-        _lowerBounds = NULL;
-    }
-
-    if ( _upperBounds )
-    {
-        delete[] _upperBounds;
-        _upperBounds = NULL;
-    }
-
-    if ( _tightenedLower )
-    {
-        delete[] _tightenedLower;
-        _tightenedLower = NULL;
-    }
-
-    if ( _tightenedUpper )
-    {
-        delete[] _tightenedUpper;
-        _tightenedUpper = NULL;
-    }
-
     if ( _rows )
     {
         for ( unsigned i = 0; i < _m; ++i )
@@ -647,87 +583,9 @@ void RowBoundTightener::examinePivotRow()
         _statistics->incNumTighteningsFromRows( newBoundsLearned );
 }
 
-void RowBoundTightener::getRowTightenings( List<Tightening> &tightenings ) const
-{
-    // TODO: This will be removed, Tightenings will not be needed
-    for ( unsigned i = 0; i < _n; ++i )
-    {
-        if ( _tightenedLower[i] )
-        {
-            tightenings.append( Tightening( i, lowerBound( i ), Tightening::LB ) );
-            _tightenedLower[i] = false;
-        }
-
-        if ( _tightenedUpper[i] )
-        {
-            tightenings.append( Tightening( i, upperBound( i ), Tightening::UB ) );
-            _tightenedUpper[i] = false;
-        }
-    }
-}
-
 void RowBoundTightener::setStatistics( Statistics *statistics )
 {
     _statistics = statistics;
-}
-
-unsigned RowBoundTightener::registerTighterLowerBound( unsigned variable, double newLowerBound)
-{
-    ASSERT( FloatUtils::gte( _boundManager.getLowerBound( variable ), _lowerBounds[variable] ) );
-    if ( FloatUtils::lt( lowerBound( variable ), newLowerBound ) )
-    {
-        _boundManager.tightenLowerBound( variable, newLowerBound );
-
-        _lowerBounds[variable] = newLowerBound;
-        _tightenedLower[variable] = true;
-        return 1u;
-    }
-
-    return 0u;
-}
-
-unsigned RowBoundTightener::registerTighterUpperBound( unsigned variable, double newUpperBound)
-{
-    ASSERT( FloatUtils::lte( _boundManager.getUpperBound( variable ), _upperBounds[variable] ) );
-    if ( FloatUtils::gt( upperBound( variable ), newUpperBound ) )
-    {
-        _boundManager.tightenUpperBound( variable, newUpperBound);
-
-        _upperBounds[variable] = newUpperBound;
-        _tightenedUpper[variable] = true;
-
-        return 1u;
-    }
-    return 0u;
-}
-
-void RowBoundTightener::notifyLowerBound( unsigned variable, double bound )
-{
-    ASSERT( FloatUtils::gte( _boundManager.getLowerBound( variable ), _lowerBounds[variable] ) );
-    // TODO: To be removed
-    if ( FloatUtils::gt( bound, lowerBound( variable ) ) )
-    {
-        _boundManager.tightenLowerBound( variable, bound );
-
-        _lowerBounds[variable] = bound;
-        _tightenedLower[variable] = false;
-    }
-    ASSERT( FloatUtils::gte( _boundManager.getLowerBound( variable ), _lowerBounds[variable] ) );
-}
-
-void RowBoundTightener::notifyUpperBound( unsigned variable, double bound )
-{
-    ASSERT( FloatUtils::lte( _boundManager.getUpperBound( variable ), _upperBounds[variable] ) );
-    // TODO: To be removed
-    if ( FloatUtils::lt( bound, upperBound( variable ) ) )
-    {
-        _boundManager.tightenUpperBound( variable, bound );
-
-        _upperBounds[variable] = bound;
-        _tightenedUpper[variable] = false;
-
-    }
-    ASSERT( FloatUtils::lte( _boundManager.getUpperBound( variable ), _upperBounds[variable] ) );
 }
 
 void RowBoundTightener::notifyDimensionChange( unsigned /* m */ , unsigned /* n */ )

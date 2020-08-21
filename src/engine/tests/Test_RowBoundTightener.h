@@ -31,11 +31,13 @@ class RowBoundTightenerTestSuite : public CxxTest::TestSuite
 public:
     MockForRowBoundTightener *mock;
     MockTableau *tableau;
+    BoundManager *boundManager;
 
     void setUp()
     {
         TS_ASSERT( mock = new MockForRowBoundTightener );
         TS_ASSERT( tableau = new MockTableau );
+        TS_ASSERT( boundManager = &tableau->getBoundManager() );
     }
 
     void tearDown()
@@ -82,10 +84,13 @@ public:
         // x0 entering, x4 leaving
         // x0 = 1 - x1 + 2 x2 - x4
 
+        List<Tightening> tightenings;
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
+        tightenings.clear();
+
         TS_ASSERT_THROWS_NOTHING( tightener.examinePivotRow() );
 
-        List<Tightening> tightenings;
-        TS_ASSERT_THROWS_NOTHING( tightener.getRowTightenings( tightenings ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
 
         // Lower and upper bounds should have been tightened
         TS_ASSERT_EQUALS( tightenings.size(), 2U );
@@ -108,9 +113,9 @@ public:
 
     void test_pivot_row_just_upper_tightend()
     {
-        CVC4::context::Context context;
-        BoundManager boundManager(context);
-        boundManager.initialize(5u);
+        /* CVC4::context::Context context; */
+        /* BoundManager boundManager(context); */
+        /* boundManager.initialize(5u);*/
         RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
@@ -144,10 +149,15 @@ public:
 
         tableau->nextPivotRow = &row;
 
+        List<Tightening> tightenings;
+        TS_ASSERT_EQUALS( tightenings.size(), 0u);
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings(tightenings ) );
+        tightenings.clear();
+        TS_ASSERT_EQUALS( tightenings.size(), 0u);
+
         TS_ASSERT_THROWS_NOTHING( tightener.examinePivotRow() );
 
-        List<Tightening> tightenings;
-        TS_ASSERT_THROWS_NOTHING( tightener.getRowTightenings( tightenings ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
 
         auto upper = tightenings.begin();
         while ( ( upper != tightenings.end() ) && !( ( upper->_variable == 0 ) && ( upper->_type == Tightening::UB ) ) )
@@ -163,9 +173,6 @@ public:
 
     void test_pivot_row__just_lower_tightend()
     {
-        CVC4::context::Context context;
-        BoundManager boundManager(context);
-        boundManager.initialize(5u);
         RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
@@ -193,10 +200,13 @@ public:
 
         tableau->nextPivotRow = &row;
 
+        List<Tightening> tightenings;
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
+        tightenings.clear();
+
         TS_ASSERT_THROWS_NOTHING( tightener.examinePivotRow() );
 
-        List<Tightening> tightenings;
-        TS_ASSERT_THROWS_NOTHING( tightener.getRowTightenings( tightenings ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
 
         // Lower and upper bounds should have been tightened
         TS_ASSERT_EQUALS( tightenings.size(), 1U );
@@ -211,9 +221,6 @@ public:
 
     void test_pivot_row__nothing_tightened()
     {
-        CVC4::context::Context context;
-        BoundManager boundManager(context);
-        boundManager.initialize(5u);
         RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
@@ -241,19 +248,19 @@ public:
 
         tableau->nextPivotRow = &row;
 
+        List<Tightening> tightenings;
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
+        tightenings.clear();
+
         TS_ASSERT_THROWS_NOTHING( tightener.examinePivotRow() );
 
-        List<Tightening> tightenings;
-        TS_ASSERT_THROWS_NOTHING( tightener.getRowTightenings( tightenings ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
 
         TS_ASSERT( tightenings.empty() );
     }
 
     void test_examine_constraint_matrix_single_equation()
     {
-        CVC4::context::Context context;
-        BoundManager boundManager(context);
-        boundManager.initialize(5u);
         RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 1, 5 );
@@ -295,10 +302,13 @@ public:
         tableau->A = A;
         tableau->b = b;
 
+        List<Tightening> tightenings;
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
+        tightenings.clear();
+
         TS_ASSERT_THROWS_NOTHING( tightener.examineConstraintMatrix( false ) );
 
-        List<Tightening> tightenings;
-        TS_ASSERT_THROWS_NOTHING( tightener.getRowTightenings( tightenings ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
         TS_ASSERT_EQUALS( tightenings.size(), 2U );
 
         auto it = tightenings.begin();
@@ -316,12 +326,7 @@ public:
 
     void test_examine_constraint_matrix_multiple_equations()
     {
-        CVC4::context::Context context;
-        BoundManager boundManager( context );
-        boundManager.initialize( 5u );
         RowBoundTightener tightener( *tableau );
-
-        //        RowBoundTightener tightener( *tableau );
 
         tableau->setDimensions( 2, 5 );
 
@@ -370,10 +375,13 @@ public:
         tableau->A = A;
         tableau->b = b;
 
+        List<Tightening> tightenings;
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
+        tightenings.clear();
+
         TS_ASSERT_THROWS_NOTHING( tightener.examineConstraintMatrix( false ) );
 
-        List<Tightening> tightenings;
-        TS_ASSERT_THROWS_NOTHING( tightener.getRowTightenings( tightenings ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager->getTightenings( tightenings ) );
         TS_ASSERT_EQUALS( tightenings.size(), 4U );
 
         auto it = tightenings.begin();
