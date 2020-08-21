@@ -160,6 +160,8 @@ void SmtCore::decideSplit()
     ++_stateId;
     _engine->storeState( *stateBeforeSplits, true );
 
+    _context.push();
+
     StackEntry *stackEntry = new StackEntry;
     // Perform the first split: add bounds and equations
     List<PiecewiseLinearCaseSplit>::iterator split = splits.begin();
@@ -182,7 +184,6 @@ void SmtCore::decideSplit()
     }
 
     _stack.append( stackEntry );
-    _context.push();
 
     if ( _statistics )
     {
