@@ -318,9 +318,6 @@ unsigned RowBoundTightener::tightenOnSingleInvertedBasisRow( const TableauRow &r
     // Then, when we consider xi we adjust the computed lower and upper
     // boudns accordingly.
 
-    ASSERT( FloatUtils::lte( _lowerBounds[y], _boundManager.getLowerBound( y ) ) );
-    ASSERT( FloatUtils::gte( _upperBounds[y], _boundManager.getUpperBound( y ) ) );
-
     double auxLb = lowerBound( y ) - row._scalar;
     double auxUb = upperBound( y ) - row._scalar;
 
@@ -480,8 +477,6 @@ unsigned RowBoundTightener::tightenOnSingleConstraintRow( unsigned row )
         ci = entry._value;
 
         _ciSign[index] = FloatUtils::isPositive( ci ) ? POSITIVE : NEGATIVE;
-        ASSERT( FloatUtils::lte( _lowerBounds[index], _boundManager.getLowerBound( index ) ) );
-        ASSERT( FloatUtils::gte( _upperBounds[index], _boundManager.getUpperBound( index ) ) );
         _ciTimesLb[index] = ci * lowerBound( index );
         _ciTimesUb[index] = ci * upperBound( index );
     }
