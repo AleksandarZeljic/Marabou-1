@@ -468,34 +468,36 @@ void Tableau::computeBasicStatus( unsigned basicIndex )
     }
 }
 
-void Tableau::setLowerBound( unsigned variable, double value )
+void Tableau::postUpperBoundUpdate( unsigned variable, double value )
 {
-    ASSERT( variable < _n );
-    ASSERT( variable < _boundManager.getSize() );
-    _boundManager.setLowerBound( variable, value );
-    _lowerBounds[variable] = value;
-    notifyLowerBound( variable, value );
-    checkBoundsValid( variable );
-}
+    if ( _statistics )
+        _statistics->incNumTightenedBounds();
 
-void Tableau::setUpperBound( unsigned variable, double value )
-{
-    ASSERT( variable < _n );
-    ASSERT( variable < _boundManager.getSize() );
-    _boundManager.setUpperBound( variable, value );
-    _upperBounds[variable] = value;
     notifyUpperBound( variable, value );
     checkBoundsValid( variable );
+    ensureNonBasicVariableLTUB( variable, value );
 }
 
-const double *Tableau::getLowerBounds() const
+
+void Tableau::postLowerBoundUpdate( unsigned variable, double value )
 {
-    return _lowerBounds;
+    if ( _statistics )
+        _statistics->incNumTightenedBounds();
+
+    notifyLowerBound( variable, value );
+    checkBoundsValid( variable );
+    ensureNonBasicVariableGTLB( variable, value );
 }
 
-const double *Tableau::getUpperBounds() const
+
+inline void Tableau::setLowerBound( unsigned variable, double value )
 {
-    return _upperBounds;
+    _boundManager.setLowerBound( variable, value );
+}
+
+inline void Tableau::setUpperBound( unsigned variable, double value )
+{
+    _boundManager.setUpperBound( variable, value );
 }
 
 double Tableau::getValue( unsigned variable )
@@ -1739,34 +1741,14 @@ void Tableau::ensureNonBasicVariableLTUB( unsigned variable, double value )
     }
 }
 
-void Tableau::tightenLowerBound( unsigned variable, double value )
+inline void Tableau::tightenLowerBound( unsigned variable, double value )
 {
-    ASSERT( variable < _n );
-
-    if ( !FloatUtils::gt( value, lowerBound( variable ) ) )
-        return;
-
-    if ( _statistics )
-        _statistics->incNumTightenedBounds();
-
-    setLowerBound( variable, value );
-
-    ensureNonBasicVariableGTLB( variable, value );
+    _boundManager.tightenLowerBound( variable, value );
 }
 
-void Tableau::tightenUpperBound( unsigned variable, double value )
+inline void Tableau::tightenUpperBound( unsigned variable, double value )
 {
-    ASSERT( variable < _n );
-
-    if ( !FloatUtils::lt( value, upperBound( variable ) ) )
-        return;
-
-    if ( _statistics )
-        _statistics->incNumTightenedBounds();
-
-    setUpperBound( variable, value );
-
-    ensureNonBasicVariableLTUB( variable, value );
+    _boundManager.tightenUpperBound( variable, value );
 }
 
 unsigned Tableau::addEquation( const Equation &equation )
