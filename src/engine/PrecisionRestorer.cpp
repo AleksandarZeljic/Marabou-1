@@ -36,11 +36,6 @@ void PrecisionRestorer::restorePrecision( IEngine &engine,
 
     Set<unsigned> shouldBeBasic = tableau.getBasicVariables();
 
-    double *lowerBounds = new double[targetN];
-    double *upperBounds = new double[targetN];
-    memcpy( lowerBounds, tableau.getLowerBounds(), sizeof(double) * targetN );
-    memcpy( upperBounds, tableau.getUpperBounds(), sizeof(double) * targetN );
-
     try
     {
         EngineState targetEngineState;
@@ -105,14 +100,6 @@ void PrecisionRestorer::restorePrecision( IEngine &engine,
             }
         }
 
-        // Tighten bounds if needed. The tableau will ignore these bounds if
-        // tighter bounds are already known, somehow.
-        for ( unsigned i = 0; i < targetN; ++i )
-        {
-            tableau.tightenLowerBound( i, lowerBounds[i] );
-            tableau.tightenUpperBound( i, upperBounds[i] );
-        }
-
         // Restore constraint status
         for ( const auto &pair : targetEngineState._plConstraintToState )
             pair.first->setActiveConstraint( pair.second->isActive() );
@@ -144,14 +131,9 @@ void PrecisionRestorer::restorePrecision( IEngine &engine,
     }
     catch ( ... )
     {
-        delete[] lowerBounds;
-        delete[] upperBounds;
-
         throw;
     }
 
-    delete[] lowerBounds;
-    delete[] upperBounds;
 }
 
 //

@@ -63,12 +63,6 @@ public:
     double *_b;
 
     /*
-      Upper and lower bounds for all variables
-    */
-    double *_lowerBounds;
-    double *_upperBounds;
-
-    /*
       The set of current basic variables
     */
     Set<unsigned> _basicVariables;
