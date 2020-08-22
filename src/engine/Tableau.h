@@ -148,11 +148,8 @@ public:
     inline double getUpperBound( unsigned variable ) const { return upperBound( variable ); };
 
     /*
-      Get all lower and upper bounds.
-    */
-    const double *getLowerBounds() const;
-    const double *getUpperBounds() const;
-
+      Get underlying centralized BoundManager. Used by various satelite objects to obtain the BoundManager.
+     */
     BoundManager &getBoundManager() const { return _boundManager; }
 
     /*
@@ -558,12 +555,6 @@ private:
       The assignment of the non basic variables.
     */
     double *_nonBasicAssignment;
-
-    /*
-      Upper and lower bounds for all variables
-    */
-    double *_lowerBounds;
-    double *_upperBounds;
 
     /*
       Replacement calls for _lowerBounds and _upperBounds
