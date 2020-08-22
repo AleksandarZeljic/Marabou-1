@@ -51,8 +51,6 @@ Tableau::Tableau( BoundManager &boundManager )
     , _nonBasicIndexToVariable( NULL )
     , _variableToIndex( NULL )
     , _nonBasicAssignment( NULL )
-    , _lowerBounds( NULL )
-    , _upperBounds( NULL )
     , _boundsValid( true )
     , _basicAssignment( NULL )
     , _basicStatus( NULL )
@@ -167,18 +165,6 @@ void Tableau::freeMemoryIfNeeded()
         _nonBasicAssignment = NULL;
     }
 
-    if ( _lowerBounds )
-    {
-        delete[] _lowerBounds;
-        _lowerBounds = NULL;
-    }
-
-    if ( _upperBounds )
-    {
-        delete[] _upperBounds;
-        _upperBounds = NULL;
-    }
-
     if ( _basicAssignment )
     {
         delete[] _basicAssignment;
@@ -280,16 +266,6 @@ void Tableau::setDimensions( unsigned m, unsigned n )
     _nonBasicAssignment = new double[n-m];
     if ( !_nonBasicAssignment )
         throw MarabouError( MarabouError::ALLOCATION_FAILED, "Tableau::nonBasicAssignment" );
-
-    _lowerBounds = new double[n];
-    if ( !_lowerBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "Tableau::lowerBounds" );
-    std::fill_n( _lowerBounds, n, FloatUtils::negativeInfinity() );
-
-    _upperBounds = new double[n];
-    if ( !_upperBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "Tableau::upperBounds" );
-    std::fill_n( _upperBounds, n, FloatUtils::infinity() );
 
     _basicAssignment = new double[m];
     if ( !_basicAssignment )
@@ -1596,10 +1572,6 @@ void Tableau::storeState( TableauState &state ) const
     // Store right hand side vector _b
     memcpy( state._b, _b, sizeof(double) * _m );
 
-    // Store the bounds
-    memcpy( state._lowerBounds, _lowerBounds, sizeof(double) *_n );
-    memcpy( state._upperBounds, _upperBounds, sizeof(double) *_n );
-
     // Basic variables
     state._basicVariables = _basicVariables;
 
@@ -1638,11 +1610,6 @@ void Tableau::restoreState( const TableauState &state )
 
     // Restore right hand side vector _b
     memcpy( _b, state._b, sizeof(double) * _m );
-
-    // Restore the bounds and valid status
-    // TODO: should notify all the constraints.
-    memcpy( _lowerBounds, state._lowerBounds, sizeof(double) *_n );
-    memcpy( _upperBounds, state._upperBounds, sizeof(double) *_n );
 
     // Basic variables
     _basicVariables = state._basicVariables;
@@ -1997,25 +1964,8 @@ void Tableau::addRow()
     delete[] _basicStatus;
     _basicStatus = newBasicStatus;
 
-    // Allocate new lower and upper bound arrays, and copy old values
-    double *newLowerBounds = new double[newN];
-    if ( !newLowerBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "Tableau::newLowerBounds" );
-    memcpy( newLowerBounds, _lowerBounds, _n * sizeof(double) );
-    delete[] _lowerBounds;
-    _lowerBounds = newLowerBounds;
-
-    double *newUpperBounds = new double[newN];
-    if ( !newUpperBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "Tableau::newUpperBounds" );
-    memcpy( newUpperBounds, _upperBounds, _n * sizeof(double) );
-    delete[] _upperBounds;
-    _upperBounds = newUpperBounds;
-
     // Mark the new variable as unbounded
     _boundManager.registerNewVariable();
-    _lowerBounds[_n] = FloatUtils::negativeInfinity();
-    _upperBounds[_n] = FloatUtils::infinity();
 
     // Allocate a larger basis factorization
     IBasisFactorization *newBasisFactorization =

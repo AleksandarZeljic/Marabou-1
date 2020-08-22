@@ -25,8 +25,6 @@ TableauState::TableauState()
     , _sparseRowsOfA( NULL )
     , _denseA( NULL )
     , _b( NULL )
-    , _lowerBounds( NULL )
-    , _upperBounds( NULL )
     , _basicAssignment( NULL )
     , _nonBasicAssignment( NULL )
     , _basicIndexToVariable( NULL )
@@ -84,18 +82,6 @@ TableauState::~TableauState()
     {
         delete[] _b;
         _b = NULL;
-    }
-
-    if ( _lowerBounds )
-    {
-        delete[] _lowerBounds;
-        _lowerBounds = NULL;
-    }
-
-    if ( _upperBounds )
-    {
-        delete[] _upperBounds;
-        _upperBounds = NULL;
     }
 
     if ( _basicAssignment )
@@ -173,14 +159,6 @@ void TableauState::setDimensions( unsigned m, unsigned n, const IBasisFactorizat
     _b = new double[m];
     if ( !_b )
         throw MarabouError( MarabouError::ALLOCATION_FAILED, "TableauState::b" );
-
-    _lowerBounds = new double[n];
-    if ( !_lowerBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "TableauState::lowerBounds" );
-
-    _upperBounds = new double[n];
-    if ( !_upperBounds )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "TableauState::upperBounds" );
 
     _basicAssignment = new double[m];
     if ( !_basicAssignment )
