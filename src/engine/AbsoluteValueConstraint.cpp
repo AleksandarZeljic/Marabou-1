@@ -228,6 +228,7 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getNegativeSplit() const
     negativeEquation.addAddend( 1, _f );
     negativeEquation.setScalar( 0 );
     negativePhase.addEquation( negativeEquation );
+    negativePhase.setPhase( PhaseStatus::PHASE_NEGATIVE );
 
     return negativePhase;
 }
@@ -245,6 +246,7 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getPositiveSplit() const
     positiveEquation.addAddend( -1, _f );
     positiveEquation.setScalar( 0 );
     positivePhase.addEquation( positiveEquation );
+    positivePhase.setPhase( PhaseStatus::PHASE_POSITIVE);
 
     return positivePhase;
 }
