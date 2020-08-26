@@ -66,6 +66,7 @@ public:
       Decide a case split to apply, according to the constraint marked for
       splitting. Update bounds, add equations and update the stack.
     */
+    void pushDecision( PiecewiseLinearConstraint *constraint,  PiecewiseLinearCaseSplit split );
     void decideSplit();
 
     /*
@@ -73,6 +74,8 @@ public:
       a decision or an implication as needed.
     */
     bool backtrackAndContinue();
+
+    void trailPush( PiecewiseLinearConstraint *constraint, unsigned phase );
 
     /*
       Pop a stack frame, copying alternativeSplits if any. Return
