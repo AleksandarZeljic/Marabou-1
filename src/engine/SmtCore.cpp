@@ -92,6 +92,33 @@ bool SmtCore::needToSplit() const
     return _needToSplit;
 }
 
+void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  PiecewiseLinearCaseSplit split )
+{
+    //decision-making logic
+    SMT_LOG( "New decision level ..." );
+
+    _context.push();
+
+    SMT_LOG( "> New decision level %d", _context.getLevel() );
+
+    trailPush( constraint, split.getPhase() );
+
+    SMT_LOG( "Decision push @ %d DONE", _context.getLevel() );
+}
+
+void SmtCore::implyCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase )
+{
+    SMT_LOG( "Push implication on trail @s%d ... ", _context.getLevel() );
+    trailPush( constraint, phase );
+    SMT_LOG( "Push implication on trail DONE"  );
+}
+void SmtCore::trailPush( PiecewiseLinearConstraint *constraint, unsigned phase )
+{
+    SMT_LOG( "New trail element..." );
+    TrailEntry te( constraint, phase );
+    _trail.push_back(te);
+}
+
 void SmtCore::decideSplit()
 {
     ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
@@ -143,14 +170,7 @@ void SmtCore::decideSplit()
     stackEntry->_activeSplit = *split;
     stackEntry->_sourceConstraint= _constraintForSplitting;
 
-    // Trail changes require a context push to denote a new decision level
-    SMT_LOG( "New decision level ..." );
-    _context.push();
-    SMT_LOG( "> New decision level %d", _context.getLevel() );
-    SMT_LOG( "New decision ..." );
-    TrailEntry te( _constraintForSplitting, stackEntry->_activeSplit.getPhase() );
-    _trail.push_back(te);
-    SMT_LOG( "Decision push @ %d DONE", _context.getLevel() );
+    pushDecision( stackEntry->_sourceConstraint, *split );
 
     // Store the remaining splits on the stack, for later
     stackEntry->_engineState = stateBeforeSplits;
@@ -232,7 +252,7 @@ bool SmtCore::checkStackTrailEquivalence()
                                 [&](PiecewiseLinearCaseSplit c) { return c == tCaseSplit; } );
 
             if ( stackCaseSplits.end() == sloc )
-                std::cout << "Missing from the stack!";
+                std::cout << "Missing from the stack!" << std::endl;
 
             std::cout << "Stack case split: ";
             sCaseSplit.dump();
@@ -241,7 +261,7 @@ bool SmtCore::checkStackTrailEquivalence()
                                 [&](PiecewiseLinearCaseSplit c) { return c == sCaseSplit; } );
 
             if ( trailCaseSplits.end() == tloc )
-                std::cout << "Missing from the stack!";
+                std::cout << "Missing from the trail!" << std::endl;
 
 
         }
@@ -332,11 +352,14 @@ bool SmtCore::backtrackAndContinue()
         interruptIfCompliantWithDebugSolution();
 
         if ( popSplit() )
+        {
             popDecisionLevel();
+            ASSERT( checkStackTrailEquivalence() );
+        }
         else
             return false;
 
-        if (_stack.empty()) {
+        if ( _stack.empty() ) {
             return false;
         }
     }
@@ -406,14 +429,7 @@ void SmtCore::implyValidSplit( PiecewiseLinearCaseSplit &validSplit )
     checkSkewFromDebuggingSolution();
 }
 
-void SmtCore::implyCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase )
-{
-    SMT_LOG( "Push implication on trail @s%d ... ", _context.getLevel() );
-    TrailEntry te( constraint, phase );
-    //te.getPiecewiseLinearCaseSplit().dump();
-    _trail.push_back( te );
-    SMT_LOG( "Push implication on trail DONE"  );
-}
+
 
 void SmtCore::allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const
 {
