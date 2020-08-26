@@ -207,7 +207,7 @@ List<PiecewiseLinearConstraint::Fix> AbsoluteValueConstraint::getSmartFixes( ITa
 
 List<PiecewiseLinearCaseSplit> AbsoluteValueConstraint::getCaseSplits() const
 {
-    ASSERT( _phaseStatus == PhaseStatus::PHASE_NOT_FIXED );
+    //ASSERT( _phaseStatus == PhaseStatus::PHASE_NOT_FIXED );
 
     List<PiecewiseLinearCaseSplit> splits;
     splits.append( getNegativeSplit() );
