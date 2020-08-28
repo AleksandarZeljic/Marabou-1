@@ -15,6 +15,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "context/context.h"
 #include "Engine.h"
 #include "FloatUtils.h"
 #include "InputQuery.h"
@@ -104,7 +105,9 @@ public:
 
     void test_equality_operator()
     {
+        CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 3, 5 );
+        relu1->initializeContextDependentPhaseStatus( &context );
 
         InputQuery *inputQuery = new InputQuery;
 

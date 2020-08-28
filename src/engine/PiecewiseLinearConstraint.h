@@ -16,6 +16,7 @@
 #ifndef __PiecewiseLinearConstraint_h__
 #define __PiecewiseLinearConstraint_h__
 
+#include "context/context.h"
 #include "FloatUtils.h"
 #include "ITableau.h"
 #include "List.h"
@@ -260,9 +261,11 @@ public:
         return _upperBounds[i];
     }
 
+    virtual void initializeContextDependentPhaseStatus( CVC4::context::Context * /*context*/) {};
+
 protected:
     bool _constraintActive;
-	Map<unsigned, double> _assignment;
+    Map<unsigned, double> _assignment;
     Map<unsigned, double> _lowerBounds;
     Map<unsigned, double> _upperBounds;
 

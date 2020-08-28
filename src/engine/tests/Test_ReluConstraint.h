@@ -15,6 +15,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "context/context.h"
 #include "InputQuery.h"
 #include "MockConstraintBoundTightener.h"
 #include "MockErrno.h"
@@ -35,6 +36,7 @@ class ReluConstraintTestSuite : public CxxTest::TestSuite
 {
 public:
     MockForReluConstraint *mock;
+
 
     void setUp()
     {
@@ -131,6 +133,34 @@ public:
         relu.notifyVariableValue( newB, 2 );
 
         TS_ASSERT( relu.satisfied() );
+    }
+
+    void test_relu_context_dependent_state()
+    {
+        CVC4::context::Context context;
+        unsigned b = 1;
+        unsigned f = 4;
+
+        ReluConstraint relu( b, f );
+
+        relu.initializeContextDependentPhaseStatus( &context );
+
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_NOT_FIXED );
+
+        context.push();
+
+        relu.notifyLowerBound( f, 1 );
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_ACTIVE );
+
+        context.pop();
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_NOT_FIXED );
+
+        context.push();
+        relu.notifyUpperBound( b, -1 );
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_INACTIVE );
+
+        context.pop();
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_NOT_FIXED );
     }
 
     void test_relu_fixes()
@@ -363,13 +393,14 @@ public:
 
     void test_fix_active()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
         MockTableau tableau;
 
         ReluConstraint relu( b, f );
-
+        relu.initializeContextDependentPhaseStatus( &context );
         relu.registerAsWatcher( &tableau );
 
         List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
@@ -382,8 +413,10 @@ public:
         /*                          MarabouError::REQUESTED_CASE_SPLITS_FROM_FIXED_CONSTRAINT ); */
 
         relu.unregisterAsWatcher( &tableau );
+        relu.cdoCleanup();
 
         relu = ReluConstraint( b, f );
+        relu.initializeContextDependentPhaseStatus( &context );
 
         relu.registerAsWatcher( &tableau );
 
@@ -401,13 +434,14 @@ public:
 
     void test_fix_inactive()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
         MockTableau tableau;
 
         ReluConstraint relu( b, f );
-
+        relu.initializeContextDependentPhaseStatus( &context );
         relu.registerAsWatcher( &tableau );
 
         List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
@@ -425,6 +459,7 @@ public:
 
     void test_constraint_phase_gets_fixed()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -433,6 +468,7 @@ public:
         // Upper bounds
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, -1.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -440,6 +476,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -447,6 +484,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( f, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -454,6 +492,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, 3.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -461,6 +500,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, 5.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -469,6 +509,7 @@ public:
         // Lower bounds
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( b, 3.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -476,6 +517,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( b, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -483,6 +525,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( f, 6.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -490,6 +533,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( f, 0.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -497,6 +541,7 @@ public:
 
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( b, -2.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -505,6 +550,7 @@ public:
         // Aux variables: upper bound
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
 
             relu.notifyLowerBound( b, -5 );
             InputQuery dontCare;
@@ -522,6 +568,7 @@ public:
         // Aux variables: lower bound
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
 
             relu.notifyLowerBound( b, -5 );
             InputQuery dontCare;
@@ -539,10 +586,12 @@ public:
 
     void test_valid_split_relu_phase_fixed_to_active()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
         ReluConstraint relu( b, f );
+        relu.initializeContextDependentPhaseStatus( &context );
 
         List<PiecewiseLinearConstraint::Fix> fixes;
         List<PiecewiseLinearConstraint::Fix>::iterator it;
@@ -585,10 +634,12 @@ public:
 
     void test_valid_split_relu_phase_fixed_to_inactive()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
         ReluConstraint relu( b, f );
+        relu.initializeContextDependentPhaseStatus( &context );
 
         List<PiecewiseLinearConstraint::Fix> fixes;
         List<PiecewiseLinearConstraint::Fix>::iterator it;
@@ -625,6 +676,7 @@ public:
 
     void test_relu_entailed_tightenings()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -633,6 +685,7 @@ public:
         unsigned aux = 500;
 
         ReluConstraint relu( b, f );
+        relu.initializeContextDependentPhaseStatus( &context );
 
         relu.notifyUpperBound( b, 7 );
         relu.notifyUpperBound( f, 7 );
@@ -688,6 +741,7 @@ public:
 
         dontCare.setNumberOfVariables( 500 );
         ReluConstraint relu2( b, f );
+        relu2.initializeContextDependentPhaseStatus( &context );
 
         relu2.notifyUpperBound( b, -1 );
         relu2.notifyUpperBound( f, 7 );
@@ -718,7 +772,9 @@ public:
 
     void test_relu_duplicate_and_restore()
     {
+        CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 4, 6 );
+        relu1->initializeContextDependentPhaseStatus( &context );
         relu1->setActiveConstraint( false );
         relu1->notifyVariableValue( 4, 1.0 );
         relu1->notifyVariableValue( 6, 1.0 );
@@ -730,6 +786,7 @@ public:
         relu1->notifyUpperBound( 6, 8.0 );
 
         PiecewiseLinearConstraint *relu2 = relu1->duplicateConstraint();
+        relu2->initializeContextDependentPhaseStatus( &context );
 
         relu1->notifyVariableValue( 4, -2 );
         TS_ASSERT( !relu1->satisfied() );
@@ -746,12 +803,14 @@ public:
 
     void test_eliminate_variable_active()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
         MockTableau tableau;
 
         ReluConstraint relu( b, f );
+        relu.initializeContextDependentPhaseStatus( &context );
 
         relu.registerAsWatcher( &tableau );
 
@@ -762,17 +821,18 @@ public:
 
     void test_serialize_and_unserialize()
     {
+        CVC4::context::Context context;
         unsigned b = 42;
         unsigned f = 7;
 
         ReluConstraint originalRelu( b, f );
+        originalRelu.initializeContextDependentPhaseStatus( &context );
         originalRelu.notifyLowerBound( b, -10 );
         originalRelu.notifyUpperBound( f, 5 );
         originalRelu.notifyUpperBound( f, 5 );
 
         String originalSerialized = originalRelu.serializeToString();
         ReluConstraint recoveredRelu( originalSerialized );
-
         TS_ASSERT_EQUALS( originalRelu.serializeToString(),
                           recoveredRelu.serializeToString() );
 
@@ -788,12 +848,15 @@ public:
 
         originalSerialized = originalRelu.serializeToString();
         ReluConstraint recoveredRelu2( originalSerialized );
-
         TS_ASSERT_EQUALS( originalRelu.serializeToString(),
                           recoveredRelu2.serializeToString() );
 
         TS_ASSERT( recoveredRelu2.auxVariableInUse() );
         TS_ASSERT_EQUALS( originalRelu.getAux(), recoveredRelu2.getAux() );
+
+        originalRelu.cdoCleanup();
+        //recoveredRelu.cdoCleanup();
+        //recoveredRelu2.cdoCleanup();
     }
 
     bool haveFix( List<PiecewiseLinearConstraint::Fix> &fixes, unsigned var, double value )
@@ -810,10 +873,12 @@ public:
 
     void test_relu_smart_fixes()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
         ReluConstraint relu( b, f );
+        relu.initializeContextDependentPhaseStatus( &context );
 
         MockTableau tableau;
 
@@ -951,7 +1016,9 @@ public:
 
     void test_add_auxiliary_equations()
     {
+        CVC4::context::Context context;
         ReluConstraint relu( 4, 6 );
+        relu.initializeContextDependentPhaseStatus( &context );
         InputQuery query;
 
         query.setNumberOfVariables( 9 );
@@ -988,6 +1055,8 @@ public:
 
         // Special case: add aux equations in active phase
         ReluConstraint relu2( 4, 6 );
+        relu2.initializeContextDependentPhaseStatus( &context );
+
         InputQuery query2;
 
         query2.setNumberOfVariables( 9 );
@@ -1004,9 +1073,10 @@ public:
         TS_ASSERT_EQUALS( query2.getUpperBound( aux ), 0 );
     }
 
-    ReluConstraint prepareRelu( unsigned b, unsigned f, unsigned aux, IConstraintBoundTightener *tightener )
+    ReluConstraint prepareRelu( unsigned b, unsigned f, unsigned aux, IConstraintBoundTightener *tightener,  CVC4::context::Context *context )
     {
         ReluConstraint relu( b, f );
+        relu.initializeContextDependentPhaseStatus( context );
 
         InputQuery dontCare;
         dontCare.setNumberOfVariables( aux );
@@ -1029,6 +1099,7 @@ public:
 
     void test_notify_bounds()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
         unsigned aux = 10;
@@ -1040,7 +1111,7 @@ public:
         // Initial state: b in [-10, 15], f in [0, 15], aux in [0, 10]
 
         {
-            ReluConstraint relu = prepareRelu( b, f, aux, &tightener );
+            ReluConstraint relu = prepareRelu( b, f, aux, &tightener, &context );
 
             relu.notifyLowerBound( b, -20 );
             tightener.getConstraintTightenings( tightenings );
@@ -1069,7 +1140,7 @@ public:
 
         {
             // Tighter lower bound for b that is negative
-            ReluConstraint relu = prepareRelu( b, f, aux, &tightener );
+            ReluConstraint relu = prepareRelu( b, f, aux, &tightener, &context );
             relu.notifyLowerBound( b, -8 );
             tightener.getConstraintTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( aux, 8, Tightening::UB ) ) );
@@ -1077,7 +1148,7 @@ public:
 
         {
             // Tighter upper bound for aux that is positive
-            ReluConstraint relu = prepareRelu( b, f, aux, &tightener );
+            ReluConstraint relu = prepareRelu( b, f, aux, &tightener, &context );
             relu.notifyUpperBound( aux, 7 );
             tightener.getConstraintTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( b, -7, Tightening::LB ) ) );
@@ -1085,7 +1156,7 @@ public:
 
         {
             // Tighter upper bound for b/f that is positive
-            ReluConstraint relu = prepareRelu( b, f, aux, &tightener );
+            ReluConstraint relu = prepareRelu( b, f, aux, &tightener, &context );
             relu.notifyUpperBound( b, 13 );
             tightener.getConstraintTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( f, 13, Tightening::UB ) ) );
@@ -1097,7 +1168,7 @@ public:
 
         {
             // Tighter upper bound 0 for f
-            ReluConstraint relu = prepareRelu( b, f, aux, &tightener );
+            ReluConstraint relu = prepareRelu( b, f, aux, &tightener, &context );
             relu.notifyUpperBound( f, 0 );
             tightener.getConstraintTightenings( tightenings );
 
@@ -1106,7 +1177,8 @@ public:
 
         {
             // Tighter negative upper bound for b
-            ReluConstraint relu = prepareRelu( b, f, aux, &tightener );
+            ReluConstraint relu = prepareRelu( b, f, aux, &tightener, &context );
+
             relu.notifyUpperBound( b, -1 );
             tightener.getConstraintTightenings( tightenings );
 
@@ -1116,7 +1188,7 @@ public:
 
         {
             // Tighter positive lower bound for aux
-            ReluConstraint relu = prepareRelu( b, f, aux, &tightener );
+            ReluConstraint relu = prepareRelu( b, f, aux, &tightener, &context );
             relu.notifyLowerBound( aux, 1 );
             tightener.getConstraintTightenings( tightenings );
 
@@ -1127,6 +1199,7 @@ public:
 
     void test_polarity()
     {
+        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -1145,6 +1218,8 @@ public:
         // b in [1, 2], polarity should be 1, and direction should be PHASE_ACTIVE
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
+
             relu.notifyLowerBound( b, 1 );
             relu.notifyUpperBound( b, 2 );
             TS_ASSERT( relu.computePolarity() == 1 );
@@ -1155,6 +1230,7 @@ public:
         // b in [-2, 0], polarity should be -1, and direction should be PHASE_INACTIVE
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
             relu.notifyLowerBound( b, -2 );
             relu.notifyUpperBound( b, 0 );
             TS_ASSERT( relu.computePolarity() == -1 );
@@ -1167,6 +1243,8 @@ public:
         // the getCaseSplits(), and getPossibleFix should return the inactive fix first
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
+
             relu.notifyLowerBound( b, -2 );
             relu.notifyUpperBound( b, 2 );
             TS_ASSERT( relu.computePolarity() == 0 );
@@ -1198,6 +1276,8 @@ public:
         // the getCaseSplits(), and getPossibleFix should return the active fix first
         {
             ReluConstraint relu( b, f );
+            relu.initializeContextDependentPhaseStatus( &context );
+
             relu.notifyLowerBound( b, -2 );
             relu.notifyUpperBound( b, 3 );
             TS_ASSERT( relu.computePolarity() == 0.2 );

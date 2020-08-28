@@ -68,7 +68,9 @@ public:
         equation1.setScalar( 10 );
         inputQuery.addEquation( equation1 );
 
-        InputQuery processed = Preprocessor().preprocess( inputQuery );
+        InputQuery processed;
+
+        TS_ASSERT_THROWS_NOTHING( processed = Preprocessor().preprocess( inputQuery ) );
 
         // x0 = 10 - x1 + x2
         //
@@ -99,12 +101,12 @@ public:
         // x2.ub = -10 + x0.ub + x1.ub = -10 + 13 + 1 = 4
         // 3 is a tighter bound than 4, keep 3 as the upper bound
 
-        processed = Preprocessor().preprocess( inputQuery );
+        TS_ASSERT_THROWS_NOTHING( processed = Preprocessor().preprocess( inputQuery ) );
 
         TS_ASSERT_EQUALS( processed.getLowerBound( 0 ), 0 );
         TS_ASSERT_EQUALS( processed.getUpperBound( 0 ), 13 );
         TS_ASSERT_EQUALS( processed.getLowerBound( 2 ), -10 );
-		TS_ASSERT_EQUALS( processed.getUpperBound( 2 ), 3 );
+        TS_ASSERT_EQUALS( processed.getUpperBound( 2 ), 3 );
 
         inputQuery.setLowerBound( 0, FloatUtils::negativeInfinity() );
         inputQuery.setUpperBound( 0, 15 );
@@ -121,7 +123,7 @@ public:
         // x2.lb = -10 + x0.lb + x1.lb = -10 + 9 + 3 = 2
         // x2.ub = -10 + x0.ub + x1.ub = -10 + 15 + 3 = 8
 
-        processed = Preprocessor().preprocess( inputQuery, false );
+        TS_ASSERT_THROWS_NOTHING( processed = Preprocessor().preprocess( inputQuery, false ) );
 
         TS_ASSERT_EQUALS( processed.getLowerBound( 0 ), 9 );
         TS_ASSERT_EQUALS( processed.getUpperBound( 0 ), 15 );
@@ -144,7 +146,7 @@ public:
         // x2.lb = -10 + x0.lb + x1.lb = Unbounded
         // x2.ub = -10 + x0.ub + x1.ub = -10 + 15 -2 = 3
 
-        processed = Preprocessor().preprocess( inputQuery, false );
+        TS_ASSERT_THROWS_NOTHING( processed = Preprocessor().preprocess( inputQuery, false ) );
 
         TS_ASSERT_EQUALS( processed.getLowerBound( 0 ), FloatUtils::negativeInfinity() );
         TS_ASSERT_EQUALS( processed.getUpperBound( 0 ), 15 );
@@ -172,7 +174,7 @@ public:
         TS_ASSERT_THROWS( Preprocessor().preprocess( inputQuery ), const InfeasibleQueryException &e );
 
         InputQuery inputQuery2;
-		inputQuery2.setNumberOfVariables( 5 );
+        inputQuery2.setNumberOfVariables( 5 );
         inputQuery2.setLowerBound( 1, 0 );
         inputQuery2.setUpperBound( 1, 1 );
         inputQuery2.setLowerBound( 2, 2 );
@@ -194,7 +196,7 @@ public:
         equation2.setScalar( 10 );
         inputQuery2.addEquation( equation2 );
 
-        processed = Preprocessor().preprocess( inputQuery2 );
+        TS_ASSERT_THROWS_NOTHING( processed = Preprocessor().preprocess( inputQuery2 ) );
 
         TS_ASSERT_EQUALS( processed.getLowerBound( 0 ), 5.5 );
         TS_ASSERT_EQUALS( processed.getUpperBound( 0 ), 6.5 );
@@ -224,7 +226,9 @@ public:
         inputQuery.setLowerBound( 10, -1 );
         inputQuery.setUpperBound( 10, 0 );
 
+        CVC4::context::Context context;
         ReluConstraint *relu = new ReluConstraint( 0, 1 );
+        relu->initializeContextDependentPhaseStatus( &context );
         MaxConstraint *max1 = new MaxConstraint( 2, Set<unsigned>( { 4, 3 } ) );
         MaxConstraint *max2 = new MaxConstraint( 5, Set<unsigned>( { 6, 7 } ) );
         MaxConstraint *max3 = new MaxConstraint( 8, Set<unsigned>( { 9, 10 } ) );
@@ -309,7 +313,9 @@ public:
         inputQuery.setLowerBound( 4, 5 );
         inputQuery.setUpperBound( 4, 7 );
 
+        CVC4::context::Context context;
         ReluConstraint *relu = new ReluConstraint( 0, 5 );
+        relu->initializeContextDependentPhaseStatus( &context );
         MaxConstraint *max = new MaxConstraint( 6, Set<unsigned>( { 4, 0 } ) );
         inputQuery.addPiecewiseLinearConstraint( relu );
         inputQuery.addPiecewiseLinearConstraint( max );
@@ -483,7 +489,9 @@ public:
         equation2.setScalar( 1 );
         inputQuery.addEquation( equation2 );
 
+        CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 1, 3 );
+        relu1->initializeContextDependentPhaseStatus( &context );
         relu1->notifyLowerBound( 1, -3 );
 
         inputQuery.addPiecewiseLinearConstraint( relu1 );
@@ -582,13 +590,18 @@ public:
         inputQuery.setLowerBound( 19, 0 );
         inputQuery.setUpperBound( 19, 500000 );
 
+        CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 6, 7 );
+        relu1->initializeContextDependentPhaseStatus( &context );
         relu1->notifyLowerBound( 6, FloatUtils::negativeInfinity() );
         ReluConstraint *relu2 = new ReluConstraint( 10, 11 );
+        relu2->initializeContextDependentPhaseStatus( &context ); 
         relu2->notifyLowerBound( 10, FloatUtils::negativeInfinity() );
         ReluConstraint *relu3 = new ReluConstraint( 14, 15 );
+        relu3->initializeContextDependentPhaseStatus( &context ); 
         relu3->notifyLowerBound( 14, FloatUtils::negativeInfinity() );
         ReluConstraint *relu4 = new ReluConstraint( 18, 19 );
+        relu4->initializeContextDependentPhaseStatus( &context ); 
         relu4->notifyLowerBound( 18, FloatUtils::negativeInfinity() );
 
         inputQuery.addPiecewiseLinearConstraint( relu1 );
@@ -701,9 +714,12 @@ public:
             inputQuery.setUpperBound( i, 10 );
         }
 
+        CVC4::context::Context context;
         // Specify activation functions
         ReluConstraint *relu1 = new ReluConstraint( 2, 4 );
         ReluConstraint *relu2 = new ReluConstraint( 3, 5 );
+        relu1->initializeContextDependentPhaseStatus( &context );
+        relu2->initializeContextDependentPhaseStatus( &context );
         inputQuery.addPiecewiseLinearConstraint( relu1 );
         inputQuery.addPiecewiseLinearConstraint( relu2 );
         relu1->notifyLowerBound( 2, -10 );

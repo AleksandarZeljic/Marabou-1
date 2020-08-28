@@ -16,6 +16,7 @@
 #ifndef __MockEngine_h__
 #define __MockEngine_h__
 
+#include "context/context.h"
 #include "IEngine.h"
 #include "List.h"
 #include "PiecewiseLinearCaseSplit.h"
@@ -24,6 +25,7 @@ class MockEngine : public IEngine
 {
 public:
     MockEngine()
+        : _context()
     {
         wasCreated = false;
         wasDiscarded = false;
@@ -37,6 +39,7 @@ public:
 
 	bool wasCreated;
 	bool wasDiscarded;
+  CVC4::context::Context _context;
 
 	void mockConstructor()
 	{
