@@ -12,6 +12,8 @@
  ** [[ Add lengthier description here ]]
  **/
 
+
+#include "context/context.h"
 #include "ConstraintBoundTightener.h"
 #include "Debug.h"
 #include "DivideStrategy.h"
@@ -33,15 +35,19 @@
 ReluConstraint::ReluConstraint( unsigned b, unsigned f )
     : _b( b )
     , _f( f )
+    , _context( nullptr )
+    , _phaseStatus( nullptr )
     , _auxVarInUse( false )
     , _direction( PhaseStatus::PHASE_NOT_FIXED )
     , _haveEliminatedVariables( false )
 {
-    setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
+    //setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
 }
 
 ReluConstraint::ReluConstraint( const String &serializedRelu )
-    : _haveEliminatedVariables( false )
+    : _context( nullptr )
+    , _phaseStatus( nullptr )
+    , _haveEliminatedVariables( false )
 {
     String constraintType = serializedRelu.substring( 0, 4 );
     ASSERT( constraintType == String( "relu" ) );
@@ -73,7 +79,12 @@ ReluConstraint::ReluConstraint( const String &serializedRelu )
         _auxVarInUse = true;
     }
 
-    setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
+    //    setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
+}
+
+ReluConstraint::~ReluConstraint()
+{
+    cdoCleanup();
 }
 
 PiecewiseLinearFunctionType ReluConstraint::getType() const
@@ -85,13 +96,22 @@ PiecewiseLinearConstraint *ReluConstraint::duplicateConstraint() const
 {
     ReluConstraint *clone = new ReluConstraint( _b, _f );
     *clone = *this;
+    clone->_phaseStatus = nullptr;
+    clone->initializeContextDependentPhaseStatus( _context );
     return clone;
 }
 
 void ReluConstraint::restoreState( const PiecewiseLinearConstraint *state )
 {
     const ReluConstraint *relu = dynamic_cast<const ReluConstraint *>( state );
+    CVC4::context::Context *ctx = _context;
+    CVC4::context::CDO<PhaseStatus> *oldPhase = _phaseStatus;
     *this = *relu;
+    if ( nullptr != ctx )
+    {
+        _context = ctx;
+        _phaseStatus = oldPhase;
+    }
 }
 
 void ReluConstraint::registerAsWatcher( ITableau *tableau )
@@ -434,7 +454,7 @@ List<PiecewiseLinearConstraint::Fix> ReluConstraint::getSmartFixes( ITableau *ta
 
 List<PiecewiseLinearCaseSplit> ReluConstraint::getCaseSplits() const
 {
-    // if ( _phaseStatus != PhaseStatus::PHASE_NOT_FIXED )
+    // if ( getPhaseStatus() != PhaseStatus::PHASE_NOT_FIXED )
     //    throw MarabouError( MarabouError::REQUESTED_CASE_SPLITS_FROM_FIXED_CONSTRAINT );
 
     List<PiecewiseLinearCaseSplit> splits;
@@ -515,14 +535,14 @@ PiecewiseLinearCaseSplit ReluConstraint::getActiveSplit() const
 
 bool ReluConstraint::phaseFixed() const
 {
-    return _phaseStatus != PhaseStatus::PHASE_NOT_FIXED;
+    return getPhaseStatus() != PhaseStatus::PHASE_NOT_FIXED;
 }
 
 PiecewiseLinearCaseSplit ReluConstraint::getValidCaseSplit() const
 {
-    ASSERT( _phaseStatus != PhaseStatus::PHASE_NOT_FIXED );
+    ASSERT( getPhaseStatus() != PhaseStatus::PHASE_NOT_FIXED );
 
-    if ( _phaseStatus == PhaseStatus::PHASE_ACTIVE )
+    if ( getPhaseStatus() == PhaseStatus::PHASE_ACTIVE )
         return getActiveSplit();
 
     return getInactiveSplit();
@@ -533,7 +553,7 @@ void ReluConstraint::dump( String &output ) const
     output = Stringf( "ReluConstraint: x%u = ReLU( x%u ). Active? %s. PhaseStatus = %u (%s).\n",
                       _f, _b,
                       _constraintActive ? "Yes" : "No",
-                      _phaseStatus, phaseToString( _phaseStatus ).ascii()
+                      getPhaseStatus(), phaseToString( getPhaseStatus() ).ascii()
                       );
 
     output += Stringf( "b in [%s, %s], ",
@@ -602,11 +622,11 @@ void ReluConstraint::eliminateVariable( __attribute__((unused)) unsigned variabl
             {
                 if ( FloatUtils::gt( fixedValue, 0 ) )
                 {
-                    ASSERT( _phaseStatus != PHASE_INACTIVE );
+                    ASSERT( getPhaseStatus() != PHASE_INACTIVE );
                 }
                 else if ( FloatUtils::lt( fixedValue, 0 ) )
                 {
-                    ASSERT( _phaseStatus != PHASE_ACTIVE );
+                    ASSERT( getPhaseStatus() != PHASE_ACTIVE );
                 }
             }
             else
@@ -614,7 +634,7 @@ void ReluConstraint::eliminateVariable( __attribute__((unused)) unsigned variabl
                 // This is the aux variable
                 if ( FloatUtils::isPositive( fixedValue ) )
                 {
-                    ASSERT( _phaseStatus != PHASE_ACTIVE );
+                    ASSERT( getPhaseStatus() != PHASE_ACTIVE );
                 }
             }
         });
@@ -741,7 +761,7 @@ String ReluConstraint::phaseToString( PhaseStatus phase )
 
 void ReluConstraint::setPhaseStatus( PhaseStatus phaseStatus )
 {
-    _phaseStatus = phaseStatus;
+    *_phaseStatus = phaseStatus;
 }
 
 void ReluConstraint::addAuxiliaryEquations( InputQuery &inputQuery )
@@ -864,9 +884,9 @@ unsigned ReluConstraint::getF() const
     return _f;
 }
 
-ReluConstraint::PhaseStatus ReluConstraint::getPhaseStatus() const
+inline ReluConstraint::PhaseStatus ReluConstraint::getPhaseStatus() const
 {
-    return _phaseStatus;
+    return *_phaseStatus;
 }
 
 bool ReluConstraint::supportsSymbolicBoundTightening() const
@@ -913,6 +933,27 @@ ReluConstraint::PhaseStatus ReluConstraint::getDirection() const
 void ReluConstraint::updateScore()
 {
     _score = std::abs( computePolarity() );
+}
+
+void ReluConstraint::initializeContextDependentPhaseStatus( CVC4::context::Context *context )
+{
+    if ( nullptr == _context)
+        _context = context;
+
+    if ( nullptr == _phaseStatus )
+    {
+        ASSERT( nullptr != _context );
+        _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context );
+        setPhaseStatus( PHASE_NOT_FIXED );
+    }
+}
+void ReluConstraint::cdoCleanup()
+{
+    if ( nullptr != _phaseStatus )
+        _phaseStatus->deleteSelf();
+
+    _phaseStatus = nullptr;
+    _context = nullptr;
 }
 
 //

@@ -638,6 +638,13 @@ bool Engine::processInputQuery( InputQuery &inputQuery )
     return processInputQuery( inputQuery, GlobalConfiguration::PREPROCESS_INPUT_QUERY );
 }
 
+void Engine::initializeConstraintPhaseStatus( InputQuery &inputQuery )
+{
+    for ( const auto &plConstraint : inputQuery.getPiecewiseLinearConstraints() )
+        plConstraint->initializeContextDependentPhaseStatus( &_context );
+}
+
+
 void Engine::informConstraintsOfInitialBounds( InputQuery &inputQuery ) const
 {
     for ( const auto &plConstraint : inputQuery.getPiecewiseLinearConstraints() )
@@ -1061,6 +1068,7 @@ bool Engine::processInputQuery( InputQuery &inputQuery, bool preprocess )
 
     try
     {
+        initializeConstraintPhaseStatus( inputQuery );
         informConstraintsOfInitialBounds( inputQuery );
         invokePreprocessor( inputQuery, preprocess );
         if ( _verbosity > 0 )

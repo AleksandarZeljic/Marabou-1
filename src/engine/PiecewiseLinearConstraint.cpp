@@ -13,6 +13,7 @@
 
 **/
 
+#include "context/context.h"
 #include "PiecewiseLinearConstraint.h"
 #include "Statistics.h"
 
@@ -33,6 +34,7 @@ void PiecewiseLinearConstraint::registerConstraintBoundTightener( IConstraintBou
 {
     _constraintBoundTightener = tightener;
 }
+
 
 void PiecewiseLinearConstraint::dump() const
 {

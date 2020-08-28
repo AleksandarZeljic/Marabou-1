@@ -145,6 +145,9 @@ public:
     */
     bool supportsSymbolicBoundTightening() const;
 
+
+    void initializeContextDependentPhaseStatus( CVC4::context::Context * /*context*/) {};
+
 private:
     /*
       The variables that make up this constraint; _f = | _b |.

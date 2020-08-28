@@ -16,6 +16,7 @@
 #ifndef __ReluConstraint_h__
 #define __ReluConstraint_h__
 
+#include "context/cdo.h"
 #include "Map.h"
 #include "PiecewiseLinearConstraint.h"
 #include <cmath>
@@ -35,7 +36,7 @@ public:
     */
     ReluConstraint( unsigned b, unsigned f );
     ReluConstraint( const String &serializedRelu );
-
+    ~ReluConstraint();
     /*
       Get the type of this constraint.
     */
@@ -199,9 +200,16 @@ public:
 
     void updateScore();
 
+    /*
+       initializeContextDependentPhaseStatus
+     */
+    void initializeContextDependentPhaseStatus( CVC4::context::Context *context );
+    void cdoCleanup();
+
 private:
     unsigned _b, _f;
-    PhaseStatus _phaseStatus;
+    CVC4::context::Context *_context;
+    CVC4::context::CDO<PhaseStatus> *_phaseStatus;
     bool _auxVarInUse;
     unsigned _aux;
 
