@@ -1641,6 +1641,55 @@ void Tableau::restoreState( const TableauState &state )
         _statistics->setCurrentTableauDimension( _m, _n );
 }
 
+void Tableau::restoreStateForPrecisionRestoration( const TableauState &state )
+{
+    freeMemoryIfNeeded();
+    setDimensions( state._m, state._n );
+
+    // Restore matrix A
+    state._A->storeIntoOther( _A );
+    for ( unsigned i = 0; i < _n; ++i )
+        state._sparseColumnsOfA[i]->storeIntoOther( _sparseColumnsOfA[i] );
+    for ( unsigned i = 0; i < _m; ++i )
+        state._sparseRowsOfA[i]->storeIntoOther( _sparseRowsOfA[i] );
+    memcpy( _denseA, state._denseA, sizeof(double) * _m * _n );
+
+    // Restore right hand side vector _b
+    memcpy( _b, state._b, sizeof(double) * _m );
+
+    // Basic variables
+    _basicVariables = state._basicVariables;
+
+    // Restore the indices
+    memcpy( _basicIndexToVariable, state._basicIndexToVariable, sizeof(unsigned) * _m );
+    memcpy( _nonBasicIndexToVariable, state._nonBasicIndexToVariable, sizeof(unsigned) * ( _n - _m ) );
+    memcpy( _variableToIndex, state._variableToIndex, sizeof(unsigned) * _n );
+
+    // Restore the assignments
+    // Set non-basics to lower bounds, don't update basics - they will be computed later
+    for ( unsigned i = 0; i < _n - _m; ++i )
+    {
+        unsigned nonBasic = _nonBasicIndexToVariable[i];
+        setNonBasicAssignment( nonBasic, lowerBound( nonBasic ), false );
+    }
+
+    // Restore the basis factorization
+    _basisFactorization->restoreFactorization( state._basisFactorization );
+
+    // Restore the _boundsValid indicator
+    _boundsValid = state._boundsValid;
+
+    // Restore the merged varaibles
+    _mergedVariables = state._mergedVariables;
+
+    computeAssignment();
+    _costFunctionManager->initialize();
+    computeCostFunction();
+
+    if ( _statistics )
+        _statistics->setCurrentTableauDimension( _m, _n );
+}
+
 void Tableau::checkBoundsValid()
 {
     _boundsValid = true;

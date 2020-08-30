@@ -347,6 +347,8 @@ public:
     void storeState( TableauState &state ) const;
     void restoreState( const TableauState &state );
 
+    void restoreStateForPrecisionRestoration( const TableauState &state );
+
     /*
       Register or unregister to watch a variable.
     */
