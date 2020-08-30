@@ -1278,6 +1278,28 @@ void Engine::restoreState( const EngineState &state )
     _smtCore.resetReportedViolations();
 }
 
+void Engine::restoreStateForPrecisionRestoration( const EngineState &state )
+{
+    ENGINE_LOG( "Restore state starting" );
+
+    if ( !state._tableauStateIsStored )
+        throw MarabouError( MarabouError::RESTORING_ENGINE_FROM_INVALID_STATE );
+
+    ENGINE_LOG( "\tRestoring tableau state" );
+    _tableau->restoreStateForPrecisionRestoration( state._tableauState );
+
+    ENGINE_LOG( "\tRestoring constraint states" );
+
+    // Make sure the data structures are initialized to the correct size
+    _rowBoundTightener->setDimensions();
+    adjustWorkMemorySize();
+    _activeEntryStrategy->resizeHook( _tableau );
+    _costFunctionManager->initialize();
+
+    // Reset the violation counts in the SMT core
+    _smtCore.resetReportedViolations();
+}
+
 void Engine::setNumPlConstraintsDisabledByValidSplits( unsigned numConstraints )
 {
     _numPlConstraintsDisabledByValidSplits = numConstraints;

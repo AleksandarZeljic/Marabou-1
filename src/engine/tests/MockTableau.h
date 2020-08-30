@@ -481,6 +481,10 @@ public:
     {
     }
 
+    void restoreStateForPrecisionRestoration( const TableauState &/* state */ )
+    {
+    }
+
     Map<unsigned, double> tightenedLowerBounds;
     void tightenLowerBound( unsigned variable, double value )
     {

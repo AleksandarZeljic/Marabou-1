@@ -81,6 +81,8 @@ public:
     void restoreState( const EngineState &state );
     void setNumPlConstraintsDisabledByValidSplits( unsigned numConstraints );
 
+    void restoreStateForPrecisionRestoration( const EngineState &state );
+
     /*
       A request from the user to terminate
     */

@@ -53,6 +53,8 @@ public:
     virtual void restoreState( const EngineState &state ) = 0;
     virtual void setNumPlConstraintsDisabledByValidSplits( unsigned numConstraints ) = 0;
 
+    virtual void restoreStateForPrecisionRestoration( const EngineState &state ) = 0;
+
     /*
       Solve the encoded query.
     */

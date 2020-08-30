@@ -100,6 +100,11 @@ public:
         lastRestoredState = &state;
     }
 
+    void restoreStateForPrecisionRestoration( const EngineState &state )
+    {
+        lastRestoredState = &state;
+    }
+
     void setNumPlConstraintsDisabledByValidSplits( unsigned /* numConstraints */ )
     {
     }
