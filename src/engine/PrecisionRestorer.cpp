@@ -46,11 +46,11 @@ void PrecisionRestorer::restorePrecision( IEngine &engine,
         smtCore.allSplitsSoFar( targetSplits );
 
         // Restore engine and tableau to their original form
-        engine.restoreState( _initialEngineState );
+        engine.restoreStateForPrecisionRestoration( _initialEngineState );
 
         // Re-add all splits, which will restore variables and equations
-        for ( const auto &split : targetSplits )
-            engine.applySplit( split );
+        //for ( const auto &split : targetSplits )
+        //    engine.applySplit( split );
 
         // At this point, the tableau has the appropriate dimensions. Restore the variable bounds
         // and basic variables.
