@@ -116,7 +116,7 @@ public:
 
         bool phaseFixed() const
         {
-            return true;
+            return false;
         }
 
         PiecewiseLinearCaseSplit getValidCaseSplit() const

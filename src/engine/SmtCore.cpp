@@ -56,6 +56,8 @@ void SmtCore::freeMemory()
 
 void SmtCore::reportViolatedConstraint( PiecewiseLinearConstraint *constraint )
 {
+    ASSERT( !constraint->phaseFixed() );
+
     if ( !_constraintToViolationCount.exists( constraint ) )
         _constraintToViolationCount[constraint] = 0;
 
@@ -70,6 +72,7 @@ void SmtCore::reportViolatedConstraint( PiecewiseLinearConstraint *constraint )
             // If pickSplitConstraint failed to pick one, use the native
             // relu-violation based splitting heuristic.
             _constraintForSplitting = constraint;
+        ASSERT( !_constraintForSplitting->phaseFixed() );
     }
 }
 
