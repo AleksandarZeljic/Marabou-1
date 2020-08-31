@@ -254,6 +254,9 @@ bool Engine::solve( unsigned timeoutInSeconds )
                 while ( applyAllValidConstraintCaseSplits() )
                     performSymbolicBoundTightening();
 
+                // Report the violated constraint to the SMT engine
+                reportPlViolation();
+
                 continue;
             }
 
@@ -345,9 +348,6 @@ void Engine::performConstraintFixingStep()
 
     // Select a violated constraint as the target
     selectViolatedPlConstraint();
-
-    // Report the violated constraint to the SMT engine
-    reportPlViolation();
 
     // Attempt to fix the constraint
     fixViolatedPlConstraintIfPossible();
@@ -1237,7 +1237,8 @@ void Engine::selectViolatedPlConstraint()
 
 void Engine::reportPlViolation()
 {
-    _smtCore.reportViolatedConstraint( _plConstraintToFix );
+    if ( !_plConstraintToFix->phaseFixed() )
+        _smtCore.reportViolatedConstraint( _plConstraintToFix );
 }
 
 void Engine::storeState( EngineState &state, bool storeAlsoTableauState ) const
