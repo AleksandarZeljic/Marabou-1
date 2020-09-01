@@ -882,7 +882,7 @@ unsigned ReluConstraint::getF() const
     return _f;
 }
 
-inline ReluConstraint::PhaseStatus ReluConstraint::getPhaseStatus() const
+ReluConstraint::PhaseStatus ReluConstraint::getPhaseStatus() const
 {
     return *_phaseStatus;
 }
