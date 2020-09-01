@@ -315,7 +315,7 @@ public:
      *   3. TODO: perfromImplication does not affect context level.
      *   N. TODO: Additionally, trail and asserted ReLUs are in sync
      */
-    void test_context_perform_split()
+    void test_context_perform_interaction()
     {
         Context context;
         SmtCore smtCore( engine, context );
@@ -660,21 +660,6 @@ public:
         //TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
     }
 
-    void test_context_level()
-    {
-        Context context;
-        // TODO: casting the context from int to unsigned int for now
-        int prev_context_level = context.getLevel();
-        context.push();
-        TS_ASSERT_EQUALS( 1, context.getLevel() );
-        TS_ASSERT_EQUALS( prev_context_level + 1, context.getLevel() );
-
-        prev_context_level = context.getLevel();
-        context.pop();
-        TS_ASSERT_EQUALS( 0, context.getLevel() );
-        TS_ASSERT_EQUALS( prev_context_level -1, context.getLevel() );
-    }
-
     /*
      *  Test - Context and Perform split are in sync:
      *   1. Context level advances with performSplit 
@@ -805,7 +790,7 @@ public:
 
         // Pop Split2, check that the tableau was restored and that
         // a Split3 was performed
-        TS_ASSERT( smtCore.popSplit() );
+        TS_ASSERT( smtCore.backtrackAndContinue() );
         // TODO: Enable after popSplit/performSplit refactor
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         // TS_ASSERT_EQUALS( smtCore.getStackDepth(), context.getLevel())
@@ -841,7 +826,7 @@ public:
 
         // Final pop
         // Potentially context.pop() and smtCore.popSplit have different semantics
-        TS_ASSERT( !smtCore.popSplit() );
+        TS_ASSERT( !smtCore.backtrackAndContinue() );
         TS_ASSERT( !engine->lastRestoredState );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), static_cast<unsigned>( context.getLevel() ) );
@@ -905,7 +890,7 @@ public:
         TS_ASSERT( smtCore.needToSplit() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 0U );
         TS_ASSERT( !constraint.setActiveWasCalled );
-        TS_ASSERT_THROWS_NOTHING( smtCore.performSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decideSplit() );
         TS_ASSERT( constraint.setActiveWasCalled );
         TS_ASSERT( !smtCore.needToSplit() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
@@ -934,7 +919,7 @@ public:
 
         // Pop Split1, check that the tableau was restored and that
         // a Split2 was performed
-        TS_ASSERT( smtCore.popSplit() );
+        TS_ASSERT( smtCore.backtrackAndContinue() );
         TS_ASSERT_EQUALS( smtCore.getStackDepth(), 1U );
 
         TS_ASSERT_EQUALS( engine->lastRestoredState, originalState );

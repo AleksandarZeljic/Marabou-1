@@ -175,7 +175,8 @@ void SmtCore::decideSplit()
     stackEntry->_activeSplit = *split;
     stackEntry->_sourceConstraint= _constraintForSplitting;
 
-    pushDecision( stackEntry->_sourceConstraint, *split );
+    //TODO: Once stack is gone this becomes pushDecision
+    trailPush( stackEntry->_sourceConstraint, split->getPhase() );
 
     // Store the remaining splits on the stack, for later
     stackEntry->_engineState = stateBeforeSplits;
@@ -362,14 +363,13 @@ bool SmtCore::backtrackAndContinue()
         else
             return false;
 
-        if ( _stack.empty() ) {
+        if ( _stack.empty() )
             return false;
-        }
     }
 
     interruptIfCompliantWithDebugSolution();
 
-    _context.pop();
+    popDecisionLevel();
 
     StackEntry *stackEntry = _stack.back();
     SMT_LOG( "\tRestoring engine state..." );
@@ -379,7 +379,6 @@ bool SmtCore::backtrackAndContinue()
     // Clear any implications learned using the split we just popped
     stackEntry->_impliedValidSplits.clear();
 
-    popDecisionLevel();
 
     // Apply the new split and erase it from the list
     auto split = stackEntry->_alternativeSplits.begin();
