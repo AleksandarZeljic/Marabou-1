@@ -692,6 +692,8 @@ public:
         split1.storeBoundTightening( bound2 );
         split1.addEquation( equation1 );
 
+        split1.setPhase( 0u );
+
         // Split 2
         PiecewiseLinearCaseSplit split2;
         Tightening bound3( 2, 13.0, Tightening::UB );
@@ -706,6 +708,8 @@ public:
         split2.storeBoundTightening( bound4 );
         split2.addEquation( equation2 );
 
+        split2.setPhase( 1u );
+
         // Split 3
         PiecewiseLinearCaseSplit split3;
         Tightening bound5( 14, 2.3, Tightening::LB );
@@ -713,6 +717,8 @@ public:
         split3.storeBoundTightening( bound5 );
         split3.addEquation( equation1 );
         split3.addEquation( equation2 );
+
+        split3.setPhase( 2u );
 
         // Store the splits
         constraint.nextSplits.append( split1 );
