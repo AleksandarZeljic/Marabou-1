@@ -109,6 +109,7 @@ void ReluConstraint::restoreState( const PiecewiseLinearConstraint *state )
     {
         _context = ctx;
         _phaseStatus = oldPhase;
+        setPhaseStatus( relu->getPhaseStatus() );
     }
 }
 
