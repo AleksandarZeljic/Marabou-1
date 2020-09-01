@@ -177,6 +177,9 @@ public:
         Context context;
         SmtCore smtCore( engine, context );
 
+        constraint1.initializeContextDependentPhaseStatus( &context );
+        constraint2.initializeContextDependentPhaseStatus( &context );
+
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD - 1; ++i )
         {
             smtCore.reportViolatedConstraint( &constraint1 );
