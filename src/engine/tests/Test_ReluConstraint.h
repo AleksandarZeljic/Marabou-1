@@ -1099,7 +1099,6 @@ public:
     }
     void test_notify_bounds()
     {
-        CVC4::context::Context context;
         unsigned b = 1;
         unsigned f = 4;
         unsigned aux = 10;

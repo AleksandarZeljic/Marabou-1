@@ -200,7 +200,7 @@ bool Engine::solve( unsigned timeoutInSeconds )
             // Perform any SmtCore-initiated case splits
             if ( _smtCore.needToSplit() )
             {
-                checkBoundConsistency();
+                //checkBoundConsistency();
                 _smtCore.decideSplit();
                 splitJustPerformed = true;
                 continue;
