@@ -126,6 +126,18 @@ public:
             return dontCare;
         }
 
+        List<unsigned> getAllCases() const
+        {
+            return { 1u, 2u };
+        }
+
+
+        PiecewiseLinearCaseSplit getCaseSplit( unsigned /* phase */ ) const
+        {
+            PiecewiseLinearCaseSplit dontCare;
+            return dontCare;
+        }
+
 		void updateVariableIndex( unsigned, unsigned )
 		{
 		}

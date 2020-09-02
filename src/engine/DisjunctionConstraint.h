@@ -90,6 +90,17 @@ public:
     List<PiecewiseLinearCaseSplit> getCaseSplits() const;
 
     /*
+     * Returns a list of all cases of this constraint
+     */
+    List<unsigned> getAllCases() const ;
+
+    /*
+     * Returns case split corresponding to the given phase/id
+     */
+    PiecewiseLinearCaseSplit getCaseSplit( unsigned caseId ) const ;
+
+
+    /*
       Check if the constraint's phase has been fixed.
     */
     bool phaseFixed() const;
@@ -162,6 +173,11 @@ private:
       The list of variables that appear in any of the disjuncts
     */
     Set<unsigned> _participatingVariables;
+
+    /*
+     * Initialize Case Id/Phase of disjunts
+     */
+    void initializeDisjuntCaseIds();
 
     /*
       Go over the participating disjuncts and extract from them the list

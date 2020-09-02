@@ -87,6 +87,28 @@ public:
         TS_ASSERT_EQUALS( returnedSplits, caseSplits );
     }
 
+    void test_cases_functionality()
+    {
+        /*
+         * Test Case functionality of ReluConstraint
+         * 1. Check that all cases are returned by DisjunctionConstraint::getAllCases
+         * 2. Check that DisjunctionConstraint::getCaseSplit( case ) returns the correct case
+         */
+        List<PiecewiseLinearCaseSplit> caseSplits = { *cs1, *cs2, *cs3 };
+        DisjunctionConstraint dc( caseSplits );
+
+        List<unsigned> cases = dc.getAllCases();
+
+        TS_ASSERT_EQUALS( cases.size(), 3u );
+        TS_ASSERT_EQUALS( cases.front(), 1u );
+        TS_ASSERT_EQUALS( cases.back(), 3u );
+
+        /* List<PiecewiseLinearCaseSplit> splits = dc.getCaseSplits(); */
+        /* TS_ASSERT_EQUALS( splits.size(), 3u ); */
+        TS_ASSERT_EQUALS( splits.front(), dc.getCaseSplit( 1u ) ) ;
+        TS_ASSERT_EQUALS( splits.back(), dc.getCaseSplit( 3u ) ) ;
+    }
+
     void test_getParticipatingVariables()
     {
         List<PiecewiseLinearCaseSplit> caseSplits = { *cs1, *cs2, *cs3 };

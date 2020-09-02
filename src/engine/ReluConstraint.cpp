@@ -497,7 +497,7 @@ List<PiecewiseLinearCaseSplit> ReluConstraint::getCaseSplits() const
     return splits;
 }
 
-List<ReluConstraint::PhaseStatus> ReluConstraint::getAllCases() const
+List<unsigned> ReluConstraint::getAllCases() const
 {
     if ( _direction == PHASE_INACTIVE )
         return { PHASE_INACTIVE, PHASE_ACTIVE };
@@ -520,7 +520,7 @@ List<ReluConstraint::PhaseStatus> ReluConstraint::getAllCases() const
 }
 
 
-PiecewiseLinearCaseSplit ReluConstraint::getCaseSplit( PhaseStatus phase ) const
+PiecewiseLinearCaseSplit ReluConstraint::getCaseSplit( unsigned phase ) const
 {
     if ( phase == PHASE_INACTIVE )
         return getInactiveSplit();

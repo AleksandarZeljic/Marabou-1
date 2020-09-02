@@ -67,7 +67,7 @@ public:
     void updateVariableIndex( unsigned oldIndex, unsigned newIndex );
 
     unsigned getPhase() { return _phase; }
-    void setPhase(unsigned phase) { _phase = phase;}
+    void setPhase(unsigned phase) { _phase = phase; }
 
 private:
     /*
