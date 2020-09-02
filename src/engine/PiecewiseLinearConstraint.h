@@ -148,12 +148,12 @@ public:
      * Returns a list of all cases of this constraint
      * TODO: unsigned -> Phase
      */
-    virtual List<unsigned> getAllCases() const = 0;
+    //virtual List<unsigned> getAllCases() const = 0;
 
     /*
      * Returns case split corresponding to the given phase/id
      */
-    virtual PiecewiseLinearCaseSplit getCaseSplit( unsigned caseId ) const = 0;
+    //virtual PiecewiseLinearCaseSplit getCaseSplit( unsigned caseId ) const = 0;
 
     /*
       Check if the constraint's phase has been fixed.
