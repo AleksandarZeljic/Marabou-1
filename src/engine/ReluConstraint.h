@@ -104,12 +104,12 @@ public:
     /*
      * Returns a list of all cases of this constraint
      */
-    List<PhaseStatus> getAllCases() const ;
+    List<ReluConstraint::PhaseStatus> getAllCases() const ;
 
     /*
      * Returns case split corresponding to the given phase/id
      */
-    PiecewiseLinearCaseSplit getCaseSplit( PhaseStatus case ) const ;
+    PiecewiseLinearCaseSplit getCaseSplit( PhaseStatus caseId ) const ;
 
 
     /*

@@ -148,11 +148,18 @@ public:
 
         ReluConstraint relu( b, f );
 
-        List<PhaseStatus> cases = relu.getAllCases();
+        List<ReluConstraint::PhaseStatus> cases = relu.getAllCases();
 
         TS_ASSERT_EQUALS( cases.size(), 2u );
+        TS_ASSERT_EQUALS( cases.front(), ReluConstraint::PhaseStatus::PHASE_INACTIVE );
+        TS_ASSERT_EQUALS( cases.back(), ReluConstraint::PhaseStatus::PHASE_ACTIVE );
 
+        List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
+        TS_ASSERT_EQUALS( splits.size(), 2u );
+        TS_ASSERT_EQUALS( splits.front(), relu.getCaseSplit( ReluConstraint::PhaseStatus::PHASE_INACTIVE ) ) ;
+        TS_ASSERT_EQUALS( splits.back(), relu.getCaseSplit( ReluConstraint::PhaseStatus::PHASE_ACTIVE ) ) ;
     }
+
     void test_relu_context_dependent_state()
     {
         CVC4::context::Context context;
