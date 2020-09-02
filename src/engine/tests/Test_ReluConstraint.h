@@ -148,7 +148,7 @@ public:
 
         ReluConstraint relu( b, f );
 
-        List<ReluConstraint::PhaseStatus> cases = relu.getAllCases();
+        List<unsigned> cases = relu.getAllCases();
 
         TS_ASSERT_EQUALS( cases.size(), 2u );
         TS_ASSERT_EQUALS( cases.front(), ReluConstraint::PhaseStatus::PHASE_INACTIVE );

@@ -1,5 +1,5 @@
 /*********************                                                        */
-/*! \file ReluConstraint.cpp
+/*! \file AbsoluteValueConstraint.cpp
  ** \verbatim
  ** Top contributors (to current version):
  **   Shiran Aziz, Guy Katz
@@ -213,6 +213,22 @@ List<PiecewiseLinearCaseSplit> AbsoluteValueConstraint::getCaseSplits() const
     splits.append( getPositiveSplit() );
 
     return splits;
+}
+
+List<unsigned> AbsoluteValueConstraint::getAllCases() const
+{
+    return { PHASE_NEGATIVE, PHASE_POSITIVE};
+}
+
+
+PiecewiseLinearCaseSplit AbsoluteValueConstraint::getCaseSplit( unsigned phase ) const
+{
+    if ( phase == PHASE_NEGATIVE )
+        return getNegativeSplit();
+    else if ( phase == PHASE_POSITIVE )
+        return getPositiveSplit();
+    else
+        throw MarabouError( MarabouError::REQUESTED_NONEXISTENT_CASE_SPLIT );
 }
 
 PiecewiseLinearCaseSplit AbsoluteValueConstraint::getNegativeSplit() const

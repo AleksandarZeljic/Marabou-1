@@ -71,6 +71,27 @@ public:
         TS_ASSERT_THROWS_NOTHING( delete abs2 );
     }
 
+    /*
+     * Test Case functionality of ReluConstraint
+     * 1. Check that all cases are returned by ReluConstraint::getAllCases
+     * 2. Check that ReluConstraint::getCaseSplit( case ) returns the correct case
+     */
+    void test_relu_get_cases()
+    {
+        AbsoluteValueConstraint abs( 4, 6 );
+
+        List<unsigned> cases = abs.getAllCases();
+
+        TS_ASSERT_EQUALS( cases.size(), 2u );
+        TS_ASSERT_EQUALS( cases.front(), AbsoluteValueConstraint::PhaseStatus::PHASE_NEGATIVE );
+        TS_ASSERT_EQUALS( cases.back(), AbsoluteValueConstraint::PhaseStatus::PHASE_POSITIVE );
+
+        List<PiecewiseLinearCaseSplit> splits = abs.getCaseSplits();
+        TS_ASSERT_EQUALS( splits.size(), 2u );
+        TS_ASSERT_EQUALS( splits.front(), abs.getCaseSplit( AbsoluteValueConstraint::PhaseStatus::PHASE_NEGATIVE ) ) ;
+        TS_ASSERT_EQUALS( splits.back(), abs.getCaseSplit( AbsoluteValueConstraint::PhaseStatus::PHASE_POSITIVE ) ) ;
+    }
+
     void test_register_and_unregister_as_watcher()
     {
         unsigned b = 1;

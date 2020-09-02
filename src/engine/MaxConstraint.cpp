@@ -376,6 +376,20 @@ List<PiecewiseLinearCaseSplit> MaxConstraint::getCaseSplits() const
     return splits;
 }
 
+List<unsigned> MaxConstraint::getAllCases() const
+{
+    List<unsigned> cases;
+    for ( auto e : _elements )
+        cases.append( e );
+
+    return cases;
+}
+
+PiecewiseLinearCaseSplit MaxConstraint::getCaseSplit( unsigned caseId ) const
+{
+    return getSplit( caseId );
+}
+
 bool MaxConstraint::phaseFixed() const
 {
     return _elements.size() == 1;

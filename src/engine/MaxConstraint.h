@@ -90,6 +90,17 @@ class MaxConstraint : public PiecewiseLinearConstraint
     List<PiecewiseLinearCaseSplit> getCaseSplits() const;
 
     /*
+     * Returns a list of all cases of this constraint
+     */
+    List<unsigned> getAllCases() const ;
+
+    /*
+     * Returns case split corresponding to the given phase/id
+     */
+    PiecewiseLinearCaseSplit getCaseSplit( unsigned caseId ) const ;
+
+
+    /*
       Check if the constraint's phase has been fixed.
     */
     bool phaseFixed() const;

@@ -22,8 +22,10 @@ DisjunctionConstraint::DisjunctionConstraint( const List<PiecewiseLinearCaseSpli
     : _disjuncts( disjuncts )
     , _feasibleDisjuncts( disjuncts )
 {
+    initializeDisjuntCaseIds();
     extractParticipatingVariables();
 }
+
 
 DisjunctionConstraint::DisjunctionConstraint( const String &/* serializedDisjunction */ )
 {
@@ -130,6 +132,25 @@ List<PiecewiseLinearCaseSplit> DisjunctionConstraint::getCaseSplits() const
     return _disjuncts;
 }
 
+List<unsigned> DisjunctionConstraint::getAllCases() const
+{
+    List<unsigned> cases;
+    for ( auto disjunct : _disjuncts )
+        cases.append( disjunct.getPhase() );
+    return cases;
+}
+
+PiecewiseLinearCaseSplit DisjunctionConstraint::getCaseSplit( unsigned caseId ) const 
+{
+    for ( auto disjunct : _disjuncts )
+        if( disjunct.getPhase() == caseId )
+            return disjunct;
+
+    throw MarabouError( MarabouError::REQUESTED_NONEXISTENT_CASE_SPLIT );
+    PiecewiseLinearCaseSplit dummy;
+    return dummy;
+}
+
 bool DisjunctionConstraint::phaseFixed() const
 {
     return _feasibleDisjuncts.size() == 1;
@@ -214,6 +235,14 @@ String DisjunctionConstraint::serializeToString() const
 bool DisjunctionConstraint::supportsSymbolicBoundTightening() const
 {
     return false;
+}
+
+void DisjunctionConstraint::initializeDisjuntCaseIds()
+{
+    unsigned id = 0;
+    for ( auto disjunct : _disjuncts)
+        disjunct.setPhase( ++id );
+
 }
 
 void DisjunctionConstraint::extractParticipatingVariables()
