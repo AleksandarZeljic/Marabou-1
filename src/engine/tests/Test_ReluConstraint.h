@@ -136,6 +136,23 @@ public:
         TS_ASSERT( relu.satisfied() );
     }
 
+    /*
+     * Test Case functionality of ReluConstraint
+     * 1. Check that all cases are returned by ReluConstraint::getAllCases
+     * 2. Check that ReluConstraint::getCaseSplit( case ) returns the correct case
+     */
+    void test_relu_get_cases()
+    {
+        unsigned b = 1;
+        unsigned f = 4;
+
+        ReluConstraint relu( b, f );
+
+        List<PhaseStatus> cases = relu.getAllCases();
+
+        TS_ASSERT_EQUALS( cases.size(), 2u );
+
+    }
     void test_relu_context_dependent_state()
     {
         CVC4::context::Context context;

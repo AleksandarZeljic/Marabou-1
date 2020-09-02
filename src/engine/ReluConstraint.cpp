@@ -497,6 +497,38 @@ List<PiecewiseLinearCaseSplit> ReluConstraint::getCaseSplits() const
     return splits;
 }
 
+List<PhaseStatus> ReluConstraint::getCases() const
+{
+    if ( _direction == PHASE_INACTIVE )
+        return { PHASE_INACTIVE, PHASE_ACTIVE };
+    else if ( _direction == PHASE_ACTIVE )
+        return { PHASE_ACTIVE, PHASE_INACTIVE };
+
+    // If we have existing knowledge about the assignment, use it to
+    // influence the order of splits
+    // TODO: Check if the _assignment is kept up to date!
+    if ( _assignment.exists( _f ) )
+    {
+        if ( FloatUtils::isPositive( _assignment[_f] ) )
+            return { PHASE_ACTIVE, PHASE_INACTIVE };
+        else
+            return { PHASE_INACTIVE, PHASE_ACTIVE };
+    }
+    else
+        return { PHASE_INACTIVE, PHASE_ACTIVE };
+}
+
+
+PiecewiseLinearCaseSplit ReluConstraint::getCaseSplit( PhaseStatus phase ) const
+{
+    if ( phase == PHASE_INACTIVE )
+        return getInactiveSplit();
+    else if ( phase == PHASE_ACTIVE )
+        return getActiveSplit()();
+    else
+        throw MarabouError( MarabouError::REQUESTED_NONEXISTENT_CASE_SPLIT );
+}
+
 PiecewiseLinearCaseSplit ReluConstraint::getInactiveSplit() const
 {
     // Inactive phase: b <= 0, f = 0
