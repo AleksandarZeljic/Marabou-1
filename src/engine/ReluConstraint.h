@@ -100,6 +100,18 @@ public:
      */
     List<PiecewiseLinearCaseSplit> getCaseSplits() const;
 
+
+    /*
+     * Returns a list of all cases of this constraint
+     */
+    List<PhaseStatus> getAllCases() const ;
+
+    /*
+     * Returns case split corresponding to the given phase/id
+     */
+    PiecewiseLinearCaseSplit getCaseSplit( PhaseStatus case ) const ;
+
+
     /*
       Check if the constraint's phase has been fixed.
     */
