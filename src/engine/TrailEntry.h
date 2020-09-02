@@ -26,33 +26,26 @@ class TrailEntry
 {
 public:
   PiecewiseLinearConstraint * _pwlConstraint;
-  unsigned _phase; /* Enum for fixed case PiecewiseLinearConstraints, case index otherwise (e.g. Max)*/
+  unsigned _phase;
+  List<unsigned> _alternativeSplits;
 
   PiecewiseLinearCaseSplit getPiecewiseLinearCaseSplit()
   {
-      /* std::cout << " Accessing constraint : "; */
-      /* _pwlConstraint->dump(); */
-      /* std::cout << " Phase: " << _phase << std::endl; */
-
-      // Assumes that _phase is unique and contained in getCaseSplits
+        // Assumes that _phase is unique and contained in getCaseSplits
       List<PiecewiseLinearCaseSplit> cases = _pwlConstraint->getCaseSplits();
 
-      /* std::cout << " Cases: "; */
-      auto loc = find_if( cases.begin(), cases.end(), [&](PiecewiseLinearCaseSplit c) { return c.getPhase() == _phase; } );
+      auto loc = find_if( cases.begin(),
+                          cases.end(),
+                          [&](PiecewiseLinearCaseSplit c) { return c.getPhase() == _phase; } );
       return *loc;
-      /* for ( auto c : cases) */
-      /* { */
-      /*     if ( c.getPhase() == _phase ) */
-      /*         return c; */
-      /* } */
-      /* ASSERT( false ); */
+
   }
 
- TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase)
-    : _pwlConstraint(pwlc),
-    _phase(phase)
-    {
-    }
+ TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase, List<unsigned> alternatives )
+    : _pwlConstraint( pwlc )
+    , _phase( phase )
+    , _alternativeSplits( alternatives )
+    {}
 
   ~TrailEntry() {};
 };
