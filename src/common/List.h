@@ -171,6 +171,14 @@ public:
         _container.pop_back();
     }
 
+    void popFront()
+    {
+        if ( empty() )
+            throw CommonError( CommonError::LIST_IS_EMPTY );
+
+        _container.pop_front();
+    }
+
     bool operator==( const List<T> &other ) const
     {
         return _container == other._container;
