@@ -29,23 +29,23 @@ public:
   unsigned _phase;
   List<unsigned> _alternativeSplits;
 
-  PiecewiseLinearCaseSplit getPiecewiseLinearCaseSplit()
+  PiecewiseLinearCaseSplit getPiecewiseLinearCaseSplit() const
   {
-        // Assumes that _phase is unique and contained in getCaseSplits
-      List<PiecewiseLinearCaseSplit> cases = _pwlConstraint->getCaseSplits();
-
-      auto loc = find_if( cases.begin(),
-                          cases.end(),
-                          [&](PiecewiseLinearCaseSplit c) { return c.getPhase() == _phase; } );
-      return *loc;
-
+      return _pwlConstraint->getCaseSplit( _phase );
   }
 
- TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase, List<unsigned> alternatives )
+ TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase, List<unsigned> &alternatives )
     : _pwlConstraint( pwlc )
     , _phase( phase )
     , _alternativeSplits( alternatives )
     {}
+
+ TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase )
+     : _pwlConstraint( pwlc )
+      , _phase( phase )
+      , _alternativeSplits()
+      {}
+
 
   ~TrailEntry() {};
 };
