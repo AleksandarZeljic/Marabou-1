@@ -30,6 +30,7 @@ SmtCore::SmtCore( IEngine *engine, Context &ctx )
     : _statistics( NULL )
     , _context( ctx )
     , _trail( &_context )
+    , _decisions( &_context)
     , _engine( engine )
     , _needToSplit( false )
     , _constraintForSplitting( NULL )
@@ -37,9 +38,6 @@ SmtCore::SmtCore( IEngine *engine, Context &ctx )
     , _constraintViolationThreshold
       ( GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD )
 {
-    //SMT_LOG( "Decision level 0 ..." );
-    //_context.push();
-    //SMT_LOG( "Decision level 0 - DONE" );
 }
 
 SmtCore::~SmtCore()
@@ -95,53 +93,66 @@ bool SmtCore::needToSplit() const
     return _needToSplit;
 }
 
-void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  PiecewiseLinearCaseSplit split )
+void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<unsigned> &alternativeSplits )
 {
-    //decision-making logic
+    ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
     SMT_LOG( "New decision level ..." );
 
     _context.push();
 
-    SMT_LOG( "> New decision level %d", _context.getLevel() );
+    TrailEntry te( constraint, decision, alternativeSplits );
+    _trail.push_back(te);
 
-    trailPush( constraint, split.getPhase() );
+    _decisions.push_back( &_trail.back() );
+
+    _engine->applySplit( constraint->getCaseSplit( decision ) );
 
     SMT_LOG( "Decision push @ %d DONE", _context.getLevel() );
+    ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
+    ASSERT( getDecisionLevel() == _decisions.size() )
 }
 
-void SmtCore::implyCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase )
+void SmtCore::pushImplication( PiecewiseLinearConstraint *constraint, unsigned phase )
 {
     SMT_LOG( "Push implication on trail @s%d ... ", _context.getLevel() );
-    trailPush( constraint, phase );
+
+    TrailEntry te( constraint, phase );
+
+    _trail.push_back(te);
+
+    _engine->applySplit( constraint->getCaseSplit( phase ) );
+
     SMT_LOG( "Push implication on trail DONE"  );
 }
-void SmtCore::trailPush( PiecewiseLinearConstraint *constraint, unsigned phase )
-{
-    SMT_LOG( "New trail element..." );
-    TrailEntry te( constraint, phase );
-    _trail.push_back(te);
-}
 
-void SmtCore::decideSplit()
+void SmtCore::decide()
 {
-    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     ASSERT( _needToSplit );
     SMT_LOG( "Performing a ReLU split" );
 
     // Maybe the constraint has already become inactive - if so, ignore
     // TODO: Ideally we will not ever reach this point
+    // This should be a list of all constraints above the threshold
+    // If one is no longer active, we should proceed with the next one
     if ( !_constraintForSplitting->isActive() )
-    {
-        _needToSplit = false;
-        _constraintToViolationCount[_constraintForSplitting] = 0;
-        _constraintForSplitting = NULL;
-        return;
+        {
+            _needToSplit = false;
+            _constraintToViolationCount[_constraintForSplitting] = 0;
+            _constraintForSplitting = nullptr;
+            return;
     }
-
-    struct timespec start = TimeUtils::sampleMicro();
 
     ASSERT( _constraintForSplitting->isActive() );
     _needToSplit = false;
+    _constraintForSplitting->setActiveConstraint( false );
+
+    List<unsigned> cases = _constraintForSplitting->getAllCases();
+    decideSplit( _constraintForSplitting, cases );
+}
+
+void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint, List<unsigned> &cases )
+{
+    struct timespec start = TimeUtils::sampleMicro();
 
     if ( _statistics )
     {
@@ -149,45 +160,14 @@ void SmtCore::decideSplit()
         _statistics->incNumVisitedTreeStates();
     }
 
-    // Before storing the state of the engine, we:
-    //   1. Obtain the splits.
-    //   2. Disable the constraint, so that it is marked as disbaled in the EngineState.
-    List<PiecewiseLinearCaseSplit> splits = _constraintForSplitting->getCaseSplits();
-    ASSERT( !splits.empty() );
-    ASSERT( splits.size() >= 2 ); // Not really necessary, can add code to handle this case.
-    _constraintForSplitting->setActiveConstraint( false );
+    ASSERT( !cases.empty() );
+    ASSERT( cases.size() >= 2 ); 
 
-    // Obtain the current state of the engine
-    EngineState *stateBeforeSplits = new EngineState;
-    stateBeforeSplits->_stateId = _stateId;
-    ++_stateId;
-    _engine->storeState( *stateBeforeSplits, true );
+    // TODO: DecisionMakingLogic
+    unsigned decision = cases.front();
+    cases.erase( decision );
 
-    _context.push();
-
-    StackEntry *stackEntry = new StackEntry;
-    // Perform the first split: add bounds and equations
-    List<PiecewiseLinearCaseSplit>::iterator split = splits.begin();
-    SMT_LOG( "\tApplying new split..." );
-    split->dump();
-    _engine->applySplit( *split );
-    SMT_LOG( "\tApplying new split - DONE" );
-    stackEntry->_activeSplit = *split;
-    stackEntry->_sourceConstraint= _constraintForSplitting;
-
-    //TODO: Once stack is gone this becomes pushDecision
-    trailPush( stackEntry->_sourceConstraint, split->getPhase() );
-
-    // Store the remaining splits on the stack, for later
-    stackEntry->_engineState = stateBeforeSplits;
-    ++split;
-    while ( split != splits.end() )
-    {
-        stackEntry->_alternativeSplits.append( *split );
-        ++split;
-    }
-
-    _stack.append( stackEntry );
+    pushDecision( constraint, decision, cases );
 
     if ( _statistics )
     {
@@ -196,129 +176,132 @@ void SmtCore::decideSplit()
         _statistics->addTimeSmtCore( TimeUtils::timePassed( start, end ) );
     }
     SMT_LOG( "Performing a ReLU split - DONE");
-
-    //ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
-    ASSERT( checkStackTrailEquivalence() );
 }
 
 
-bool SmtCore::checkStackTrailEquivalence()
+// bool SmtCore::checkStackTrailEquivalence()
+// {
+//     std::cout << "Checking STEQ ... ";
+//     bool result = true;
+//     // Trail post-condition: TRAIL - STACK equivalence
+//     // How are things present on the stack?
+//     List<PiecewiseLinearCaseSplit> stackCaseSplits;
+//     allSplitsSoFar( stackCaseSplits );
+
+//     std::cout << "Collected all splits on stack" <<std::endl;
+//     List<PiecewiseLinearCaseSplit> trailCaseSplits;
+//     std::cout << "Trail size: " << _trail.size() <<std::endl;
+//     for ( TrailEntry trailEntry : _trail )
+//         trailCaseSplits.append( trailEntry.getPiecewiseLinearCaseSplit() );
+
+//     std::cout << "Collected case splits: " << trailCaseSplits.size() <<std::endl;
+//     std::cout << "Collected all splits on trail" <<std::endl;
+//    // Equivalence check, assumes the order of stack and trail is identical
+//     result = result && ( trailCaseSplits.size() == stackCaseSplits.size() );
+
+//     if ( !result )
+//     {
+//         std::cout << "ASSERTION VIOLATION: ";
+//         std::cout << "Trail ( " << trailCaseSplits.size();
+//         std::cout << ")and Stack (" << stackCaseSplits.size();
+//         std::cout << ") have different number of elements!" << std::endl;
+
+//         std::cout << "Trail:" << std::endl;
+//         for ( auto split : trailCaseSplits )
+//             split.dump();
+
+//         std::cout << "Stack:" << std::endl;
+//         for ( auto split : stackCaseSplits )
+//             split.dump();
+
+//     }
+
+//     std::cout << "Size matches!" <<std::endl;
+//     PiecewiseLinearCaseSplit tCaseSplit, sCaseSplit;
+//     int ind = trailCaseSplits.size();
+//     while ( result && !stackCaseSplits.empty() )
+//     {
+//         tCaseSplit = trailCaseSplits.back();
+//         sCaseSplit = stackCaseSplits.back();
+//         result = result && ( tCaseSplit == sCaseSplit );
+//         if ( !result )
+//         {
+//             std::cout << "FAILED at position " << ind << "!!!!" <<std::endl;
+//             std::cout << "Trail case split: ";
+//             tCaseSplit.dump();
+
+//             auto sloc = find_if( stackCaseSplits.begin(),
+//                                 stackCaseSplits.end(),
+//                                 [&](PiecewiseLinearCaseSplit c) { return c == tCaseSplit; } );
+
+//             if ( stackCaseSplits.end() == sloc )
+//                 std::cout << "Missing from the stack!" << std::endl;
+
+//             std::cout << "Stack case split: ";
+//             sCaseSplit.dump();
+//             auto tloc = find_if( trailCaseSplits.begin(),
+//                                 trailCaseSplits.end(),
+//                                 [&](PiecewiseLinearCaseSplit c) { return c == sCaseSplit; } );
+
+//             if ( trailCaseSplits.end() == tloc )
+//                 std::cout << "Missing from the trail!" << std::endl;
+
+//         }
+
+//         --ind;
+
+//         trailCaseSplits.popBack();
+//         stackCaseSplits.popBack();
+//     }
+
+//     if ( result )
+//         std::cout << "OK" << std::endl;
+//     std::cout << "--------------------------------------------------------" << std::endl;
+//     return result;
+// }
+
+
+
+// bool SmtCore::popSplit()
+// {
+//     if ( _stack.empty() )
+//         return false;
+
+//     if ( _statistics )
+//         _statistics->incNumPops();
+
+//     delete _stack.back()->_engineState;
+//     delete _stack.back();
+//     _stack.popBack();
+//     return true;
+// }
+
+// bool SmtCore::popSplitFromStack( List<PiecewiseLinearCaseSplit> &alternativeSplits )
+// {
+//     alternativeSplits.clear();
+//     alternativeSplits.assign( _stack.back()->_alternativeSplits.begin(), _stack.back()->_alternativeSplits.end() );
+
+//     return popSplit();
+// }
+
+inline unsigned SmtCore::getDecisionLevel() const
 {
-    std::cout << "Checking STEQ ... ";
-    bool result = true;
-    // Trail post-condition: TRAIL - STACK equivalence
-    // How are things present on the stack?
-    List<PiecewiseLinearCaseSplit> stackCaseSplits;
-    allSplitsSoFar( stackCaseSplits );
-
-    std::cout << "Collected all splits on stack" <<std::endl;
-    List<PiecewiseLinearCaseSplit> trailCaseSplits;
-    std::cout << "Trail size: " << _trail.size() <<std::endl;
-    for ( TrailEntry trailEntry : _trail )
-        trailCaseSplits.append( trailEntry.getPiecewiseLinearCaseSplit() );
-
-    std::cout << "Collected case splits: " << trailCaseSplits.size() <<std::endl;
-    std::cout << "Collected all splits on trail" <<std::endl;
-   // Equivalence check, assumes the order of stack and trail is identical
-    result = result && ( trailCaseSplits.size() == stackCaseSplits.size() );
-
-    if ( !result )
-    {
-        std::cout << "ASSERTION VIOLATION: ";
-        std::cout << "Trail ( " << trailCaseSplits.size();
-        std::cout << ")and Stack (" << stackCaseSplits.size();
-        std::cout << ") have different number of elements!" << std::endl;
-
-        std::cout << "Trail:" << std::endl;
-        for ( auto split : trailCaseSplits )
-            split.dump();
-
-        std::cout << "Stack:" << std::endl;
-        for ( auto split : stackCaseSplits )
-            split.dump();
-
-    }
-
-    std::cout << "Size matches!" <<std::endl;
-    PiecewiseLinearCaseSplit tCaseSplit, sCaseSplit;
-    int ind = trailCaseSplits.size();
-    while ( result && !stackCaseSplits.empty() )
-    {
-        tCaseSplit = trailCaseSplits.back();
-        sCaseSplit = stackCaseSplits.back();
-        result = result && ( tCaseSplit == sCaseSplit );
-        if ( !result )
-        {
-            std::cout << "FAILED at position " << ind << "!!!!" <<std::endl;
-            std::cout << "Trail case split: ";
-            tCaseSplit.dump();
-
-            auto sloc = find_if( stackCaseSplits.begin(),
-                                stackCaseSplits.end(),
-                                [&](PiecewiseLinearCaseSplit c) { return c == tCaseSplit; } );
-
-            if ( stackCaseSplits.end() == sloc )
-                std::cout << "Missing from the stack!" << std::endl;
-
-            std::cout << "Stack case split: ";
-            sCaseSplit.dump();
-            auto tloc = find_if( trailCaseSplits.begin(),
-                                trailCaseSplits.end(),
-                                [&](PiecewiseLinearCaseSplit c) { return c == sCaseSplit; } );
-
-            if ( trailCaseSplits.end() == tloc )
-                std::cout << "Missing from the trail!" << std::endl;
-
-
-        }
-
-        --ind;
-
-        trailCaseSplits.popBack();
-        stackCaseSplits.popBack();
-    }
-
-    if ( result )
-        std::cout << "OK" << std::endl;
-    std::cout << "--------------------------------------------------------" << std::endl;
-    return result;
+    ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
+    return _context.getLevel();
 }
 
-unsigned SmtCore::getStackDepth() const
+//TODO _decision bookkeeping
+bool SmtCore::popDecisionLevel( TrailEntry *lastDecision )
 {
-    //ASSERT( _stack.size() == static_cast<unsigned>( _context.getLevel() ) );
-    return _stack.size();
-}
-
-bool SmtCore::popSplit()
-{
-    if ( _stack.empty() )
+    if ( _decisions.empty() )
         return false;
 
-    if ( _statistics )
-        _statistics->incNumPops();
-
-    delete _stack.back()->_engineState;
-    delete _stack.back();
-    _stack.popBack();
-    return true;
-}
-
-bool SmtCore::popSplitFromStack( List<PiecewiseLinearCaseSplit> &alternativeSplits )
-{
-    alternativeSplits.clear();
-    alternativeSplits.assign( _stack.back()->_alternativeSplits.begin(), _stack.back()->_alternativeSplits.end() );
-
-    return popSplit();
-}
-
-
-
-void SmtCore::popDecisionLevel()
-{
     SMT_LOG( "Backtracking context ..." );
+
+    *lastDecision = *_decisions.back();
     _context.pop();
     SMT_LOG( "Backtracking context - %d DONE", _context.getLevel() );
+    return true;
 }
 
 void SmtCore::interruptIfCompliantWithDebugSolution()
@@ -330,13 +313,19 @@ void SmtCore::interruptIfCompliantWithDebugSolution()
     }
 }
 
+
+PiecewiseLinearCaseSplit SmtCore::getDecision( unsigned decisionLevel )
+{
+    ASSERT( decisionLevel <= getDecisionLevel() );
+    ASSERT( decisionLevel > 0 );
+    return _decisions[decisionLevel - 1]->getPiecewiseLinearCaseSplit() ;
+}
+
 bool SmtCore::backtrackAndContinue()
 {
-    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
     SMT_LOG( "Performing a pop" );
 
-    // TODO: We do not want to reach this point
-    if ( _stack.empty() )
+    if ( getDecisionLevel() == 0 )
         return false;
 
     struct timespec start = TimeUtils::sampleMicro();
@@ -344,58 +333,25 @@ bool SmtCore::backtrackAndContinue()
     if ( _statistics )
         _statistics->incNumVisitedTreeStates();
 
-    // Counter for Stack pops to be matched by trail pops
-    // Starts at one, because Stack does not distinguish implications
-    // (temp feature, to be factored out)
-    List<PiecewiseLinearCaseSplit> alternatives;
+    TrailEntry lastDecision( NULL, 0 );
 
-    // Remove any entries that have no alternatives
+    popDecisionLevel( &lastDecision );
 
-    while ( _stack.back()->_alternativeSplits.empty() )
+    while ( lastDecision._alternativeSplits.empty() )
     {
         interruptIfCompliantWithDebugSolution();
 
-        if ( popSplit() )
-        {
-            popDecisionLevel();
-            ASSERT( checkStackTrailEquivalence() );
-        }
-        else
-            return false;
-
-        if ( _stack.empty() )
+        if ( !popDecisionLevel( &lastDecision ) )
             return false;
     }
 
     interruptIfCompliantWithDebugSolution();
 
-    popDecisionLevel();
-
-    StackEntry *stackEntry = _stack.back();
-    SMT_LOG( "\tRestoring engine state..." );
-    _engine->restoreState( *(stackEntry->_engineState) );
-    SMT_LOG(  "\tRestoring engine state %d - DONE", getStackDepth() );
-
-    // Clear any implications learned using the split we just popped
-    stackEntry->_impliedValidSplits.clear();
-
-
-    // Apply the new split and erase it from the list
-    auto split = stackEntry->_alternativeSplits.begin();
-
-    // TODO: Make a distinction between a decision and an implication
-    // TODO: Refactor decideSplit to take case split as an argument
-
-    SMT_LOG( "\tApplying new case split to stack/engine ..." );
-    _engine->applySplit( *split );
-    SMT_LOG( "\tApplying new case split to stack/engine - DONE" );
-    stackEntry->_activeSplit = *split;
-    stackEntry->_alternativeSplits.erase( split );
-
-
-    // This is to simulate Stack and ensure STACK/TRAIL size compliance
-    _context.push();
-    implyCaseSplit( stackEntry->_sourceConstraint, stackEntry->_activeSplit.getPhase() );
+    ASSERT( lastDecision._alternativeSplits.size() > 0 );
+    if ( 1u == lastDecision._alternativeSplits.size() )
+        pushImplication( lastDecision._pwlConstraint,  lastDecision._alternativeSplits.front() );
+    else
+        decideSplit( lastDecision._pwlConstraint, lastDecision._alternativeSplits);
 
     if ( _statistics )
     {
@@ -405,12 +361,6 @@ bool SmtCore::backtrackAndContinue()
     }
 
     checkSkewFromDebuggingSolution();
-
-    std::cout << "Stack depth: " << getStackDepth() << std::endl;
-    std::cout << "Context depth: " << _context.getLevel() << std::endl;
-
-    ASSERT( getStackDepth() == static_cast<unsigned>( _context.getLevel() ) );
-    ASSERT( checkStackTrailEquivalence() );
     return true;
 }
 
@@ -440,22 +390,8 @@ void SmtCore::allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const
 {
     result.clear();
 
-    for ( const auto &it : _impliedValidSplitsAtRoot )
-        result.append( it );
-
-    for ( const auto &it : _stack )
-    {
-        result.append( it->_activeSplit );
-        for ( const auto &impliedSplit : it->_impliedValidSplits )
-            result.append( impliedSplit );
-    }
-
-    // auto removed = std::remove_if( result.begin(), result.end(),
-    //                                []( PiecewiseLinearCaseSplit plcs )
-    //                                { return plcs.getBoundTightenings().empty()
-    //                                         && plcs.getEquations().empty(); } );
-
-    // result.erase( removed, result.end() );
+    for ( auto trailEntry : _trail )
+        result.append( trailEntry.getPiecewiseLinearCaseSplit() );
 }
 
 void SmtCore::setStatistics( Statistics *statistics )

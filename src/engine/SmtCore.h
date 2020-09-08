@@ -66,8 +66,16 @@ public:
       Decide a case split to apply, according to the constraint marked for
       splitting. Update bounds, add equations and update the stack.
     */
-    void pushDecision( PiecewiseLinearConstraint *constraint,  PiecewiseLinearCaseSplit split );
-    void decideSplit();
+    void decide();
+
+    /*
+     * decideSplit - choose a phase of PiecewiseLinearConstraint's alternativeCases to decide.
+     */
+    void decideSplit( PiecewiseLinearConstraint *constraint,  List<unsigned> &alternativeCases );
+    /*
+     * Push TrailEntry representing the decision onto the trai. Push the decided PiecewiseLinearCaseSplit to the engine.
+     */
+    void pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<unsigned> &alternativeSplits );
 
     /*
       Backtrack the search, by popping stacks with no alternatives, and perform
@@ -75,7 +83,6 @@ public:
     */
     bool backtrackAndContinue();
 
-    void trailPush( PiecewiseLinearConstraint *constraint, unsigned phase );
 
     /*
       Pop a stack frame, copying alternativeSplits if any. Return
@@ -92,12 +99,12 @@ public:
       Pop a context level, lazily backtracking trail, bounds, etc. Return true
       if successful, false if the stack is empty.
     */
-    void popDecisionLevel();
+    bool popDecisionLevel( TrailEntry *lastDecision );
 
     /*
       The current stack depth.
     */
-    unsigned getStackDepth() const;
+    unsigned getDecisionLevel() const;
 
     /*
       Let the smt core know of an implied valid case split that was discovered.
@@ -107,7 +114,7 @@ public:
     /*
       Let the smt core trail know of an implied valid case split that was discovered.
     */
-    void implyCaseSplit( PiecewiseLinearConstraint *constraint, unsigned phase );
+    void pushImplication( PiecewiseLinearConstraint *constraint, unsigned phase );
 
     /*
       Return a list of all splits performed so far, both SMT-originating and valid ones,
@@ -149,6 +156,10 @@ public:
       if a constraint for splitting is successfully picked
     */
     bool pickSplitPLConstraint();
+    /*
+     * For testing purposes
+     */
+    PiecewiseLinearCaseSplit getDecision( unsigned decisionLevel );
 
     /*
       For debugging purposes only - store a correct possible solution
@@ -201,6 +212,12 @@ private:
       TODO: Abstract from PWLCaseSplits to Literals
     */
     CVC4::context::CDList<TrailEntry> _trail;
+
+    /*
+     * _decisions point to the decision at the beginning of each decision level
+     */
+    CVC4::context::CDList<const TrailEntry * > _decisions;
+
 
     /*
       The engine.
