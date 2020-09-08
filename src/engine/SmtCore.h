@@ -205,7 +205,7 @@ private:
     /*
       The case-split stack.
     */
-    List<StackEntry *> _stack;
+    //List<StackEntry *> _stack;
 
     /*
       Trail is context dependent and contains all the asserted PWLCaseSplits. 

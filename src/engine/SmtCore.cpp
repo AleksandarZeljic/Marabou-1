@@ -42,20 +42,6 @@ SmtCore::SmtCore( IEngine *engine, Context &ctx )
 
 SmtCore::~SmtCore()
 {
-    //_context.popto( 0 );
-    freeMemory();
-}
-
-void SmtCore::freeMemory()
-{
-
-    for ( const auto &stackEntry : _stack )
-    {
-        delete stackEntry->_engineState;
-        delete stackEntry;
-    }
-
-    _stack.clear();
 }
 
 void SmtCore::reportViolatedConstraint( PiecewiseLinearConstraint *constraint )
@@ -370,22 +356,6 @@ void SmtCore::resetReportedViolations()
     _needToSplit = false;
 }
 
-void SmtCore::implyValidSplit( PiecewiseLinearCaseSplit &validSplit )
-{
-    SMT_LOG( "Push implication on stack @t%d ...", getStackDepth() );
-    // validSplit.dump()
-    if ( _stack.empty() )
-        _impliedValidSplitsAtRoot.append( validSplit );
-    else
-        _stack.back()->_impliedValidSplits.append( validSplit );
-
-    SMT_LOG( "Push implication on stack DONE" );
-
-    checkSkewFromDebuggingSolution();
-}
-
-
-
 void SmtCore::allSplitsSoFar( List<PiecewiseLinearCaseSplit> &result ) const
 {
     result.clear();
@@ -424,33 +394,33 @@ bool SmtCore::checkSkewFromDebuggingSolution()
     }
 
     // Now go over the stack from oldest to newest and check that each level is compliant
-    for ( const auto &stackEntry : _stack )
-    {
-        // If the active split is non-compliant but there are alternatives, that's fine
-        if ( !splitAllowsStoredSolution( stackEntry->_activeSplit, error ) )
-        {
-            if ( stackEntry->_alternativeSplits.empty() )
-            {
-                printf( "Error! Have a split that is non-compliant with the stored solution, "
-                        "without alternatives:\n\t%s\n", error.ascii() );
-                throw MarabouError( MarabouError::DEBUGGING_ERROR );
-            }
+    // for ( const auto &stackEntry : _stack )
+    // {
+    //     // If the active split is non-compliant but there are alternatives, that's fine
+    //     if ( !splitAllowsStoredSolution( stackEntry->_activeSplit, error ) )
+    //     {
+    //         if ( stackEntry->_alternativeSplits.empty() )
+    //         {
+    //             printf( "Error! Have a split that is non-compliant with the stored solution, "
+    //                     "without alternatives:\n\t%s\n", error.ascii() );
+    //             throw MarabouError( MarabouError::DEBUGGING_ERROR );
+    //         }
 
-            // Active split is non-compliant but this is fine, because there are alternatives. We're done.
-            return false;
-        }
+    //         // Active split is non-compliant but this is fine, because there are alternatives. We're done.
+    //         return false;
+    //     }
 
-        // Did we learn any valid splits that are non-compliant?
-        for ( auto const &split : stackEntry->_impliedValidSplits )
-        {
-            if ( !splitAllowsStoredSolution( split, error ) )
-            {
-                printf( "Error with one of the splits implied at this stack level:\n\t%s\n",
-                        error.ascii() );
-                throw MarabouError( MarabouError::DEBUGGING_ERROR );
-            }
-        }
-    }
+    //     // Did we learn any valid splits that are non-compliant?
+    //     for ( auto const &split : stackEntry->_impliedValidSplits )
+    //     {
+    //         if ( !splitAllowsStoredSolution( split, error ) )
+    //         {
+    //             printf( "Error with one of the splits implied at this stack level:\n\t%s\n",
+    //                     error.ascii() );
+    //             throw MarabouError( MarabouError::DEBUGGING_ERROR );
+    //         }
+    //     }
+    // }
 
     // No problems were detected, the stack is compliant with the stored solution
     return true;
