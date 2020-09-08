@@ -89,7 +89,7 @@ public:
     /*
       Smt core related statistics.
     */
-    void setCurrentStackDepth( unsigned depth );
+    void setCurrentDecisionLevel( unsigned depth );
     void incNumSplits();
     void incNumPops();
     void addTimeSmtCore( unsigned long long time );

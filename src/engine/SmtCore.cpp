@@ -191,7 +191,7 @@ void SmtCore::decideSplit()
 
     if ( _statistics )
     {
-        _statistics->setCurrentStackDepth( getStackDepth() );
+        _statistics->setCurrentDecisionLevel( _context.getLevel() );
         struct timespec end = TimeUtils::sampleMicro();
         _statistics->addTimeSmtCore( TimeUtils::timePassed( start, end ) );
     }
@@ -399,7 +399,7 @@ bool SmtCore::backtrackAndContinue()
 
     if ( _statistics )
     {
-        _statistics->setCurrentStackDepth( getStackDepth() );
+        _statistics->setCurrentDecisionLevel( getDecisionLevel() );
         struct timespec end = TimeUtils::sampleMicro();
         _statistics->addTimeSmtCore( TimeUtils::timePassed( start, end ) );
     }

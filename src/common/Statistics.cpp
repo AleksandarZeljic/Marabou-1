@@ -365,7 +365,7 @@ unsigned long long Statistics::getNumMainLoopIterations() const
     return _numMainLoopIterations;
 }
 
-void Statistics::setCurrentStackDepth( unsigned depth )
+void Statistics::setCurrentDecisionLevel( unsigned depth )
 {
     _currentStackDepth = depth;
 
