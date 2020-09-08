@@ -201,7 +201,7 @@ bool Engine::solve( unsigned timeoutInSeconds )
             if ( _smtCore.needToSplit() )
             {
                 //checkBoundConsistency();
-                _smtCore.decideSplit();
+                _smtCore.decide();
                 splitJustPerformed = true;
                 continue;
             }
@@ -1581,9 +1581,7 @@ bool Engine::applyValidConstraintCaseSplit( PiecewiseLinearConstraint *constrain
 
         constraint->setActiveConstraint( false );
         PiecewiseLinearCaseSplit validSplit = constraint->getValidCaseSplit();
-        _smtCore.implyValidSplit( validSplit );
-        _smtCore.implyCaseSplit( constraint, validSplit.getPhase() );
-        applySplit( validSplit );
+        _smtCore.pushImplication( constraint, validSplit.getPhase() );
         ++_numPlConstraintsDisabledByValidSplits;
 
         return true;
