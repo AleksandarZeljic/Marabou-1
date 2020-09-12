@@ -199,7 +199,7 @@ private:
     bool disjunctIsFeasible( const PiecewiseLinearCaseSplit &disjunct ) const;
 
 
-    void initializeContextDependentPhaseStatus( CVC4::context::Context * /*context*/) {};
+    void initializePhaseStatus() {};
 };
 
 #endif // __DisjunctionConstraint_h__

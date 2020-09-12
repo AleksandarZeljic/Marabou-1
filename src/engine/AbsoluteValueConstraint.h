@@ -33,6 +33,7 @@ public:
       f = | b |
     */
     AbsoluteValueConstraint( unsigned b, unsigned f );
+    ~AbsoluteValueConstraint();
 
     /*
       Get the type of this constraint.
@@ -157,7 +158,18 @@ public:
     bool supportsSymbolicBoundTightening() const;
 
 
-    void initializeContextDependentPhaseStatus( CVC4::context::Context * /*context*/) {};
+    void initializePhaseStatus();
+    void initializeCDOs( CVC4::context::Context *context );
+    void cdoCleanup();
+
+    /*
+      Get the current phase status. Debugging purposes only
+    */
+    CVC4::context::CDO<PhaseStatus> *getPhaseStatusCDO() const
+    {
+        return _phaseStatus;
+    }
+
 
 private:
     /*
@@ -174,8 +186,9 @@ private:
       The phase status of this constraint: positive, negative, or not
       yet fixed.
     */
-    PhaseStatus _phaseStatus;
+    CVC4::context::CDO<PhaseStatus> *_phaseStatus;
     void setPhaseStatus( PhaseStatus phaseStatus );
+    PhaseStatus getPhaseStatus() const;
 
     /*
       The two case splits.

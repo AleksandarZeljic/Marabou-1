@@ -107,7 +107,9 @@ public:
     {
         CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 3, 5 );
-        relu1->initializeContextDependentPhaseStatus( &context );
+        relu1->initializeCDOs( &context );
+
+
 
         InputQuery *inputQuery = new InputQuery;
 

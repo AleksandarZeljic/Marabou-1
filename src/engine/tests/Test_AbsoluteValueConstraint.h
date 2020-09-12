@@ -1,5 +1,5 @@
 /*********************                                                        */
-/*! \file Test_ReluConstraint.h
+/*! \file Test_AbsoluteValueConstraint.h
  ** \verbatim
  ** Top contributors (to current version):
  **   Shiran Aziz
@@ -16,6 +16,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "AbsoluteValueConstraint.h"
+#include "context/context.h"
 #include "MarabouError.h"
 #include "MockErrno.h"
 #include "MockTableau.h"
@@ -32,21 +33,44 @@ class AbsoluteValueConstraintTestSuite : public CxxTest::TestSuite
 {
 public:
     MockForAbsoluteValueConstraint *mock;
+    CVC4::context::Context *context;
 
     void setUp()
     {
         TS_ASSERT( mock = new MockForAbsoluteValueConstraint );
+        TS_ASSERT( context = new CVC4::context::Context );
     }
 
     void tearDown()
     {
         TS_ASSERT_THROWS_NOTHING( delete mock );
+        TS_ASSERT_THROWS_NOTHING( delete context );
     }
+
+    void test_initialization_of_CDOs()
+    {
+        CVC4::context::Context context;
+        AbsoluteValueConstraint *abs1 = new AbsoluteValueConstraint( 4, 6 );
+
+        TS_ASSERT_EQUALS( abs1->getContext(), nullptr );
+        TS_ASSERT_EQUALS( abs1->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( abs1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_THROWS_NOTHING( abs1->initializeCDOs( &context ) );
+        TS_ASSERT_EQUALS( abs1->getContext(), &context );
+        TS_ASSERT_DIFFERS( abs1->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( abs1->getPhaseStatusCDO(), nullptr );
+
+        TS_ASSERT_THROWS_NOTHING( delete abs1 );
+    }
+
 
     void test_abs_duplicate_and_restore()
     {
         AbsoluteValueConstraint abs1( 4, 6 );
+        abs1.initializeCDOs( context );
+
         abs1.setActiveConstraint( false );
+
         abs1.notifyVariableValue( 4, 1.0 );
         abs1.notifyVariableValue( 6, 1.0 );
 
@@ -56,7 +80,15 @@ public:
         abs1.notifyLowerBound( 6, 0.0 );
         abs1.notifyUpperBound( 6, 8.0 );
 
-        PiecewiseLinearConstraint *abs2 = abs1.duplicateConstraint();
+        PiecewiseLinearConstraint *pwlc;
+        TS_ASSERT_THROWS_NOTHING( pwlc = abs1.duplicateConstraint() );
+
+        AbsoluteValueConstraint *abs2 = dynamic_cast<AbsoluteValueConstraint*>( pwlc );
+        TS_ASSERT_EQUALS( abs1.getContext(), abs2->getContext() );
+        TS_ASSERT_DIFFERS( abs2->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( abs2->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( abs1.getPhaseStatusCDO(), abs2->getPhaseStatusCDO() );
+        TS_ASSERT_DIFFERS( abs1.getActiveStatusCDO(), abs2->getActiveStatusCDO() );
 
         abs1.notifyVariableValue( 4, -2 );
 
@@ -72,9 +104,9 @@ public:
     }
 
     /*
-     * Test Case functionality of ReluConstraint
-     * 1. Check that all cases are returned by ReluConstraint::getAllCases
-     * 2. Check that ReluConstraint::getCaseSplit( case ) returns the correct case
+     * Test Case functionality of AbsoluteValueConstraint
+     * 1. Check that all cases are returned by AbsoluteValueConstraint::getAllCases
+     * 2. Check that AbsoluteValueConstraint::getCaseSplit( case ) returns the correct case
      */
     void test_relu_get_cases()
     {
@@ -305,6 +337,10 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
+
+
+
         List<Tightening> entailedTightenings;
 
         abs.notifyLowerBound( b, 1 );
@@ -358,6 +394,10 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
+
+
+
         List<Tightening> entailedTightenings;
 
         // 8 < b < 18, 48 < f < 64
@@ -375,6 +415,10 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
+
+
+
         List<Tightening> entailedTightenings;
 
         // 3 < b < 4, 1 < f < 2
@@ -392,6 +436,10 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
+
+
+
         List <Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -439,6 +487,10 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
+
+
+
         List <Tightening> entailedTightenings;
 
         abs.notifyUpperBound( b, 6 );
@@ -458,6 +510,10 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
+
+
+
         List<Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -487,6 +543,10 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
+
+
+
         List <Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -542,6 +602,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
         List <Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -601,6 +662,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs(b, f);
+        abs.initializeCDOs( context );
         List <Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -628,6 +690,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
         List <Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -695,6 +758,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
         List <Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -764,6 +828,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
         List <Tightening> entailedTightenings;
         List<Tightening>::iterator it;
 
@@ -790,6 +855,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
 
         List<PiecewiseLinearConstraint::Fix> fixes;
         List<PiecewiseLinearConstraint::Fix>::iterator it;
@@ -885,6 +951,7 @@ public:
         // Upper bounds
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyUpperBound( b, -1.0 );
             TS_ASSERT( abs.phaseFixed() );
@@ -892,6 +959,7 @@ public:
 
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyUpperBound( b, 0.0 );
             TS_ASSERT( abs.phaseFixed() );
@@ -899,6 +967,7 @@ public:
 
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyUpperBound( f, 5 );
             TS_ASSERT( !abs.phaseFixed() );
@@ -906,6 +975,7 @@ public:
 
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyUpperBound( b, 3.0 );
             TS_ASSERT( !abs.phaseFixed() );
@@ -914,6 +984,7 @@ public:
         // Lower bounds
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyLowerBound( b, 3.0 );
             TS_ASSERT( abs.phaseFixed() );
@@ -921,6 +992,7 @@ public:
 
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyLowerBound( b, 0.0 );
             TS_ASSERT( abs.phaseFixed() );
@@ -928,6 +1000,7 @@ public:
 
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyLowerBound( f, 6.0 );
             TS_ASSERT( !abs.phaseFixed() );
@@ -935,6 +1008,7 @@ public:
 
         {
             AbsoluteValueConstraint abs( b, f );
+            abs.initializeCDOs( context );
             TS_ASSERT( !abs.phaseFixed() );
             abs.notifyLowerBound( b, -2.5 );
             TS_ASSERT( !abs.phaseFixed() );
@@ -947,6 +1021,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
 
         List<PiecewiseLinearConstraint::Fix> fixes;
         List<PiecewiseLinearConstraint::Fix>::iterator it;
@@ -993,6 +1068,7 @@ public:
         unsigned f = 4;
 
         AbsoluteValueConstraint abs( b, f );
+        abs.initializeCDOs( context );
 
         List<PiecewiseLinearConstraint::Fix> fixes;
         List<PiecewiseLinearConstraint::Fix>::iterator it;

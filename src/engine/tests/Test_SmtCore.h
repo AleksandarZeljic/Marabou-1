@@ -186,14 +186,14 @@ public:
 
     void test_need_to_split()
     {
-        ReluConstraint constraint1( 1, 2 );
-        ReluConstraint constraint2( 3, 4 );
-
         Context context;
         SmtCore smtCore( engine, context );
 
-        constraint1.initializeContextDependentPhaseStatus( &context );
-        constraint2.initializeContextDependentPhaseStatus( &context );
+        ReluConstraint constraint1( 1, 2 );
+        ReluConstraint constraint2( 3, 4 );
+
+        constraint1.initializeCDOs( &context );
+        constraint2.initializeCDOs( &context );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD - 1; ++i )
         {

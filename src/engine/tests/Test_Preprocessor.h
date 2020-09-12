@@ -228,11 +228,21 @@ public:
 
         CVC4::context::Context context;
         ReluConstraint *relu = new ReluConstraint( 0, 1 );
-        relu->initializeContextDependentPhaseStatus( &context );
-        MaxConstraint *max1 = new MaxConstraint( 2, Set<unsigned>( { 4, 3 } ) );
-        MaxConstraint *max2 = new MaxConstraint( 5, Set<unsigned>( { 6, 7 } ) );
-        MaxConstraint *max3 = new MaxConstraint( 8, Set<unsigned>( { 9, 10 } ) );
+        relu->initializeCDOs( &context );
 
+
+        MaxConstraint *max1 = new MaxConstraint( 2, Set<unsigned>( { 4, 3 } ) );
+        max1->initializeCDOs( &context );
+
+ 
+        MaxConstraint *max2 = new MaxConstraint( 5, Set<unsigned>( { 6, 7 } ) );
+        max2->initializeCDOs( &context );
+
+ 
+        MaxConstraint *max3 = new MaxConstraint( 8, Set<unsigned>( { 9, 10 } ) );
+        max3->initializeCDOs( &context );
+
+ 
         relu->notifyLowerBound( 0, FloatUtils::negativeInfinity() );
 
         inputQuery.addPiecewiseLinearConstraint( relu );
@@ -240,7 +250,8 @@ public:
         inputQuery.addPiecewiseLinearConstraint( max2 );
         inputQuery.addPiecewiseLinearConstraint( max3 );
 
-        InputQuery processed = Preprocessor().preprocess( inputQuery, false );
+        InputQuery processed;
+        TS_ASSERT_THROWS_NOTHING( processed = Preprocessor().preprocess( inputQuery, false ) );
 
         // x1 = Relu( x0 ) = max( 0, x0 )
         // x1 \in [0, 10]
@@ -315,8 +326,12 @@ public:
 
         CVC4::context::Context context;
         ReluConstraint *relu = new ReluConstraint( 0, 5 );
-        relu->initializeContextDependentPhaseStatus( &context );
+        relu->initializeCDOs( &context );
+
+
         MaxConstraint *max = new MaxConstraint( 6, Set<unsigned>( { 4, 0 } ) );
+        max->initializeCDOs( &context );
+
         inputQuery.addPiecewiseLinearConstraint( relu );
         inputQuery.addPiecewiseLinearConstraint( max );
 
@@ -344,7 +359,8 @@ public:
         equation.setScalar( 10 );
         inputQuery.addEquation( equation );
 
-        InputQuery processed = Preprocessor().preprocess( inputQuery, false );
+        InputQuery processed;
+        TS_ASSERT_THROWS_NOTHING( processed = Preprocessor().preprocess( inputQuery, false ) );
 
         TS_ASSERT( FloatUtils::areEqual( processed.getLowerBound( 0 ), 5.5 ) );
         TS_ASSERT( FloatUtils::areEqual( processed.getUpperBound( 0 ), 6.5 ) );
@@ -491,7 +507,9 @@ public:
 
         CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 1, 3 );
-        relu1->initializeContextDependentPhaseStatus( &context );
+        relu1->initializeCDOs( &context );
+
+
         relu1->notifyLowerBound( 1, -3 );
 
         inputQuery.addPiecewiseLinearConstraint( relu1 );
@@ -592,16 +610,24 @@ public:
 
         CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 6, 7 );
-        relu1->initializeContextDependentPhaseStatus( &context );
+        relu1->initializeCDOs( &context );
+
+
         relu1->notifyLowerBound( 6, FloatUtils::negativeInfinity() );
         ReluConstraint *relu2 = new ReluConstraint( 10, 11 );
-        relu2->initializeContextDependentPhaseStatus( &context ); 
+        relu2->initializeCDOs( &context );
+
+
         relu2->notifyLowerBound( 10, FloatUtils::negativeInfinity() );
         ReluConstraint *relu3 = new ReluConstraint( 14, 15 );
-        relu3->initializeContextDependentPhaseStatus( &context ); 
+        relu3->initializeCDOs( &context );
+
+
         relu3->notifyLowerBound( 14, FloatUtils::negativeInfinity() );
         ReluConstraint *relu4 = new ReluConstraint( 18, 19 );
-        relu4->initializeContextDependentPhaseStatus( &context ); 
+        relu4->initializeCDOs( &context );
+
+
         relu4->notifyLowerBound( 18, FloatUtils::negativeInfinity() );
 
         inputQuery.addPiecewiseLinearConstraint( relu1 );
@@ -718,8 +744,12 @@ public:
         // Specify activation functions
         ReluConstraint *relu1 = new ReluConstraint( 2, 4 );
         ReluConstraint *relu2 = new ReluConstraint( 3, 5 );
-        relu1->initializeContextDependentPhaseStatus( &context );
-        relu2->initializeContextDependentPhaseStatus( &context );
+        relu1->initializeCDOs( &context );
+
+
+        relu2->initializeCDOs( &context );
+
+
         inputQuery.addPiecewiseLinearConstraint( relu1 );
         inputQuery.addPiecewiseLinearConstraint( relu2 );
         relu1->notifyLowerBound( 2, -10 );

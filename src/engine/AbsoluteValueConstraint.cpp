@@ -25,10 +25,15 @@ AbsoluteValueConstraint::AbsoluteValueConstraint( unsigned b, unsigned f )
     : _b( b )
     , _f( f )
     , _haveEliminatedVariables( false )
+    , _phaseStatus( nullptr )
 {
-    setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
+    //setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
 }
 
+AbsoluteValueConstraint::~AbsoluteValueConstraint()
+{
+    cdoCleanup();
+}
 PiecewiseLinearFunctionType AbsoluteValueConstraint::getType() const
 {
     return PiecewiseLinearFunctionType::ABSOLUTE_VALUE;
@@ -38,13 +43,42 @@ PiecewiseLinearConstraint *AbsoluteValueConstraint::duplicateConstraint() const
 {
     AbsoluteValueConstraint *clone = new AbsoluteValueConstraint( _b, _f );
     *clone = *this;
+
+    if ( nullptr != clone->_context)
+    {
+        ASSERT( nullptr != clone->_constraintActive );
+        clone->_constraintActive = nullptr;
+        clone->initializeActiveStatus();
+        clone->setActiveConstraint( this->isActive() );
+
+        ASSERT( nullptr != clone->_phaseStatus );
+        clone->_phaseStatus = nullptr;
+        clone->initializePhaseStatus();
+        clone->setPhaseStatus( this->getPhaseStatus() );
+    }
+
     return clone;
 }
 
 void AbsoluteValueConstraint::restoreState( const PiecewiseLinearConstraint *state )
 {
+    ASSERT( nullptr != getContext() );
+    ASSERT( nullptr != getActiveStatusCDO() );
+    ASSERT( nullptr != getPhaseStatusCDO() );
+    ASSERT( getContext() == state->getContext() );
+
     const AbsoluteValueConstraint *abs = dynamic_cast<const AbsoluteValueConstraint *>( state );
+    ASSERT( nullptr != abs->getActiveStatusCDO() );
+    ASSERT( nullptr != abs->getPhaseStatusCDO() );
+
+    CVC4::context::CDO<bool> *activeStatus = _constraintActive;
+    CVC4::context::CDO<PhaseStatus> *phaseStatus = _phaseStatus;
     *this = *abs;
+    _constraintActive = activeStatus;
+    setActiveConstraint( abs->isActive() );
+
+    _phaseStatus = phaseStatus;
+    setPhaseStatus( abs->getPhaseStatus() );
 }
 
 void AbsoluteValueConstraint::registerAsWatcher( ITableau *tableau )
@@ -206,7 +240,7 @@ List<PiecewiseLinearConstraint::Fix> AbsoluteValueConstraint::getSmartFixes( ITa
 
 List<PiecewiseLinearCaseSplit> AbsoluteValueConstraint::getCaseSplits() const
 {
-    //ASSERT( _phaseStatus == PhaseStatus::PHASE_NOT_FIXED );
+    //ASSERT( *_phaseStatus == PhaseStatus::PHASE_NOT_FIXED );
 
     List<PiecewiseLinearCaseSplit> splits;
     splits.append( getNegativeSplit() );
@@ -268,14 +302,14 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getPositiveSplit() const
 
 bool AbsoluteValueConstraint::phaseFixed() const
 {
-    return _phaseStatus != PhaseStatus::PHASE_NOT_FIXED;
+    return *_phaseStatus != PhaseStatus::PHASE_NOT_FIXED;
 }
 
 PiecewiseLinearCaseSplit AbsoluteValueConstraint::getValidCaseSplit() const
 {
-    ASSERT( _phaseStatus != PhaseStatus::PHASE_NOT_FIXED );
+    ASSERT( *_phaseStatus != PhaseStatus::PHASE_NOT_FIXED );
 
-    if ( _phaseStatus == PhaseStatus::PHASE_POSITIVE )
+    if ( *_phaseStatus == PhaseStatus::PHASE_POSITIVE )
         return getPositiveSplit();
 
     return getNegativeSplit();
@@ -446,10 +480,50 @@ void AbsoluteValueConstraint::fixPhaseIfNeeded()
     }
 }
 
+void AbsoluteValueConstraint::initializePhaseStatus()
+{
+    ASSERT( nullptr != _context );
+
+    if ( nullptr == _phaseStatus )
+        _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, PHASE_NOT_FIXED );
+    else
+        throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
+}
+
+void AbsoluteValueConstraint::initializeCDOs( CVC4::context::Context *context )
+{
+    ASSERT( nullptr == _context );
+    _context = context;
+
+    initializeActiveStatus();
+    initializePhaseStatus();
+}
+
+void AbsoluteValueConstraint::cdoCleanup()
+{
+    if ( nullptr != _phaseStatus )
+        _phaseStatus->deleteSelf();
+
+    _phaseStatus = nullptr;
+
+    if ( nullptr != _constraintActive )
+        _constraintActive->deleteSelf();
+
+    _constraintActive= nullptr;
+    _context = nullptr;
+}
+
 void AbsoluteValueConstraint::setPhaseStatus( PhaseStatus phaseStatus )
 {
-    _phaseStatus = phaseStatus;
+    ASSERT( nullptr != _phaseStatus );
+    *_phaseStatus = phaseStatus;
 }
+
+AbsoluteValueConstraint::PhaseStatus AbsoluteValueConstraint::getPhaseStatus() const
+{
+    return *_phaseStatus;
+}
+
 
 bool AbsoluteValueConstraint::supportsSymbolicBoundTightening() const
 {

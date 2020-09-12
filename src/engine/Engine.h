@@ -458,7 +458,7 @@ private:
     /*
       Helper functions for input query preprocessing
     */
-    void initializeConstraintPhaseStatus( InputQuery &inputQuery );
+    void initializeConstraintCDStructures( InputQuery &inputQuery );
     void informConstraintsOfInitialBounds( InputQuery &inputQuery ) const;
     void invokePreprocessor( const InputQuery &inputQuery, bool preprocess );
     void printInputBounds( const InputQuery &inputQuery ) const;

@@ -13,15 +13,15 @@
 
 **/
 
-#include "context/context.h"
 #include "PiecewiseLinearConstraint.h"
 #include "Statistics.h"
 
 PiecewiseLinearConstraint::PiecewiseLinearConstraint()
-    : _constraintActive( true )
+    : _context( nullptr )
+    , _constraintActive( nullptr )
     , _score( -1 )
-    , _boundManager( NULL )
-    , _statistics( NULL )
+    , _boundManager( nullptr )
+    , _statistics( nullptr )
 {
 }
 
@@ -35,6 +35,13 @@ void PiecewiseLinearConstraint::registerBoundManager( BoundManager *boundManager
     _boundManager = boundManager;
 }
 
+void PiecewiseLinearConstraint::initializeActiveStatus()
+{
+    ASSERT( nullptr != _context );
+    ASSERT( nullptr == _constraintActive );
+    _constraintActive = new (true) CVC4::context::CDO<bool>( _context );
+    *_constraintActive = true;
+}
 
 void PiecewiseLinearConstraint::dump() const
 {
