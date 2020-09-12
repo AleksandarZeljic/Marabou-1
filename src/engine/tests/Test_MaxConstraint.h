@@ -31,15 +31,17 @@ class MaxConstraintTestSuite : public CxxTest::TestSuite
 {
 public:
     MockForMaxConstraint *mock;
-
+    CVC4::context::Context *context;
 	void setUp()
     {
         TS_ASSERT( mock = new MockForMaxConstraint );
+        TS_ASSERT( context = new CVC4::context::Context );
     }
 
     void tearDown()
     {
         TS_ASSERT_THROWS_NOTHING( delete mock );
+        TS_ASSERT_THROWS_NOTHING( delete context );
     }
 
     void test_max_constraint()
@@ -228,7 +230,7 @@ public:
 	}
 
 	void test_max_phase_fixed()
-    {
+  {
 		unsigned f = 1;
 		Set<unsigned> elements;
 
@@ -236,6 +238,7 @@ public:
 			elements.insert( i );
 
 		MaxConstraint max( f, elements );
+    max.initializeCDOs( context );
 
 		// all variables initially between 1 and 10
 		for ( unsigned i = 2; i < 10; i++ )
@@ -287,6 +290,7 @@ public:
 		elements.insert( 3 );
 
 		MaxConstraint max( f, elements );
+    max.initializeCDOs( context );
 
 		max.notifyUpperBound( 2, 8 );
 		max.notifyLowerBound( 2, 1 );
@@ -316,6 +320,7 @@ public:
 		elements.insert( 3 );
 
 		MaxConstraint max( f, elements );
+    max.initializeCDOs( context );
 
 		max.notifyLowerBound( 2, 1 );
     	max.notifyUpperBound( 2, 8 );

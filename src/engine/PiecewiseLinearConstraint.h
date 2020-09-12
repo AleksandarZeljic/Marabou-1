@@ -17,10 +17,12 @@
 #define __PiecewiseLinearConstraint_h__
 
 #include "context/context.h"
+#include "context/cdo.h"
 #include "FloatUtils.h"
 #include "ITableau.h"
 #include "List.h"
 #include "Map.h"
+#include "MarabouError.h"
 #include "PiecewiseLinearCaseSplit.h"
 #include "PiecewiseLinearFunctionType.h"
 #include "Queue.h"
@@ -60,7 +62,11 @@ public:
     };
 
     PiecewiseLinearConstraint();
-    virtual ~PiecewiseLinearConstraint() {}
+
+    virtual ~PiecewiseLinearConstraint()
+    {
+        cdoCleanup();
+    }
 
     bool operator<( const PiecewiseLinearConstraint &other ) const
     {
@@ -102,12 +108,21 @@ public:
     */
     virtual void setActiveConstraint( bool active )
     {
-        _constraintActive = active;
+        if ( nullptr != _constraintActive )
+            *_constraintActive = active;
+        else
+            throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
     }
 
     virtual bool isActive() const
     {
-        return _constraintActive;
+        if ( nullptr != _constraintActive )
+            return *_constraintActive;
+
+        else
+            throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
+        //ASSERT( false );
+        return true;
     }
 
     /*
@@ -272,10 +287,44 @@ public:
         return _upperBounds[i];
     }
 
-    virtual void initializeContextDependentPhaseStatus( CVC4::context::Context * /*context*/) {};
+    /*
+       Register context object. Necessary for lazy backtracking features - such
+       as _phaseStatus and _activeStatus. Does not require initialization until
+       after pre-processing.
+     */
+    virtual void initializeCDOs( CVC4::context::Context *context )
+    {
+        ASSERT( nullptr == _context );
+        _context = context;
+
+        initializeActiveStatus();
+    }
+
+    virtual void cdoCleanup()
+    {
+        if ( nullptr != _constraintActive )
+            _constraintActive->deleteSelf();
+
+        _constraintActive= nullptr;
+        _context = nullptr;
+    }
+
+    CVC4::context::Context *getContext() const
+    {
+        return _context;
+    }
+
+    /*
+      Get _activeStatus CDO - debugging purposes only
+    */
+    CVC4::context::CDO<bool> *getActiveStatusCDO() const
+    {
+        return _constraintActive;
+    };
 
 protected:
-    bool _constraintActive;
+    CVC4::context::Context *_context;
+    CVC4::context::CDO<bool> *_constraintActive;
     Map<unsigned, double> _assignment;
     Map<unsigned, double> _lowerBounds;
     Map<unsigned, double> _upperBounds;
@@ -292,6 +341,21 @@ protected:
       Statistics collection
     */
     Statistics *_statistics;
+
+    /*
+      Initialize _activeStatus CDO.
+    */
+    void initializeActiveStatus();
+
+
+    /*
+      Initialize _phaseStatus or equivalent.
+      TODO: We could make the entire class parametric in PhaseStatus and handle
+      CDO uniformly here like the _activeStatus.
+    */
+    virtual void initializePhaseStatus() {};
+
+
 };
 
 #endif // __PiecewiseLinearConstraint_h__

@@ -168,7 +168,9 @@ public:
 
         ReluConstraint relu( b, f );
 
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
 
         TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_NOT_FIXED );
 
@@ -324,7 +326,9 @@ public:
         unsigned b = 1;
         unsigned f = 4;
 
+        CVC4::context::Context context;
         ReluConstraint relu( b, f );
+        relu.initializeCDOs( &context );
 
         relu.notifyLowerBound( b, -10 );
         relu.notifyUpperBound( b, 5 );
@@ -425,7 +429,9 @@ public:
         MockTableau tableau;
 
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
         relu.registerAsWatcher( &tableau );
 
         List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
@@ -441,7 +447,9 @@ public:
         relu.cdoCleanup();
 
         relu = ReluConstraint( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
 
         relu.registerAsWatcher( &tableau );
 
@@ -466,7 +474,9 @@ public:
         MockTableau tableau;
 
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
         relu.registerAsWatcher( &tableau );
 
         List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
@@ -493,7 +503,9 @@ public:
         // Upper bounds
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, -1.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -501,7 +513,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -509,7 +523,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( f, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -517,7 +533,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, 3.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -525,7 +543,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyUpperBound( b, 5.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -534,7 +554,9 @@ public:
         // Lower bounds
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( b, 3.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -542,7 +564,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( b, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -550,7 +574,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( f, 6.0 );
             TS_ASSERT( relu.phaseFixed() );
@@ -558,7 +584,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( f, 0.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -566,7 +594,9 @@ public:
 
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             TS_ASSERT( !relu.phaseFixed() );
             relu.notifyLowerBound( b, -2.0 );
             TS_ASSERT( !relu.phaseFixed() );
@@ -575,7 +605,9 @@ public:
         // Aux variables: upper bound
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
 
             relu.notifyLowerBound( b, -5 );
             InputQuery dontCare;
@@ -593,7 +625,9 @@ public:
         // Aux variables: lower bound
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
 
             relu.notifyLowerBound( b, -5 );
             InputQuery dontCare;
@@ -616,7 +650,9 @@ public:
         unsigned f = 4;
 
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
 
         List<PiecewiseLinearConstraint::Fix> fixes;
         List<PiecewiseLinearConstraint::Fix>::iterator it;
@@ -664,7 +700,9 @@ public:
         unsigned f = 4;
 
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
 
         List<PiecewiseLinearConstraint::Fix> fixes;
         List<PiecewiseLinearConstraint::Fix>::iterator it;
@@ -710,7 +748,9 @@ public:
         unsigned aux = 500;
 
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
 
         relu.notifyUpperBound( b, 7 );
         relu.notifyUpperBound( f, 7 );
@@ -766,7 +806,9 @@ public:
 
         dontCare.setNumberOfVariables( 500 );
         ReluConstraint relu2( b, f );
-        relu2.initializeContextDependentPhaseStatus( &context );
+        relu2.initializeCDOs( &context );
+
+
 
         relu2.notifyUpperBound( b, -1 );
         relu2.notifyUpperBound( f, 7 );
@@ -795,11 +837,29 @@ public:
         TS_ASSERT( entailedTightenings.exists( Tightening( f, 0, Tightening::UB ) ) );
     }
 
+    void test_initialization_of_CDOs()
+    {
+        CVC4::context::Context context;
+        ReluConstraint *relu1 = new ReluConstraint( 4, 6 );
+
+        TS_ASSERT_EQUALS( relu1->getContext(), nullptr );
+
+        TS_ASSERT_EQUALS( relu1->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( relu1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_THROWS_NOTHING( relu1->initializeCDOs( &context ) );
+        TS_ASSERT_EQUALS( relu1->getContext(), &context );
+        TS_ASSERT_DIFFERS( relu1->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( relu1->getPhaseStatusCDO(), nullptr );
+
+        TS_ASSERT_THROWS_NOTHING( delete relu1 );
+    }
+
     void test_relu_duplicate_and_restore()
     {
         CVC4::context::Context context;
         ReluConstraint *relu1 = new ReluConstraint( 4, 6 );
-        relu1->initializeContextDependentPhaseStatus( &context );
+        TS_ASSERT_THROWS_NOTHING( relu1->initializeCDOs( &context ) );
+
         relu1->setActiveConstraint( false );
         relu1->notifyVariableValue( 4, 1.0 );
         relu1->notifyVariableValue( 6, 1.0 );
@@ -810,8 +870,14 @@ public:
         relu1->notifyLowerBound( 6, 0.0 );
         relu1->notifyUpperBound( 6, 8.0 );
 
-        PiecewiseLinearConstraint *relu2 = relu1->duplicateConstraint();
-        relu2->initializeContextDependentPhaseStatus( &context );
+        PiecewiseLinearConstraint * pwlc;
+        TS_ASSERT_THROWS_NOTHING( pwlc =  relu1->duplicateConstraint() );
+        ReluConstraint *relu2 = dynamic_cast<ReluConstraint*>( pwlc );
+        TS_ASSERT_EQUALS( relu1->getContext(), relu2->getContext() );
+        TS_ASSERT_DIFFERS( relu2->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( relu2->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( relu1->getPhaseStatusCDO(), relu2->getPhaseStatusCDO() );
+        TS_ASSERT_DIFFERS( relu1->getActiveStatusCDO(), relu2->getActiveStatusCDO() );
 
         relu1->notifyVariableValue( 4, -2 );
         TS_ASSERT( !relu1->satisfied() );
@@ -835,7 +901,7 @@ public:
         MockTableau tableau;
 
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
 
         relu.registerAsWatcher( &tableau );
 
@@ -851,7 +917,9 @@ public:
         unsigned f = 7;
 
         ReluConstraint originalRelu( b, f );
-        originalRelu.initializeContextDependentPhaseStatus( &context );
+        originalRelu.initializeCDOs( &context );
+
+
         originalRelu.notifyLowerBound( b, -10 );
         originalRelu.notifyUpperBound( f, 5 );
         originalRelu.notifyUpperBound( f, 5 );
@@ -903,7 +971,9 @@ public:
         unsigned f = 4;
 
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
 
         MockTableau tableau;
 
@@ -1043,7 +1113,9 @@ public:
     {
         CVC4::context::Context context;
         ReluConstraint relu( 4, 6 );
-        relu.initializeContextDependentPhaseStatus( &context );
+        relu.initializeCDOs( &context );
+
+
         InputQuery query;
 
         query.setNumberOfVariables( 9 );
@@ -1080,7 +1152,9 @@ public:
 
         // Special case: add aux equations in active phase
         ReluConstraint relu2( 4, 6 );
-        relu2.initializeContextDependentPhaseStatus( &context );
+        relu2.initializeCDOs( &context );
+
+
 
         InputQuery query2;
 
@@ -1101,7 +1175,9 @@ public:
     ReluConstraint prepareRelu( unsigned b, unsigned f, unsigned aux, BoundManager *boundManager, CVC4::context::Context *context )
     {
         ReluConstraint relu( b, f );
-        relu.initializeContextDependentPhaseStatus( context );
+        relu.initializeCDOs( context );
+
+
 
         InputQuery dontCare;
         dontCare.setNumberOfVariables( aux );
@@ -1242,7 +1318,9 @@ public:
         // b in [1, 2], polarity should be 1, and direction should be PHASE_ACTIVE
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
 
             relu.notifyLowerBound( b, 1 );
             relu.notifyUpperBound( b, 2 );
@@ -1254,7 +1332,9 @@ public:
         // b in [-2, 0], polarity should be -1, and direction should be PHASE_INACTIVE
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
             relu.notifyLowerBound( b, -2 );
             relu.notifyUpperBound( b, 0 );
             TS_ASSERT( relu.computePolarity() == -1 );
@@ -1267,7 +1347,9 @@ public:
         // the getCaseSplits(), and getPossibleFix should return the inactive fix first
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
 
             relu.notifyLowerBound( b, -2 );
             relu.notifyUpperBound( b, 2 );
@@ -1300,7 +1382,9 @@ public:
         // the getCaseSplits(), and getPossibleFix should return the active fix first
         {
             ReluConstraint relu( b, f );
-            relu.initializeContextDependentPhaseStatus( &context );
+            relu.initializeCDOs( &context );
+
+
 
             relu.notifyLowerBound( b, -2 );
             relu.notifyUpperBound( b, 3 );

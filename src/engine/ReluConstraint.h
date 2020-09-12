@@ -171,6 +171,14 @@ public:
     unsigned getF() const;
 
     /*
+      Get the current phase status. Debugging purposes only
+    */
+    CVC4::context::CDO<PhaseStatus> *getPhaseStatusCDO() const
+    {
+        return _phaseStatus;
+    }
+
+    /*
       Get the current phase status.
     */
     PhaseStatus getPhaseStatus() const;
@@ -213,14 +221,15 @@ public:
     void updateScore();
 
     /*
-       initializeContextDependentPhaseStatus
+       initializePhaseStatus
      */
-    void initializeContextDependentPhaseStatus( CVC4::context::Context *context );
+    void initializePhaseStatus();
+    void initializeCDOs( CVC4::context::Context *context );
     void cdoCleanup();
 
 private:
     unsigned _b, _f;
-    CVC4::context::Context *_context;
+    //CVC4::context::Context *_context;
     CVC4::context::CDO<PhaseStatus> *_phaseStatus;
     bool _auxVarInUse;
     unsigned _aux;

@@ -73,13 +73,31 @@ PiecewiseLinearConstraint *MaxConstraint::duplicateConstraint() const
 {
     MaxConstraint *clone = new MaxConstraint( _f, _elements );
     *clone = *this;
+
+    if ( nullptr != clone->_context)
+    {
+        ASSERT( nullptr != clone->_constraintActive );
+        clone->_constraintActive = nullptr;
+        clone->initializeActiveStatus();
+        clone->setActiveConstraint( this->isActive() );
+    }
+
     return clone;
 }
 
 void MaxConstraint::restoreState( const PiecewiseLinearConstraint *state )
 {
+    ASSERT( nullptr != getContext() );
+    ASSERT( nullptr != getActiveStatusCDO() );
+    ASSERT( getContext() == state->getContext() );
+
     const MaxConstraint *max = dynamic_cast<const MaxConstraint *>( state );
+    ASSERT( nullptr != getActiveStatusCDO() );
+
+    CVC4::context::CDO<bool> *activeStatus = _constraintActive;
     *this = *max;
+    _constraintActive = activeStatus;
+    setActiveConstraint( max->isActive() );
 }
 
 void MaxConstraint::registerAsWatcher( ITableau *tableau )
