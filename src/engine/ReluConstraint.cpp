@@ -167,7 +167,7 @@ void ReluConstraint::notifyLowerBound( unsigned variable, double bound )
     else if ( variable == _aux && FloatUtils::isPositive( bound ) )
         setPhaseStatus( PhaseStatus::PHASE_INACTIVE );
 
-    if ( isActive() && _boundManager )
+    if ( nullptr != _boundManager  && nullptr!= _constraintActive && isActive() )
     {
         // A positive lower bound is always propagated between f and b
         if ( ( variable == _f || variable == _b ) && bound > 0 )
@@ -225,7 +225,7 @@ void ReluConstraint::notifyUpperBound( unsigned variable, double bound )
     if ( _auxVarInUse && variable == _aux && FloatUtils::isZero( bound ) )
         setPhaseStatus( PhaseStatus::PHASE_ACTIVE );
 
-    if ( isActive() && _boundManager )
+    if ( nullptr != _boundManager  && nullptr!= _constraintActive && isActive() )
     {
         if ( variable == _f )
         {
