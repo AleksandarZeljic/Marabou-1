@@ -161,7 +161,7 @@ void MaxConstraint::notifyLowerBound( unsigned variable, double value )
 	if ( maxErased )
 		resetMaxIndex();
 
-    if ( isActive() && _boundManager )
+    if ( nullptr != _boundManager  && nullptr!= _constraintActive && isActive() )
     {
         // TODO: optimize this. Don't need to recompute ALL possible bounds,
         // can focus only on the newly learned bound and possible consequences.
@@ -194,7 +194,7 @@ void MaxConstraint::notifyUpperBound( unsigned variable, double value )
 
     // There is no need to recompute the max lower bound and max index here.
 
-    if ( isActive() && _boundManager )
+    if ( nullptr != _boundManager  && nullptr!= _constraintActive && isActive() )
     {
         // TODO: optimize this. Don't need to recompute ALL possible bounds,
         // can focus only on the newly learned bound and possible consequences.
