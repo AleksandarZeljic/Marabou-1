@@ -80,7 +80,7 @@ public:
         abs1.notifyLowerBound( 6, 0.0 );
         abs1.notifyUpperBound( 6, 8.0 );
 
-        PiecewiseLinearConstraint *pwlc;
+        PiecewiseLinearConstraint *pwlc = NULL;
         TS_ASSERT_THROWS_NOTHING( pwlc = abs1.duplicateConstraint() );
 
         AbsoluteValueConstraint *abs2 = dynamic_cast<AbsoluteValueConstraint*>( pwlc );
