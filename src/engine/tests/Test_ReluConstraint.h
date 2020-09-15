@@ -870,7 +870,7 @@ public:
         relu1->notifyLowerBound( 6, 0.0 );
         relu1->notifyUpperBound( 6, 8.0 );
 
-        PiecewiseLinearConstraint * pwlc;
+        PiecewiseLinearConstraint * pwlc = NULL;
         TS_ASSERT_THROWS_NOTHING( pwlc =  relu1->duplicateConstraint() );
         ReluConstraint *relu2 = dynamic_cast<ReluConstraint*>( pwlc );
         TS_ASSERT_EQUALS( relu1->getContext(), relu2->getContext() );

@@ -219,11 +219,9 @@ public:
     {
         Context context;
         // TODO: casting the context from int to unsigned int for now
-        int prev_context_level = context.getLevel();
         context.push();
         TS_ASSERT_EQUALS( 1, context.getLevel() );
 
-        prev_context_level = context.getLevel();
         context.pop();
         TS_ASSERT_EQUALS( 0, context.getLevel() );
     }

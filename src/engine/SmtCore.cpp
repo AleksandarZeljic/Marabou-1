@@ -270,7 +270,7 @@ void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint, List<unsigned
 //     return popSplit();
 // }
 
-inline unsigned SmtCore::getDecisionLevel() const
+unsigned SmtCore::getDecisionLevel() const
 {
     ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
     return _context.getLevel();
