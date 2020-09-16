@@ -286,6 +286,7 @@ bool SmtCore::popDecisionLevel( TrailEntry *lastDecision )
 
     *lastDecision = *_decisions.back();
     _context.pop();
+    _engine->recomputeBasicStatus();
     SMT_LOG( "Backtracking context - %d DONE", _context.getLevel() );
     return true;
 }
