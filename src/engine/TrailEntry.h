@@ -42,9 +42,8 @@ public:
 
  TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase )
      : _pwlConstraint( pwlc )
-      , _phase( phase )
-      , _alternativeSplits()
-      {}
+     , _phase( phase )
+    {}
 
 
   ~TrailEntry() {};

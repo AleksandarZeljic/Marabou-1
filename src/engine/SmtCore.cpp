@@ -93,14 +93,14 @@ void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  unsigned dec
 
     _engine->applySplit( constraint->getCaseSplit( decision ) );
 
-    SMT_LOG( "Decision push @ %d DONE", _context.getLevel() );
+    SMT_LOG( Stringf( "Decision push @ %d DONE", _context.getLevel() ).ascii() );
     ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
     ASSERT( getDecisionLevel() == _decisions.size() )
 }
 
 void SmtCore::pushImplication( PiecewiseLinearConstraint *constraint, unsigned phase )
 {
-    SMT_LOG( "Push implication on trail @s%d ... ", _context.getLevel() );
+    SMT_LOG( Stringf( "Push implication on trail @%d ... ", _context.getLevel() ).ascii() );
 
     TrailEntry te( constraint, phase );
 
@@ -284,6 +284,7 @@ bool SmtCore::popDecisionLevel( TrailEntry *lastDecision )
 
     SMT_LOG( "Backtracking context ..." );
 
+    std::cout << _decisions.back() << std::endl;
     *lastDecision = *_decisions.back();
     _context.pop();
     _engine->recomputeBasicStatus();
