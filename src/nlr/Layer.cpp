@@ -595,9 +595,9 @@ void Layer::computeSymbolicBoundsForRelu()
 
         // Has the f variable been eliminated or fixed?
         if ( FloatUtils::isPositive( _lb[i] ) )
-            reluPhase = ReluConstraint::PHASE_ACTIVE;
+            reluPhase = PiecewiseLinearConstraint::RELU_PHASE_ACTIVE;
         else if ( FloatUtils::isZero( _ub[i] ) )
-            reluPhase = ReluConstraint::PHASE_INACTIVE;
+            reluPhase = PiecewiseLinearConstraint::RELU_PHASE_INACTIVE;
 
         ASSERT( _neuronToActivationSources.exists( i ) );
         NeuronIndex sourceIndex = *_neuronToActivationSources[i].begin();
@@ -630,11 +630,11 @@ void Layer::computeSymbolicBoundsForRelu()
         // Has the b variable been fixed?
         if ( !FloatUtils::isNegative( sourceLb ) )
         {
-            reluPhase = ReluConstraint::PHASE_ACTIVE;
+            reluPhase = PiecewiseLinearConstraint::RELU_PHASE_ACTIVE;
         }
         else if ( !FloatUtils::isPositive( sourceUb ) )
         {
-            reluPhase = ReluConstraint::PHASE_INACTIVE;
+            reluPhase = PiecewiseLinearConstraint::RELU_PHASE_INACTIVE;
         }
 
         if ( reluPhase == ReluConstraint::PHASE_NOT_FIXED )
@@ -680,7 +680,7 @@ void Layer::computeSymbolicBoundsForRelu()
         else
         {
             // The phase of this ReLU is fixed!
-            if ( reluPhase == ReluConstraint::PHASE_ACTIVE )
+            if ( reluPhase == PiecewiseLinearConstraint::RELU_PHASE_ACTIVE )
             {
                 // Active ReLU, bounds are propagated as is
             }
@@ -773,9 +773,9 @@ void Layer::computeSymbolicBoundsForAbsoluteValue()
         _symbolicUbOfUb[i] = sourceLayer->getSymbolicUbOfUb( sourceIndex._neuron );
 
         if ( sourceLb >= 0 )
-            absPhase = AbsoluteValueConstraint::PHASE_POSITIVE;
+            absPhase = PiecewiseLinearConstraint::ABS_PHASE_POSITIVE;
         else if ( sourceUb <= 0 )
-            absPhase = AbsoluteValueConstraint::PHASE_NEGATIVE;
+            absPhase = PiecewiseLinearConstraint::ABS_PHASE_NEGATIVE;
 
         if ( absPhase == AbsoluteValueConstraint::PHASE_NOT_FIXED )
         {
@@ -799,7 +799,7 @@ void Layer::computeSymbolicBoundsForAbsoluteValue()
         else
         {
             // The phase of this AbsoluteValueConstraint is fixed!
-            if ( absPhase == AbsoluteValueConstraint::PHASE_POSITIVE )
+            if ( absPhase == PiecewiseLinearConstraint::ABS_PHASE_POSITIVE )
             {
                 // Positive AbsoluteValue, bounds are propagated as is
             }

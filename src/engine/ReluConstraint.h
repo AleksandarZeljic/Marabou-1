@@ -24,12 +24,6 @@
 class ReluConstraint : public PiecewiseLinearConstraint
 {
 public:
-    enum PhaseStatus {
-        PHASE_NOT_FIXED = 0,
-        PHASE_ACTIVE = 1,
-        PHASE_INACTIVE = 2,
-    };
-
     /*
       The f variable is the relu output on the b variable:
       f = relu( b )

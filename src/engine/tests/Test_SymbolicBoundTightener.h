@@ -217,7 +217,7 @@ public:
         TS_ASSERT( sbt.getUpperBound( 2, 0 ) < 7 + 0.001 );
 
         /// Case 2: ReLU fixed to ACTIVE
-        sbt.setReluStatus( 1, 0, ReluConstraint::PHASE_ACTIVE );
+        sbt.setReluStatus( 1, 0, PiecewiseLinearConstraint::RELU_PHASE_ACTIVE );
 
         // Run the tightener
         TS_ASSERT_THROWS_NOTHING( sbt.run( false ) ); // Test with costant concretization
@@ -229,7 +229,7 @@ public:
         TS_ASSERT( sbt.getUpperBound( 2, 0 ) < 1 + 0.001 );
 
         /// Case 2: ReLU fixed to INACTIVE
-        sbt.setReluStatus( 1, 0, ReluConstraint::PHASE_INACTIVE );
+        sbt.setReluStatus( 1, 0, PiecewiseLinearConstraint::RELU_PHASE_INACTIVE );
 
         // Run the tightener
         TS_ASSERT_THROWS_NOTHING( sbt.run( false ) ); // Test with costant concretization
