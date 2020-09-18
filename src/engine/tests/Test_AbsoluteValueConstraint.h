@@ -115,13 +115,13 @@ public:
         List<unsigned> cases = abs.getAllCases();
 
         TS_ASSERT_EQUALS( cases.size(), 2u );
-        TS_ASSERT_EQUALS( cases.front(), AbsoluteValueConstraint::PhaseStatus::PHASE_NEGATIVE );
-        TS_ASSERT_EQUALS( cases.back(), AbsoluteValueConstraint::PhaseStatus::PHASE_POSITIVE );
+        TS_ASSERT_EQUALS( cases.front(), PiecewiseLinearConstraint::ABS_PHASE_NEGATIVE );
+        TS_ASSERT_EQUALS( cases.back(), PiecewiseLinearConstraint::ABS_PHASE_POSITIVE );
 
         List<PiecewiseLinearCaseSplit> splits = abs.getCaseSplits();
         TS_ASSERT_EQUALS( splits.size(), 2u );
-        TS_ASSERT_EQUALS( splits.front(), abs.getCaseSplit( AbsoluteValueConstraint::PhaseStatus::PHASE_NEGATIVE ) ) ;
-        TS_ASSERT_EQUALS( splits.back(), abs.getCaseSplit( AbsoluteValueConstraint::PhaseStatus::PHASE_POSITIVE ) ) ;
+        TS_ASSERT_EQUALS( splits.front(), abs.getCaseSplit( PiecewiseLinearConstraint::ABS_PHASE_NEGATIVE ) ) ;
+        TS_ASSERT_EQUALS( splits.back(), abs.getCaseSplit( PiecewiseLinearConstraint::ABS_PHASE_POSITIVE ) ) ;
     }
 
     void test_register_and_unregister_as_watcher()

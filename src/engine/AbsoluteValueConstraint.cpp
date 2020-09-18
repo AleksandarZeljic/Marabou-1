@@ -251,15 +251,15 @@ List<PiecewiseLinearCaseSplit> AbsoluteValueConstraint::getCaseSplits() const
 
 List<unsigned> AbsoluteValueConstraint::getAllCases() const
 {
-    return { PHASE_NEGATIVE, PHASE_POSITIVE};
+    return { ABS_PHASE_NEGATIVE, ABS_PHASE_POSITIVE};
 }
 
 
 PiecewiseLinearCaseSplit AbsoluteValueConstraint::getCaseSplit( unsigned phase ) const
 {
-    if ( phase == PHASE_NEGATIVE )
+    if ( phase == ABS_PHASE_NEGATIVE )
         return getNegativeSplit();
-    else if ( phase == PHASE_POSITIVE )
+    else if ( phase == ABS_PHASE_POSITIVE )
         return getPositiveSplit();
     else
         throw MarabouError( MarabouError::REQUESTED_NONEXISTENT_CASE_SPLIT );
@@ -277,7 +277,7 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getNegativeSplit() const
     negativeEquation.addAddend( 1, _f );
     negativeEquation.setScalar( 0 );
     negativePhase.addEquation( negativeEquation );
-    negativePhase.setPhase( PhaseStatus::PHASE_NEGATIVE );
+    negativePhase.setPhase( PhaseStatus::ABS_PHASE_NEGATIVE );
 
     return negativePhase;
 }
@@ -295,7 +295,7 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getPositiveSplit() const
     positiveEquation.addAddend( -1, _f );
     positiveEquation.setScalar( 0 );
     positivePhase.addEquation( positiveEquation );
-    positivePhase.setPhase( PhaseStatus::PHASE_POSITIVE);
+    positivePhase.setPhase( PhaseStatus::ABS_PHASE_POSITIVE);
 
     return positivePhase;
 }
@@ -309,7 +309,7 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getValidCaseSplit() const
 {
     ASSERT( *_phaseStatus != PhaseStatus::PHASE_NOT_FIXED );
 
-    if ( *_phaseStatus == PhaseStatus::PHASE_POSITIVE )
+    if ( *_phaseStatus == PhaseStatus::ABS_PHASE_POSITIVE )
         return getPositiveSplit();
 
     return getNegativeSplit();
@@ -449,14 +449,14 @@ void AbsoluteValueConstraint::fixPhaseIfNeeded()
     // Option 1: b's range is strictly positive
     if ( _lowerBounds.exists( _b ) && _lowerBounds[_b] >= 0 )
     {
-        setPhaseStatus( PHASE_POSITIVE );
+        setPhaseStatus( ABS_PHASE_POSITIVE );
         return;
     }
 
     // Option 2: b's range is strictly negative:
     if ( _upperBounds.exists( _b ) && _upperBounds[_b] <= 0 )
     {
-        setPhaseStatus( PHASE_NEGATIVE );
+        setPhaseStatus( ABS_PHASE_NEGATIVE );
         return;
     }
 
@@ -467,7 +467,7 @@ void AbsoluteValueConstraint::fixPhaseIfNeeded()
     // range
     if ( _upperBounds.exists( _b ) && _lowerBounds[_f] > _upperBounds[_b] )
     {
-        setPhaseStatus( PHASE_NEGATIVE );
+        setPhaseStatus( ABS_PHASE_NEGATIVE );
         return;
     }
 
@@ -475,7 +475,7 @@ void AbsoluteValueConstraint::fixPhaseIfNeeded()
     // range, in absolute value
     if ( _lowerBounds.exists( _b ) && _lowerBounds[_f] > -_lowerBounds[_b] )
     {
-        setPhaseStatus( PHASE_POSITIVE );
+        setPhaseStatus( ABS_PHASE_POSITIVE );
         return;
     }
 }

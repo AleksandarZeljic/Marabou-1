@@ -161,11 +161,11 @@ void ReluConstraint::notifyLowerBound( unsigned variable, double bound )
     _lowerBounds[variable] = bound; // TODO: Replace local copies with calls to BoundManager
 
     if ( variable == _f && FloatUtils::isPositive( bound ) )
-        setPhaseStatus( PhaseStatus::PHASE_ACTIVE );
+        setPhaseStatus( PhaseStatus::RELU_PHASE_ACTIVE );
     else if ( variable == _b && !FloatUtils::isNegative( bound ) )
-        setPhaseStatus( PhaseStatus::PHASE_ACTIVE );
+        setPhaseStatus( PhaseStatus::RELU_PHASE_ACTIVE );
     else if ( variable == _aux && FloatUtils::isPositive( bound ) )
-        setPhaseStatus( PhaseStatus::PHASE_INACTIVE );
+        setPhaseStatus( PhaseStatus::RELU_PHASE_INACTIVE );
 
     if ( nullptr != _constraintActive && isActive()  && nullptr != _boundManager )
     {
@@ -220,10 +220,10 @@ void ReluConstraint::notifyUpperBound( unsigned variable, double bound )
     _upperBounds[variable] = bound;
 
     if ( ( variable == _f || variable == _b ) && !FloatUtils::isPositive( bound ) )
-        setPhaseStatus( PhaseStatus::PHASE_INACTIVE );
+        setPhaseStatus( PhaseStatus::RELU_PHASE_INACTIVE );
 
     if ( _auxVarInUse && variable == _aux && FloatUtils::isZero( bound ) )
-        setPhaseStatus( PhaseStatus::PHASE_ACTIVE );
+        setPhaseStatus( PhaseStatus::RELU_PHASE_ACTIVE );
 
     if ( nullptr != _constraintActive && isActive()  && nullptr != _boundManager )
     {
@@ -313,7 +313,7 @@ List<PiecewiseLinearConstraint::Fix> ReluConstraint::getPossibleFixes() const
         }
         else
         {
-            if ( _direction == PHASE_INACTIVE )
+            if ( _direction == RELU_PHASE_INACTIVE )
             {
                 fixes.append( PiecewiseLinearConstraint::Fix( _f, 0 ) );
                 fixes.append( PiecewiseLinearConstraint::Fix( _b, fValue ) );
@@ -327,7 +327,7 @@ List<PiecewiseLinearConstraint::Fix> ReluConstraint::getPossibleFixes() const
     }
     else
     {
-        if ( _direction == PHASE_ACTIVE )
+        if ( _direction == RELU_PHASE_ACTIVE )
         {
             fixes.append( PiecewiseLinearConstraint::Fix( _f, bValue ) );
             fixes.append( PiecewiseLinearConstraint::Fix( _b, 0 ) );
@@ -469,13 +469,13 @@ List<PiecewiseLinearCaseSplit> ReluConstraint::getCaseSplits() const
 
     List<PiecewiseLinearCaseSplit> splits;
 
-    if ( _direction == PHASE_INACTIVE )
+    if ( _direction == RELU_PHASE_INACTIVE )
     {
         splits.append( getInactiveSplit() );
         splits.append( getActiveSplit() );
         return splits;
     }
-    if ( _direction == PHASE_ACTIVE )
+    if ( _direction == RELU_PHASE_ACTIVE )
     {
         splits.append( getActiveSplit() );
         splits.append( getInactiveSplit() );
@@ -510,11 +510,11 @@ List<PiecewiseLinearCaseSplit> ReluConstraint::getCaseSplits() const
 
 List<unsigned> ReluConstraint::getAllCases() const
 {
-    if ( _direction == PHASE_INACTIVE )
-        return { PHASE_INACTIVE, PHASE_ACTIVE };
+    if ( _direction == RELU_PHASE_INACTIVE )
+        return { RELU_PHASE_INACTIVE, RELU_PHASE_ACTIVE };
 
-    if ( _direction == PHASE_ACTIVE )
-        return { PHASE_ACTIVE, PHASE_INACTIVE };
+    if ( _direction == RELU_PHASE_ACTIVE )
+        return { RELU_PHASE_ACTIVE, RELU_PHASE_INACTIVE };
 
     // If we have existing knowledge about the assignment, use it to
     // influence the order of splits
@@ -522,20 +522,20 @@ List<unsigned> ReluConstraint::getAllCases() const
     if ( _assignment.exists( _f ) )
     {
         if ( FloatUtils::isPositive( _assignment[_f] ) )
-            return { PHASE_ACTIVE, PHASE_INACTIVE };
+            return { RELU_PHASE_ACTIVE, RELU_PHASE_INACTIVE };
         else
-            return { PHASE_INACTIVE, PHASE_ACTIVE };
+            return { RELU_PHASE_INACTIVE, RELU_PHASE_ACTIVE };
     }
     else
-        return { PHASE_INACTIVE, PHASE_ACTIVE };
+        return { RELU_PHASE_INACTIVE, RELU_PHASE_ACTIVE };
 }
 
 
 PiecewiseLinearCaseSplit ReluConstraint::getCaseSplit( unsigned phase ) const
 {
-    if ( phase == PHASE_INACTIVE )
+    if ( phase == RELU_PHASE_INACTIVE )
         return getInactiveSplit();
-    else if ( phase == PHASE_ACTIVE )
+    else if ( phase == RELU_PHASE_ACTIVE )
         return getActiveSplit();
     else
         throw MarabouError( MarabouError::REQUESTED_NONEXISTENT_CASE_SPLIT );
@@ -572,7 +572,7 @@ PiecewiseLinearCaseSplit ReluConstraint::getActiveSplit() const
         activePhase.addEquation( activeEquation );
     }
 
-    activePhase.setPhase(RELU_PHASE_ACTIVE);
+    activePhase.setPhase( RELU_PHASE_ACTIVE);
     return activePhase;
 }
 
@@ -585,7 +585,7 @@ PiecewiseLinearCaseSplit ReluConstraint::getValidCaseSplit() const
 {
     ASSERT( getPhaseStatus() != PhaseStatus::PHASE_NOT_FIXED );
 
-    if ( getPhaseStatus() == PhaseStatus::PHASE_ACTIVE )
+    if ( getPhaseStatus() == PhaseStatus::RELU_PHASE_ACTIVE )
         return getActiveSplit();
 
     return getInactiveSplit();
@@ -665,11 +665,11 @@ void ReluConstraint::eliminateVariable( __attribute__((unused)) unsigned variabl
             {
                 if ( FloatUtils::gt( fixedValue, 0 ) )
                 {
-                    ASSERT( getPhaseStatus() != PHASE_INACTIVE );
+                    ASSERT( getPhaseStatus() != RELU_PHASE_INACTIVE );
                 }
                 else if ( FloatUtils::lt( fixedValue, 0 ) )
                 {
-                    ASSERT( getPhaseStatus() != PHASE_ACTIVE );
+                    ASSERT( getPhaseStatus() != RELU_PHASE_ACTIVE );
                 }
             }
             else
@@ -677,7 +677,7 @@ void ReluConstraint::eliminateVariable( __attribute__((unused)) unsigned variabl
                 // This is the aux variable
                 if ( FloatUtils::isPositive( fixedValue ) )
                 {
-                    ASSERT( getPhaseStatus() != PHASE_ACTIVE );
+                    ASSERT( getPhaseStatus() != RELU_PHASE_ACTIVE );
                 }
             }
         });
@@ -791,10 +791,10 @@ String ReluConstraint::phaseToString( PhaseStatus phase )
     case PHASE_NOT_FIXED:
         return "PHASE_NOT_FIXED";
 
-    case PHASE_ACTIVE:
+    case RELU_PHASE_ACTIVE:
         return "PHASE_ACTIVE";
 
-    case PHASE_INACTIVE:
+    case RELU_PHASE_INACTIVE:
         return "PHASE_INACTIVE";
 
     default:
@@ -966,7 +966,7 @@ double ReluConstraint::computePolarity() const
 
 void ReluConstraint::updateDirection()
 {
-    _direction = ( computePolarity() > 0 ) ? PHASE_ACTIVE : PHASE_INACTIVE;
+    _direction = ( computePolarity() > 0 ) ? RELU_PHASE_ACTIVE : RELU_PHASE_INACTIVE;
 }
 
 ReluConstraint::PhaseStatus ReluConstraint::getDirection() const

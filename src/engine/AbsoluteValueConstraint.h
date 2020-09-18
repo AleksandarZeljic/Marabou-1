@@ -22,12 +22,6 @@ class AbsoluteValueConstraint : public PiecewiseLinearConstraint
 {
 
 public:
-    enum PhaseStatus {
-        PHASE_NOT_FIXED = 0,
-        PHASE_POSITIVE = 1,
-        PHASE_NEGATIVE = 2,
-    };
-
     /*
       The f variable is the absolute value of the b variable:
       f = | b |
