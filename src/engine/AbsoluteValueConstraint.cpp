@@ -113,7 +113,7 @@ void AbsoluteValueConstraint::notifyLowerBound( unsigned variable, double bound 
     fixPhaseIfNeeded();
 
     // Update partner's bound
-    if ( nullptr != _boundManager  && nullptr!= _constraintActive && isActive() )
+    if ( nullptr != _constraintActive && isActive()  && nullptr != _boundManager )
     {
         if ( variable == _b )
         {
@@ -153,7 +153,7 @@ void AbsoluteValueConstraint::notifyUpperBound( unsigned variable, double bound 
     fixPhaseIfNeeded();
 
     // Update partner's bound
-    if ( nullptr != _boundManager  && nullptr!= _constraintActive && isActive() )
+    if ( nullptr != _constraintActive && isActive()  && nullptr != _boundManager )
     {
         if ( variable == _b )
         {
