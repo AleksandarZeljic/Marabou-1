@@ -25,15 +25,9 @@ AbsoluteValueConstraint::AbsoluteValueConstraint( unsigned b, unsigned f )
     : _b( b )
     , _f( f )
     , _haveEliminatedVariables( false )
-    , _phaseStatus( nullptr )
 {
-    //setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
 }
 
-AbsoluteValueConstraint::~AbsoluteValueConstraint()
-{
-    cdoCleanup();
-}
 PiecewiseLinearFunctionType AbsoluteValueConstraint::getType() const
 {
     return PiecewiseLinearFunctionType::ABSOLUTE_VALUE;
@@ -43,20 +37,7 @@ PiecewiseLinearConstraint *AbsoluteValueConstraint::duplicateConstraint() const
 {
     AbsoluteValueConstraint *clone = new AbsoluteValueConstraint( _b, _f );
     *clone = *this;
-
-    if ( nullptr != clone->_context)
-    {
-        ASSERT( nullptr != clone->_constraintActive );
-        clone->_constraintActive = nullptr;
-        clone->initializeActiveStatus();
-        clone->setActiveConstraint( this->isActive() );
-
-        ASSERT( nullptr != clone->_phaseStatus );
-        clone->_phaseStatus = nullptr;
-        clone->initializePhaseStatus();
-        clone->setPhaseStatus( this->getPhaseStatus() );
-    }
-
+    this->initializeDuplicatesCDOs( clone );
     return clone;
 }
 
@@ -480,49 +461,49 @@ void AbsoluteValueConstraint::fixPhaseIfNeeded()
     }
 }
 
-void AbsoluteValueConstraint::initializePhaseStatus()
-{
-    ASSERT( nullptr != _context );
+// void AbsoluteValueConstraint::initializePhaseStatus()
+// {
+//     ASSERT( nullptr != _context );
 
-    if ( nullptr == _phaseStatus )
-        _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, PHASE_NOT_FIXED );
-    else
-        throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
-}
+//     if ( nullptr == _phaseStatus )
+//         _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, PHASE_NOT_FIXED );
+//     else
+//         throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
+// }
 
-void AbsoluteValueConstraint::initializeCDOs( CVC4::context::Context *context )
-{
-    ASSERT( nullptr == _context );
-    _context = context;
+// void AbsoluteValueConstraint::initializeCDOs( CVC4::context::Context *context )
+// {
+//     ASSERT( nullptr == _context );
+//     _context = context;
 
-    initializeActiveStatus();
-    initializePhaseStatus();
-}
+//     initializeActiveStatus();
+//     initializePhaseStatus();
+// }
 
-void AbsoluteValueConstraint::cdoCleanup()
-{
-    if ( nullptr != _phaseStatus )
-        _phaseStatus->deleteSelf();
+// void AbsoluteValueConstraint::cdoCleanup()
+// {
+//     if ( nullptr != _phaseStatus )
+//         _phaseStatus->deleteSelf();
 
-    _phaseStatus = nullptr;
+//     _phaseStatus = nullptr;
 
-    if ( nullptr != _constraintActive )
-        _constraintActive->deleteSelf();
+//     if ( nullptr != _constraintActive )
+//         _constraintActive->deleteSelf();
 
-    _constraintActive= nullptr;
-    _context = nullptr;
-}
+//     _constraintActive= nullptr;
+//     _context = nullptr;
+// }
 
-void AbsoluteValueConstraint::setPhaseStatus( PhaseStatus phaseStatus )
-{
-    ASSERT( nullptr != _phaseStatus );
-    *_phaseStatus = phaseStatus;
-}
+// void AbsoluteValueConstraint::setPhaseStatus( PhaseStatus phaseStatus )
+// {
+//     ASSERT( nullptr != _phaseStatus );
+//     *_phaseStatus = phaseStatus;
+// }
 
-AbsoluteValueConstraint::PhaseStatus AbsoluteValueConstraint::getPhaseStatus() const
-{
-    return *_phaseStatus;
-}
+// AbsoluteValueConstraint::PhaseStatus AbsoluteValueConstraint::getPhaseStatus() const
+// {
+//     return *_phaseStatus;
+// }
 
 
 bool AbsoluteValueConstraint::supportsSymbolicBoundTightening() const

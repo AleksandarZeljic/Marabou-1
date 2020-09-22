@@ -42,6 +42,7 @@ PiecewiseLinearConstraint *DisjunctionConstraint::duplicateConstraint() const
 {
     DisjunctionConstraint *clone = new DisjunctionConstraint( _disjuncts );
     *clone = *this;
+    this->initializeDuplicatesCDOs( clone );
     return clone;
 }
 

@@ -73,15 +73,7 @@ PiecewiseLinearConstraint *MaxConstraint::duplicateConstraint() const
 {
     MaxConstraint *clone = new MaxConstraint( _f, _elements );
     *clone = *this;
-
-    if ( nullptr != clone->_context)
-    {
-        ASSERT( nullptr != clone->_constraintActive );
-        clone->_constraintActive = nullptr;
-        clone->initializeActiveStatus();
-        clone->setActiveConstraint( this->isActive() );
-    }
-
+    this->initializeDuplicatesCDOs( clone );
     return clone;
 }
 

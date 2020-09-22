@@ -262,12 +262,15 @@ public:
      *   3. TODO: perfromImplication does not affect context level.
      *   N. TODO: Additionally, trail and asserted ReLUs are in sync
      */
-    void test_decide_backtack()
+    void test_decide_backtrack()
     {
         Context context;
         SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
+        constraint.initializeCDOs( &context );
+        TS_ASSERT( constraint.isActive() );
+        TS_ASSERT( !constraint.phaseFixed() );
 
         // Split 1
         PiecewiseLinearCaseSplit split1;
@@ -388,6 +391,7 @@ public:
         SmtCore smtCore( engine, context );
 
         MockConstraint constraint1;
+        constraint1.initializeCDOs( &context );
 
         // Split 1_1
         PiecewiseLinearCaseSplit split1_1;
@@ -528,6 +532,7 @@ public:
         SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
+        constraint.initializeCDOs( &context );
 
         // Split 1
         PiecewiseLinearCaseSplit split1;
@@ -688,6 +693,7 @@ public:
         SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
+        constraint.initializeCDOs( &context );
 
         // Split 1
         PiecewiseLinearCaseSplit split1;
@@ -836,6 +842,7 @@ public:
         SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
+        constraint.initializeCDOs( &context );
 
         // Split 1
         PiecewiseLinearCaseSplit split1;
@@ -902,6 +909,7 @@ public:
         SmtCore smtCore( engine, context );
 
         MockConstraint constraint;
+        constraint.initializeCDOs( &context );
 
         // Split 1
         PiecewiseLinearCaseSplit split1;
@@ -951,6 +959,8 @@ public:
 
         // Split 3
         MockConstraint impliedConstraint;
+        impliedConstraint.initializeCDOs( &context );
+
         PiecewiseLinearCaseSplit split3;
         Tightening bound5( 14, 2.3, Tightening::LB );
 
@@ -961,6 +971,7 @@ public:
         // Do another real split
 
         MockConstraint constraint2;
+        constraint2.initializeCDOs( &context );
 
         // Split 4
         PiecewiseLinearCaseSplit split4;
