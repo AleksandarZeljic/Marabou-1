@@ -148,16 +148,16 @@ public:
 
         ReluConstraint relu( b, f );
 
-        List<unsigned> cases = relu.getAllCases();
+        List<PhaseStatus> cases = relu.getAllCases();
 
         TS_ASSERT_EQUALS( cases.size(), 2u );
-        TS_ASSERT_EQUALS( cases.front(), PiecewiseLinearConstraint::RELU_PHASE_INACTIVE );
-        TS_ASSERT_EQUALS( cases.back(), PiecewiseLinearConstraint::RELU_PHASE_ACTIVE );
+        TS_ASSERT_EQUALS( cases.front(), RELU_PHASE_INACTIVE );
+        TS_ASSERT_EQUALS( cases.back(), RELU_PHASE_ACTIVE );
 
         List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
         TS_ASSERT_EQUALS( splits.size(), 2u );
-        TS_ASSERT_EQUALS( splits.front(), relu.getCaseSplit( PiecewiseLinearConstraint::RELU_PHASE_INACTIVE ) ) ;
-        TS_ASSERT_EQUALS( splits.back(), relu.getCaseSplit( PiecewiseLinearConstraint::RELU_PHASE_ACTIVE ) ) ;
+        TS_ASSERT_EQUALS( splits.front(), relu.getCaseSplit( RELU_PHASE_INACTIVE ) ) ;
+        TS_ASSERT_EQUALS( splits.back(), relu.getCaseSplit( RELU_PHASE_ACTIVE ) ) ;
     }
 
     void test_relu_context_dependent_state()
@@ -172,22 +172,22 @@ public:
 
 
 
-        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_NOT_FIXED );
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), PHASE_NOT_FIXED );
 
         context.push();
 
         relu.notifyLowerBound( f, 1 );
-        TS_ASSERT_EQUALS( relu.getPhaseStatus(), PiecewiseLinearConstraint::RELU_PHASE_ACTIVE );
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), RELU_PHASE_ACTIVE );
 
         context.pop();
-        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_NOT_FIXED );
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), PHASE_NOT_FIXED );
 
         context.push();
         relu.notifyUpperBound( b, -1 );
-        TS_ASSERT_EQUALS( relu.getPhaseStatus(), PiecewiseLinearConstraint::RELU_PHASE_INACTIVE );
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), RELU_PHASE_INACTIVE );
 
         context.pop();
-        TS_ASSERT_EQUALS( relu.getPhaseStatus(), ReluConstraint::PhaseStatus::PHASE_NOT_FIXED );
+        TS_ASSERT_EQUALS( relu.getPhaseStatus(), PHASE_NOT_FIXED );
     }
 
     void test_relu_fixes()
@@ -1327,7 +1327,7 @@ public:
             TS_ASSERT( relu.computePolarity() == 1 );
 
             relu.updateDirection();
-            TS_ASSERT( relu.getDirection() == PiecewiseLinearConstraint::RELU_PHASE_ACTIVE );
+            TS_ASSERT( relu.getDirection() == RELU_PHASE_ACTIVE );
         }
         // b in [-2, 0], polarity should be -1, and direction should be RELU_PHASE_INACTIVE
         {
@@ -1340,7 +1340,7 @@ public:
             TS_ASSERT( relu.computePolarity() == -1 );
 
             relu.updateDirection();
-            TS_ASSERT( relu.getDirection() == PiecewiseLinearConstraint::RELU_PHASE_INACTIVE );
+            TS_ASSERT( relu.getDirection() == RELU_PHASE_INACTIVE );
         }
         // b in [-2, 2], polarity should be 0, the direction should be RELU_PHASE_INACTIVE,
         // the inactive case should be the first element of the returned list by
@@ -1356,7 +1356,7 @@ public:
             TS_ASSERT( relu.computePolarity() == 0 );
 
             relu.updateDirection();
-            TS_ASSERT( relu.getDirection() == PiecewiseLinearConstraint::RELU_PHASE_INACTIVE );
+            TS_ASSERT( relu.getDirection() == RELU_PHASE_INACTIVE );
 
             auto splits = relu.getCaseSplits();
             auto it = splits.begin();
@@ -1391,7 +1391,7 @@ public:
             TS_ASSERT( relu.computePolarity() == 0.2 );
 
             relu.updateDirection();
-            TS_ASSERT( relu.getDirection() == PiecewiseLinearConstraint::RELU_PHASE_ACTIVE );
+            TS_ASSERT( relu.getDirection() == RELU_PHASE_ACTIVE );
 
             auto splits = relu.getCaseSplits();
             auto it = splits.begin();

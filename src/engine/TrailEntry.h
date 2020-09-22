@@ -27,14 +27,14 @@ class TrailEntry
 public:
   PiecewiseLinearConstraint * _pwlConstraint;
   unsigned _phase;
-  List<unsigned> _alternativeSplits;
+  List<PhaseStatus> _alternativeSplits;
 
   PiecewiseLinearCaseSplit getPiecewiseLinearCaseSplit() const
   {
       return _pwlConstraint->getCaseSplit( _phase );
   }
 
- TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase, List<unsigned> &alternatives )
+ TrailEntry(PiecewiseLinearConstraint * pwlc, unsigned phase, List<PhaseStatus> &alternatives )
     : _pwlConstraint( pwlc )
     , _phase( phase )
     , _alternativeSplits( alternatives )

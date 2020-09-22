@@ -34,7 +34,7 @@ ReluConstraint::ReluConstraint( unsigned b, unsigned f )
     : _b( b )
     , _f( f )
     , _auxVarInUse( false )
-    , _direction( PhaseStatus::PHASE_NOT_FIXED )
+    , _direction( PHASE_NOT_FIXED )
     , _haveEliminatedVariables( false )
 {
 }
@@ -442,7 +442,7 @@ List<PiecewiseLinearConstraint::Fix> ReluConstraint::getSmartFixes( ITableau *ta
 
 List<PiecewiseLinearCaseSplit> ReluConstraint::getCaseSplits() const
 {
-    // if ( getPhaseStatus() != PhaseStatus::PHASE_NOT_FIXED )
+    // if ( getPhaseStatus() != PHASE_NOT_FIXED )
     //    throw MarabouError( MarabouError::REQUESTED_CASE_SPLITS_FROM_FIXED_CONSTRAINT );
 
     List<PiecewiseLinearCaseSplit> splits;
@@ -486,7 +486,7 @@ List<PiecewiseLinearCaseSplit> ReluConstraint::getCaseSplits() const
     return splits;
 }
 
-List<unsigned> ReluConstraint::getAllCases() const
+List<PhaseStatus> ReluConstraint::getAllCases() const
 {
     if ( _direction == RELU_PHASE_INACTIVE )
         return { RELU_PHASE_INACTIVE, RELU_PHASE_ACTIVE };
@@ -556,12 +556,12 @@ PiecewiseLinearCaseSplit ReluConstraint::getActiveSplit() const
 
 bool ReluConstraint::phaseFixed() const
 {
-    return getPhaseStatus() != PhaseStatus::PHASE_NOT_FIXED;
+    return getPhaseStatus() != PHASE_NOT_FIXED;
 }
 
 PiecewiseLinearCaseSplit ReluConstraint::getValidCaseSplit() const
 {
-    ASSERT( getPhaseStatus() != PhaseStatus::PHASE_NOT_FIXED );
+    ASSERT( getPhaseStatus() != PHASE_NOT_FIXED );
 
     if ( getPhaseStatus() == PhaseStatus::RELU_PHASE_ACTIVE )
         return getActiveSplit();
@@ -900,7 +900,7 @@ unsigned ReluConstraint::getF() const
     return _f;
 }
 
-ReluConstraint::PhaseStatus ReluConstraint::getPhaseStatus() const
+PhaseStatus ReluConstraint::getPhaseStatus() const
 {
     return *_phaseStatus;
 }
@@ -941,7 +941,7 @@ void ReluConstraint::updateDirection()
     _direction = ( computePolarity() > 0 ) ? RELU_PHASE_ACTIVE : RELU_PHASE_INACTIVE;
 }
 
-ReluConstraint::PhaseStatus ReluConstraint::getDirection() const
+PhaseStatus ReluConstraint::getDirection() const
 {
     return _direction;
 }

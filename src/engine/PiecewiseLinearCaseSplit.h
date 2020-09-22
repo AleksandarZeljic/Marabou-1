@@ -23,17 +23,7 @@
 #include "Tightening.h"
 #include "PiecewiseLinearConstraint.h"
 
-
-// TODO: Add all the other phases into this enumeration?
-enum PWLCPhaseStatus {
-                      PHASE_NOT_FIXED = 0,
-                      RELU_PHASE_ACTIVE = 1,
-                      RELU_PHASE_INACTIVE = 2,
-                      ABS_BOTH_POSITIVE = 4,
-                      ABS_BOTH_NEGATIVE = 5,
-                      ABS_POSITIVE_NEGATIVE = 6,
-                      ABS_NEGATIVE_POSITIVE = 7,
-};
+enum PhaseStatus : unsigned;
 
 class PiecewiseLinearCaseSplit
 {
@@ -66,8 +56,8 @@ public:
     */
     void updateVariableIndex( unsigned oldIndex, unsigned newIndex );
 
-    unsigned getPhase() { return _phase; }
-    void setPhase(unsigned phase) { _phase = phase; }
+    PhaseStatus getPhase() { return _phase; }
+    void setPhase(PhaseStatus phase) { _phase = phase; }
 
 private:
     /*
@@ -83,7 +73,7 @@ private:
     /*
      * PhaseStatus
      */
-    unsigned _phase;
+    PhaseStatus _phase;
 };
 
 #endif // __PiecewiseLinearCaseSplit_h__

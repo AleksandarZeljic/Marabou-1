@@ -34,17 +34,17 @@ class ITableau;
 class InputQuery;
 class String;
 
-class PiecewiseLinearConstraint : public ITableau::VariableWatcher
-{
-public:
-    enum PhaseStatus : unsigned {
-        PHASE_NOT_FIXED = 0,
+enum PhaseStatus : unsigned {
+    PHASE_NOT_FIXED = 0,
         RELU_PHASE_ACTIVE = 1,
         RELU_PHASE_INACTIVE = 2,
         ABS_PHASE_POSITIVE = 3,
         ABS_PHASE_NEGATIVE = 4,
-    };
+        };
 
+class PiecewiseLinearConstraint : public ITableau::VariableWatcher
+{
+public:
 
     /*
       A possible fix for a violated piecewise linear constraint: a
@@ -172,7 +172,7 @@ public:
      * Returns a list of all cases of this constraint
      * TODO: unsigned -> Phase
      */
-    virtual List<unsigned> getAllCases() const = 0;
+    virtual List<PhaseStatus> getAllCases() const = 0;
 
     /*
      * Returns case split corresponding to the given phase/id
@@ -301,32 +301,12 @@ public:
        as _phaseStatus and _activeStatus. Does not require initialization until
        after pre-processing.
      */
-    void initializeCDOs( CVC4::context::Context *context )
-    {
-        ASSERT( nullptr == _context );
-        _context = context;
-
-        initializeActiveStatus();
-        initializePhaseStatus();
-    }
+    void initializeCDOs( CVC4::context::Context *context );
 
     /*
-       Politely clean up allocated CDOs
+       Politely clean up allocated CDOs.
      */
-    void cdoCleanup()
-    {
-        if ( nullptr != _constraintActive )
-            _constraintActive->deleteSelf();
-
-        _constraintActive= nullptr;
-
-        if ( nullptr != _phaseStatus )
-            _phaseStatus->deleteSelf();
-
-        _phaseStatus = nullptr;
-
-        _context = nullptr;
-    }
+    void cdoCleanup();
 
     CVC4::context::Context *getContext() const
     {
@@ -396,19 +376,14 @@ protected:
     Statistics *_statistics;
 
     /*
-      Initialize _activeStatus CDO.
+      Initialize CDOs.
     */
     void initializeActiveStatus();
+    void initializePhaseStatus();
+    void initializeDuplicatesCDOs( PiecewiseLinearConstraint *clone ) const;
 
     void setPhaseStatus( PhaseStatus phaseStatus );
     PhaseStatus getPhaseStatus() const;
-
-    /*
-      Initialize _phaseStatus. 
-    */
-    void initializePhaseStatus();
-
-    void initializeDuplicatesCDOs( PiecewiseLinearConstraint *clone ) const;
 
 };
 

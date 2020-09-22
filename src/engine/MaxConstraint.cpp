@@ -386,11 +386,11 @@ List<PiecewiseLinearCaseSplit> MaxConstraint::getCaseSplits() const
     return splits;
 }
 
-List<unsigned> MaxConstraint::getAllCases() const
+List<PhaseStatus> MaxConstraint::getAllCases() const
 {
-    List<unsigned> cases;
+    List<PhaseStatus> cases;
     for ( auto e : _elements )
-        cases.append( e );
+        cases.append( static_cast<PhaseStatus>( e ) );
 
     return cases;
 }
