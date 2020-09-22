@@ -18,6 +18,7 @@
 
 #include "context/context.h"
 #include "context/cdo.h"
+#include "context/cdlist.h"
 #include "FloatUtils.h"
 #include "ITableau.h"
 #include "List.h"
@@ -329,26 +330,23 @@ public:
             return _phaseStatus;
     }
 
-    // TODO: Context-dependent Exploration tracking
-    // Add CDList<PhaseStatus> infeasibleCases;
     // Add to initializeCDOs and cdoCleanup
-    // void markInfeasible( PhaseStatus exploredCase );
-    // PhaseStatus nextFeasibleCase();
 
-    /* void markInfeasible( PhaseStatus infeasibleCase ) */
-    /* { */
-    /*     _infeasibleCases.pushBack( infeasibleCase ); */
-    /* } */
+    /*
+       Mark that exploredCase is infeasible.
+     */
+    void markInfeasible( PhaseStatus exploredCase );
 
-    /* PhaseStatus nextFeasibleCase() //O(n^2) - using size to detect infeasible and implications, flagging the last case could also work */
-    /* { */
-    /*     //if ( _ind) */
-    /* } */
+    /*
+      Retrieve next feasible case; Worst case O(n^2)
+      Returns PhaseStatus representing next feasible case.
+      Returns PHASE_NOT_FIXED if no feasible case exists.
+     */
+    PhaseStatus nextFeasibleCase();
 
 protected:
     CVC4::context::Context *_context;
     CVC4::context::CDO<bool> *_constraintActive;
-
 
     /* ReluConstraint and AbsoluteValueConstraint use PhaseStatus enumeration.
        MaxConstraint and Disjunction interpret the PhaseStatus value as the case
@@ -356,7 +354,10 @@ protected:
     */
     CVC4::context::CDO<PhaseStatus> *_phaseStatus;
 
-    //CVC4::context::CDList<PhaseStatus> *_infeasibleCases;
+    /*
+      Store infeasible cases under the current trail. Backtracks with context.
+    */
+    CVC4::context::CDList<PhaseStatus> *_infeasibleCases;
 
     Map<unsigned, double> _assignment;
     Map<unsigned, double> _lowerBounds;
@@ -381,6 +382,7 @@ protected:
     void initializeActiveStatus();
     void initializePhaseStatus();
     void initializeDuplicatesCDOs( PiecewiseLinearConstraint *clone ) const;
+    void initializeInfeasibleCases();
 
     void setPhaseStatus( PhaseStatus phaseStatus );
     PhaseStatus getPhaseStatus() const;

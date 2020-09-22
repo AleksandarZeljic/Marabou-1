@@ -20,6 +20,7 @@ PiecewiseLinearConstraint::PiecewiseLinearConstraint()
     : _context( nullptr )
     , _constraintActive( nullptr )
     , _phaseStatus( nullptr )
+    , _infeasibleCases( nullptr )
     , _score( -1 )
     , _boundManager( nullptr )
     , _statistics( nullptr )
@@ -43,6 +44,7 @@ void PiecewiseLinearConstraint::initializeCDOs( CVC4::context::Context *context 
 
     initializeActiveStatus();
     initializePhaseStatus();
+    initializeInfeasibleCases();
 }
 
 void PiecewiseLinearConstraint::cdoCleanup()
@@ -57,7 +59,19 @@ void PiecewiseLinearConstraint::cdoCleanup()
 
     _phaseStatus = nullptr;
 
+    if ( nullptr != _infeasibleCases )
+        _infeasibleCases->deleteSelf();
+
+    _infeasibleCases = nullptr;
+
     _context = nullptr;
+}
+
+void PiecewiseLinearConstraint::initializeInfeasibleCases()
+{
+    ASSERT( nullptr != _context );
+    ASSERT( nullptr == _infeasibleCases );
+    _infeasibleCases = new (true) CVC4::context::CDList<PhaseStatus>( _context );
 }
 
 void PiecewiseLinearConstraint::initializeActiveStatus()
@@ -100,8 +114,38 @@ void PiecewiseLinearConstraint::initializeDuplicatesCDOs( PiecewiseLinearConstra
         clone->_phaseStatus = nullptr;
         clone->initializePhaseStatus();
         clone->setPhaseStatus( this->getPhaseStatus() );
+
+        ASSERT( nullptr != clone->_infeasibleCases );
+        clone->_infeasibleCases = nullptr;
+        clone->initializeInfeasibleCases();
+        // Does not copy contents
     }
 }
+
+void PiecewiseLinearConstraint::markInfeasible( PhaseStatus infeasibleCase )
+{
+    _infeasibleCases->push_back( infeasibleCase );
+}
+
+PhaseStatus PiecewiseLinearConstraint::nextFeasibleCase()
+{
+    List<PhaseStatus> allCases = getAllCases();
+
+    if ( _infeasibleCases->size() == allCases.size() )
+        return PHASE_NOT_FIXED;
+
+    for ( PhaseStatus thisCase : allCases)
+    {
+        auto loc = std::find( _infeasibleCases->begin(), _infeasibleCases->end(), thisCase );
+        if ( _infeasibleCases->end() != loc )
+            return thisCase;
+    }
+
+    //UNREACHABLE
+    ASSERT( false );
+    return PHASE_NOT_FIXED;
+}
+
 
 void PiecewiseLinearConstraint::dump() const
 {
@@ -109,6 +153,7 @@ void PiecewiseLinearConstraint::dump() const
     dump( output );
     printf( "%s", output.ascii() );
 }
+
 //
 // Local Variables:
 // compile-command: "make -C ../.. "
