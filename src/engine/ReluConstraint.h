@@ -30,14 +30,14 @@ public:
     */
     ReluConstraint( unsigned b, unsigned f );
     ReluConstraint( const String &serializedRelu );
-    ~ReluConstraint();
+
     /*
       Get the type of this constraint.
     */
     PiecewiseLinearFunctionType getType() const;
 
     /*
-      Return a clone of the constraint.
+      Return a clone of the constraint. Allocates CDOs for the copy.
     */
     PiecewiseLinearConstraint *duplicateConstraint() const;
 
@@ -165,14 +165,6 @@ public:
     unsigned getF() const;
 
     /*
-      Get the current phase status. Debugging purposes only
-    */
-    CVC4::context::CDO<PhaseStatus> *getPhaseStatusCDO() const
-    {
-        return _phaseStatus;
-    }
-
-    /*
       Get the current phase status.
     */
     PhaseStatus getPhaseStatus() const;
@@ -214,17 +206,8 @@ public:
 
     void updateScore();
 
-    /*
-       initializePhaseStatus
-     */
-    void initializePhaseStatus();
-    void initializeCDOs( CVC4::context::Context *context );
-    void cdoCleanup();
-
 private:
     unsigned _b, _f;
-    //CVC4::context::Context *_context;
-    CVC4::context::CDO<PhaseStatus> *_phaseStatus;
     bool _auxVarInUse;
     unsigned _aux;
 
@@ -238,11 +221,6 @@ private:
     PiecewiseLinearCaseSplit getActiveSplit() const;
 
     bool _haveEliminatedVariables;
-
-    /*
-      Set the phase status.
-    */
-    void setPhaseStatus( PhaseStatus phaseStatus );
 
     static String phaseToString( PhaseStatus phase );
 

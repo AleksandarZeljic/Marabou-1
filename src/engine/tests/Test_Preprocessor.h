@@ -308,6 +308,7 @@ public:
         TS_ASSERT( FloatUtils::areEqual( processed.getUpperBound( 9 ), 1 ) );
         TS_ASSERT( FloatUtils::areEqual( processed.getLowerBound( 10 ), -1 ) );
         TS_ASSERT( FloatUtils::areEqual( processed.getUpperBound( 10 ), 0 ) );
+
     }
 
 	void test_tighten_bounds_using_equations_and_constraints()
@@ -368,6 +369,7 @@ public:
         TS_ASSERT( FloatUtils::areEqual( processed.getUpperBound( 5 ), 6.5 ) );
         TS_ASSERT( FloatUtils::areEqual( processed.getLowerBound( 6 ), 5.5 ) );
         TS_ASSERT( FloatUtils::areEqual( processed.getUpperBound( 6 ), 7 ) );
+
     }
 
 	void test_variable_elimination()

@@ -27,7 +27,6 @@ public:
       f = | b |
     */
     AbsoluteValueConstraint( unsigned b, unsigned f );
-    ~AbsoluteValueConstraint();
 
     /*
       Get the type of this constraint.
@@ -35,7 +34,7 @@ public:
     PiecewiseLinearFunctionType getType() const;
 
     /*
-      Return a clone of the constraint.
+      Return a clone of the constraint. Allocates CDOs for the copy.
     */
     PiecewiseLinearConstraint *duplicateConstraint() const;
 
@@ -151,20 +150,6 @@ public:
     */
     bool supportsSymbolicBoundTightening() const;
 
-
-    void initializePhaseStatus();
-    void initializeCDOs( CVC4::context::Context *context );
-    void cdoCleanup();
-
-    /*
-      Get the current phase status. Debugging purposes only
-    */
-    CVC4::context::CDO<PhaseStatus> *getPhaseStatusCDO() const
-    {
-        return _phaseStatus;
-    }
-
-
 private:
     /*
       The variables that make up this constraint; _f = | _b |.
@@ -175,14 +160,6 @@ private:
       True iff _b or _f have been eliminated.
     */
     bool _haveEliminatedVariables;
-
-    /*
-      The phase status of this constraint: positive, negative, or not
-      yet fixed.
-    */
-    CVC4::context::CDO<PhaseStatus> *_phaseStatus;
-    void setPhaseStatus( PhaseStatus phaseStatus );
-    PhaseStatus getPhaseStatus() const;
 
     /*
       The two case splits.

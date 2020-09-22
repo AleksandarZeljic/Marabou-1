@@ -107,9 +107,33 @@ public:
 		TS_ASSERT( max.satisfied() );
 	}
 
-	void test_max_fixes()
-	{
+    void test_initialization_of_CDOs()
+    {
+        CVC4::context::Context context;
+
         unsigned f = 1;
+        Set<unsigned> elements;
+
+        for ( unsigned i = 2; i < 10; ++i )
+            elements.insert( i );
+
+        MaxConstraint *max1 =  new MaxConstraint ( f, elements );
+
+        TS_ASSERT_EQUALS( max1->getContext(), nullptr );
+
+        TS_ASSERT_EQUALS( max1->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( max1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_THROWS_NOTHING( max1->initializeCDOs( &context ) );
+        TS_ASSERT_EQUALS( max1->getContext(), &context );
+        TS_ASSERT_DIFFERS( max1->getActiveStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( max1->getPhaseStatusCDO(), nullptr );
+
+        TS_ASSERT_THROWS_NOTHING( delete max1 );
+    }
+
+void test_max_fixes()
+	{
+      unsigned f = 1;
 		Set<unsigned> elements;
 
 		for ( unsigned i = 2; i < 10; ++i )

@@ -32,7 +32,7 @@ public:
     PiecewiseLinearFunctionType getType() const;
 
     /*
-      Return a clone of the constraint.
+      Return a clone of the constraint. Allocates CDOs for the copy.
     */
     PiecewiseLinearConstraint *duplicateConstraint() const;
 

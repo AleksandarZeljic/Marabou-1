@@ -71,7 +71,7 @@ public:
     };
 
     PiecewiseLinearConstraint();
-
+    PiecewiseLinearConstraint( const PiecewiseLinearConstraint &original );
     virtual ~PiecewiseLinearConstraint()
     {
         cdoCleanup();
@@ -88,7 +88,7 @@ public:
     virtual PiecewiseLinearFunctionType getType() const = 0;
 
     /*
-      Return a clone of the constraint.
+      Return a clone of the constraint. Allocates CDOs for the copy.
     */
     virtual PiecewiseLinearConstraint *duplicateConstraint() const = 0;
 
@@ -123,14 +123,14 @@ public:
             throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
     }
 
-    virtual bool isActive() const
+    bool isActive() const
     {
         if ( nullptr != _constraintActive )
             return *_constraintActive;
 
         else
             throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
-        //ASSERT( false );
+
         return true;
     }
 
@@ -301,20 +301,30 @@ public:
        as _phaseStatus and _activeStatus. Does not require initialization until
        after pre-processing.
      */
-    virtual void initializeCDOs( CVC4::context::Context *context )
+    void initializeCDOs( CVC4::context::Context *context )
     {
         ASSERT( nullptr == _context );
         _context = context;
 
         initializeActiveStatus();
+        initializePhaseStatus();
     }
 
-    virtual void cdoCleanup()
+    /*
+       Politely clean up allocated CDOs
+     */
+    void cdoCleanup()
     {
         if ( nullptr != _constraintActive )
             _constraintActive->deleteSelf();
 
         _constraintActive= nullptr;
+
+        if ( nullptr != _phaseStatus )
+            _phaseStatus->deleteSelf();
+
+        _phaseStatus = nullptr;
+
         _context = nullptr;
     }
 
@@ -324,16 +334,34 @@ public:
     }
 
     /*
-      Get _activeStatus CDO - debugging purposes only
+      Get the active status object - debugging purposes only
     */
     CVC4::context::CDO<bool> *getActiveStatusCDO() const
     {
         return _constraintActive;
     };
 
+    /*
+      Get the current phase status object - debugging purposes only
+    */
+    CVC4::context::CDO<PhaseStatus> *getPhaseStatusCDO() const
+    {
+            return _phaseStatus;
+    }
+
 protected:
     CVC4::context::Context *_context;
     CVC4::context::CDO<bool> *_constraintActive;
+
+
+    /* ReluConstraint and AbsoluteValueConstraint use PhaseStatus enumeration.
+       MaxConstraint and Disjunction interpret the PhaseStatus value as the case
+       number (counts from 1, value 0 is reserved and used as PHASE_NOT_FIXED).
+    */
+    CVC4::context::CDO<PhaseStatus> *_phaseStatus;
+
+    //CVC4::context::CDList<PhaseStatus> *_infeasibleCases;
+
     Map<unsigned, double> _assignment;
     Map<unsigned, double> _lowerBounds;
     Map<unsigned, double> _upperBounds;
@@ -356,14 +384,15 @@ protected:
     */
     void initializeActiveStatus();
 
+    void setPhaseStatus( PhaseStatus phaseStatus );
+    PhaseStatus getPhaseStatus() const;
 
     /*
-      Initialize _phaseStatus or equivalent.
-      TODO: We could make the entire class parametric in PhaseStatus and handle
-      CDO uniformly here like the _activeStatus.
+      Initialize _phaseStatus. 
     */
-    virtual void initializePhaseStatus() {};
+    void initializePhaseStatus();
 
+    void initializeDuplicatesCDOs( PiecewiseLinearConstraint *clone ) const;
 
 };
 

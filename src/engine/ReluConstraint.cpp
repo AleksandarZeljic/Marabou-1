@@ -33,17 +33,14 @@
 ReluConstraint::ReluConstraint( unsigned b, unsigned f )
     : _b( b )
     , _f( f )
-    , _phaseStatus( nullptr )
     , _auxVarInUse( false )
     , _direction( PhaseStatus::PHASE_NOT_FIXED )
     , _haveEliminatedVariables( false )
 {
-    //setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
 }
 
 ReluConstraint::ReluConstraint( const String &serializedRelu )
-    : _phaseStatus( nullptr )
-    , _haveEliminatedVariables( false )
+    : _haveEliminatedVariables( false )
 {
     String constraintType = serializedRelu.substring( 0, 4 );
     ASSERT( constraintType == String( "relu" ) );
@@ -75,12 +72,6 @@ ReluConstraint::ReluConstraint( const String &serializedRelu )
         _auxVarInUse = true;
     }
 
-    //    setPhaseStatus( PhaseStatus::PHASE_NOT_FIXED );
-}
-
-ReluConstraint::~ReluConstraint()
-{
-    cdoCleanup();
 }
 
 PiecewiseLinearFunctionType ReluConstraint::getType() const
@@ -92,20 +83,7 @@ PiecewiseLinearConstraint *ReluConstraint::duplicateConstraint() const
 {
     ReluConstraint *clone = new ReluConstraint( _b, _f );
     *clone = *this;
-
-    if ( nullptr != clone->_context)
-    {
-        ASSERT( nullptr != clone->_constraintActive );
-        clone->_constraintActive = nullptr;
-        clone->initializeActiveStatus();
-        clone->setActiveConstraint( this->isActive() );
-
-        ASSERT( nullptr != clone->_phaseStatus );
-        clone->_phaseStatus = nullptr;
-        clone->initializePhaseStatus();
-        clone->setPhaseStatus( this->getPhaseStatus() );
-    }
-
+    this->initializeDuplicatesCDOs( clone );
     return clone;
 }
 
@@ -792,7 +770,7 @@ String ReluConstraint::phaseToString( PhaseStatus phase )
         return "PHASE_NOT_FIXED";
 
     case RELU_PHASE_ACTIVE:
-        return "PHASE_ACTIVE";
+        return "RELU_PHASE_ACTIVE";
 
     case RELU_PHASE_INACTIVE:
         return "PHASE_INACTIVE";
@@ -801,12 +779,6 @@ String ReluConstraint::phaseToString( PhaseStatus phase )
         return "UNKNOWN";
     }
 };
-
-void ReluConstraint::setPhaseStatus( PhaseStatus phaseStatus )
-{
-    ASSERT( nullptr != _phaseStatus );
-    *_phaseStatus = phaseStatus;
-}
 
 void ReluConstraint::addAuxiliaryEquations( InputQuery &inputQuery )
 {
@@ -977,40 +949,6 @@ ReluConstraint::PhaseStatus ReluConstraint::getDirection() const
 void ReluConstraint::updateScore()
 {
     _score = std::abs( computePolarity() );
-}
-
-void ReluConstraint::initializePhaseStatus()
-{
-    ASSERT( nullptr != _context );
-
-    if ( nullptr == _phaseStatus )
-        _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, PHASE_NOT_FIXED );
-    else
-        throw MarabouError( MarabouError::PIECEWISELINEAR_CONSTRAINT_NOT_PROPERLY_INITIALIZED );
-}
-
-
-void ReluConstraint::initializeCDOs( CVC4::context::Context *context )
-{
-    ASSERT( nullptr == _context );
-    _context = context;
-
-    initializeActiveStatus();
-    initializePhaseStatus();
-}
-
-void ReluConstraint::cdoCleanup()
-{
-    if ( nullptr != _phaseStatus )
-        _phaseStatus->deleteSelf();
-
-    _phaseStatus = nullptr;
-
-    if ( nullptr != _constraintActive )
-        _constraintActive->deleteSelf();
-
-    _constraintActive= nullptr;
-    _context = nullptr;
 }
 
 //

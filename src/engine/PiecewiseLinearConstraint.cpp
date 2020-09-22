@@ -19,6 +19,7 @@
 PiecewiseLinearConstraint::PiecewiseLinearConstraint()
     : _context( nullptr )
     , _constraintActive( nullptr )
+    , _phaseStatus( nullptr )
     , _score( -1 )
     , _boundManager( nullptr )
     , _statistics( nullptr )
@@ -39,8 +40,42 @@ void PiecewiseLinearConstraint::initializeActiveStatus()
 {
     ASSERT( nullptr != _context );
     ASSERT( nullptr == _constraintActive );
-    _constraintActive = new (true) CVC4::context::CDO<bool>( _context );
-    *_constraintActive = true;
+    _constraintActive = new (true) CVC4::context::CDO<bool>( _context, true );
+}
+
+void PiecewiseLinearConstraint::initializePhaseStatus()
+{
+    ASSERT( nullptr != _context );
+    ASSERT( nullptr == _phaseStatus );
+    _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, PHASE_NOT_FIXED );
+}
+
+PiecewiseLinearConstraint::PhaseStatus PiecewiseLinearConstraint::getPhaseStatus() const
+{
+    ASSERT( nullptr != _phaseStatus );
+    return *_phaseStatus;
+}
+
+void PiecewiseLinearConstraint::setPhaseStatus( PhaseStatus phaseStatus )
+{
+    ASSERT( nullptr != _phaseStatus );
+    *_phaseStatus = phaseStatus;
+}
+
+void PiecewiseLinearConstraint::initializeDuplicatesCDOs( PiecewiseLinearConstraint *clone ) const
+{
+    if ( nullptr != clone->_context)
+    {
+        ASSERT( nullptr != clone->_constraintActive );
+        clone->_constraintActive = nullptr;
+        clone->initializeActiveStatus();
+        clone->setActiveConstraint( this->isActive() );
+
+        ASSERT( nullptr != clone->_phaseStatus );
+        clone->_phaseStatus = nullptr;
+        clone->initializePhaseStatus();
+        clone->setPhaseStatus( this->getPhaseStatus() );
+    }
 }
 
 void PiecewiseLinearConstraint::dump() const
