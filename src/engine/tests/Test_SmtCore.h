@@ -126,9 +126,9 @@ public:
             return dontCare;
         }
 
-        List<unsigned> getAllCases() const
+        List<PhaseStatus> getAllCases() const
         {
-            List<unsigned> result;
+            List<PhaseStatus> result;
             for ( auto c : nextSplits )
                 result.append( c.getPhase() );
             return result;
@@ -286,7 +286,7 @@ public:
         split1.storeBoundTightening( bound1 );
         split1.storeBoundTightening( bound2 );
         split1.addEquation( equation1 );
-        split1.setPhase(0u);
+        split1.setPhase( static_cast<PhaseStatus>( 0u ) );
 
         // Split 2
         PiecewiseLinearCaseSplit split2;
@@ -301,7 +301,7 @@ public:
         split2.storeBoundTightening( bound3 );
         split2.storeBoundTightening( bound4 );
         split2.addEquation( equation2 );
-        split2.setPhase(1u);
+        split2.setPhase( static_cast<PhaseStatus>( 1u ) );
 
         // Split 3
         PiecewiseLinearCaseSplit split3;
@@ -310,7 +310,7 @@ public:
         split3.storeBoundTightening( bound5 );
         split3.addEquation( equation1 );
         split3.addEquation( equation2 );
-        split3.setPhase(2u);
+        split3.setPhase( static_cast<PhaseStatus>( 2u ) );
 
         // Store the splits
         constraint.nextSplits.append( split1 );
@@ -407,7 +407,7 @@ public:
         split1_1.storeBoundTightening( bound1_1 );
         split1_1.storeBoundTightening( bound1_2 );
         split1_1.addEquation( equation1_1 );
-        split1_1.setPhase(0u);
+        split1_1.setPhase( static_cast<PhaseStatus>( 0u ) );
 
         // Split 1_2
         PiecewiseLinearCaseSplit split1_2;
@@ -422,7 +422,7 @@ public:
         split1_2.storeBoundTightening( bound1_3 );
         split1_2.storeBoundTightening( bound1_4 );
         split1_2.addEquation( equation1_2 );
-        split1_2.setPhase(1u);
+        split1_2.setPhase( static_cast<PhaseStatus>( 1u ) );
 
         // Split 1_3
         PiecewiseLinearCaseSplit split1_3;
@@ -431,7 +431,7 @@ public:
         split1_3.storeBoundTightening( bound1_5 );
         split1_3.addEquation( equation1_1 );
         split1_3.addEquation( equation1_2 );
-        split1_3.setPhase(2u);
+        split1_3.setPhase( static_cast<PhaseStatus>( 2u ) );
 
         // Store the splits
         constraint1.nextSplits.append( split1_1 );
@@ -454,7 +454,7 @@ public:
         split2_1.storeBoundTightening( bound2_1 );
         split2_1.storeBoundTightening( bound2_2 );
         split2_1.addEquation( equation2_1 );
-        split2_1.setPhase(0u);
+        split2_1.setPhase( static_cast<PhaseStatus>( 0u ) );
 
         // Split2_2
         PiecewiseLinearCaseSplit split2_2;
@@ -469,7 +469,7 @@ public:
         split2_2.storeBoundTightening( bound2_3 );
         split2_2.storeBoundTightening( bound2_4 );
         split2_2.addEquation( equation2_2 );
-        split2_2.setPhase(1u);
+        split2_2.setPhase( static_cast<PhaseStatus>( 1u ) );
 
         // split2_3
         PiecewiseLinearCaseSplit split2_3;
@@ -478,7 +478,7 @@ public:
         split2_3.storeBoundTightening( bound2_5 );
         split2_3.addEquation( equation2_1 );
         split2_3.addEquation( equation2_2 );
-        split2_3.setPhase(2u);
+        split2_3.setPhase( static_cast<PhaseStatus>( 2u ) );
 
         // Store the splits
         constraint2.nextSplits.append( split2_1 );
@@ -549,7 +549,7 @@ public:
         split1.storeBoundTightening( bound2 );
         split1.addEquation( equation1 );
 
-        split1.setPhase( 0u );
+        split1.setPhase( static_cast<PhaseStatus>( 0u ) );
 
         // Split 2
         PiecewiseLinearCaseSplit split2;
@@ -565,7 +565,7 @@ public:
         split2.storeBoundTightening( bound4 );
         split2.addEquation( equation2 );
 
-        split2.setPhase( 1u );
+        split2.setPhase( static_cast<PhaseStatus>( 1u ) );
 
         // Split 3
         PiecewiseLinearCaseSplit split3;
@@ -575,7 +575,7 @@ public:
         split3.addEquation( equation1 );
         split3.addEquation( equation2 );
 
-        split3.setPhase( 2u );
+        split3.setPhase( static_cast<PhaseStatus>( 2u ) );
 
         // Store the splits
         constraint.nextSplits.append( split1 );
@@ -925,7 +925,7 @@ public:
         split1.storeBoundTightening( bound1 );
         split1.storeBoundTightening( bound2 );
         split1.addEquation( equation1 );
-        split1.setPhase( 1u );
+        split1.setPhase( static_cast<PhaseStatus>( 1u ) );
 
         // Split 2
         PiecewiseLinearCaseSplit split2;
@@ -940,7 +940,7 @@ public:
         split2.storeBoundTightening( bound3 );
         split2.storeBoundTightening( bound4 );
         split2.addEquation( equation2 );
-        split2.setPhase( 2u );
+        split2.setPhase( static_cast<PhaseStatus>( 2u ) );
 
         // Store the splits
         constraint.nextSplits.append( split1 );
@@ -965,7 +965,7 @@ public:
         Tightening bound5( 14, 2.3, Tightening::LB );
 
         split3.storeBoundTightening( bound5 );
-        split3.setPhase( 3u );
+        split3.setPhase( static_cast<PhaseStatus>( 3u ) );
         // TS_ASSERT_THROWS_NOTHING( smtCore.pushImplication( split3 ) );
 
         // Do another real split
@@ -977,12 +977,12 @@ public:
         PiecewiseLinearCaseSplit split4;
         Tightening bound6( 7, 3.0, Tightening::LB );
         split4.storeBoundTightening( bound6 );
-        split4.setPhase( 4u );
+        split4.setPhase( static_cast<PhaseStatus>( 4u ) );
 
         PiecewiseLinearCaseSplit split5;
         Tightening bound7( 8, 13.0, Tightening::UB );
         split5.storeBoundTightening( bound7 );
-        split5.setPhase( 5u );
+        split5.setPhase( static_cast<PhaseStatus>( 5u ) );
 
         constraint2.nextSplits.append( split4 );
         constraint2.nextSplits.append( split5 );

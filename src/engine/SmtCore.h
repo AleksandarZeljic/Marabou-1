@@ -71,11 +71,11 @@ public:
     /*
      * decideSplit - choose a phase of PiecewiseLinearConstraint's alternativeCases to decide.
      */
-    void decideSplit( PiecewiseLinearConstraint *constraint,  List<unsigned> &alternativeCases );
+    void decideSplit( PiecewiseLinearConstraint *constraint,  List<PhaseStatus> &alternativeCases );
     /*
      * Push TrailEntry representing the decision onto the trai. Push the decided PiecewiseLinearCaseSplit to the engine.
      */
-    void pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<unsigned> &alternativeSplits );
+    void pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<PhaseStatus> &alternativeSplits );
 
     /*
       Backtrack the search, by popping stacks with no alternatives, and perform

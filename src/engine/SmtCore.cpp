@@ -79,7 +79,7 @@ bool SmtCore::needToSplit() const
     return _needToSplit;
 }
 
-void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<unsigned> &alternativeSplits )
+void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<PhaseStatus> &alternativeSplits )
 {
     ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
     SMT_LOG( "New decision level ..." );
@@ -132,11 +132,11 @@ void SmtCore::decide()
     _needToSplit = false;
     _constraintForSplitting->setActiveConstraint( false );
 
-    List<unsigned> cases = _constraintForSplitting->getAllCases();
+    List<PhaseStatus> cases = _constraintForSplitting->getAllCases();
     decideSplit( _constraintForSplitting, cases );
 }
 
-void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint, List<unsigned> &cases )
+void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint, List<PhaseStatus> &cases )
 {
     struct timespec start = TimeUtils::sampleMicro();
 
@@ -150,7 +150,7 @@ void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint, List<unsigned
     ASSERT( cases.size() >= 2 ); 
 
     // TODO: DecisionMakingLogic
-    unsigned decision = cases.front();
+    PhaseStatus decision = cases.front();
     cases.erase( decision );
 
     pushDecision( constraint, decision, cases );

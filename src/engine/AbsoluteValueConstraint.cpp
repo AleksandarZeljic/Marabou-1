@@ -221,7 +221,7 @@ List<PiecewiseLinearConstraint::Fix> AbsoluteValueConstraint::getSmartFixes( ITa
 
 List<PiecewiseLinearCaseSplit> AbsoluteValueConstraint::getCaseSplits() const
 {
-    //ASSERT( *_phaseStatus == PhaseStatus::PHASE_NOT_FIXED );
+    //ASSERT( *_phaseStatus == PHASE_NOT_FIXED );
 
     List<PiecewiseLinearCaseSplit> splits;
     splits.append( getNegativeSplit() );
@@ -230,7 +230,7 @@ List<PiecewiseLinearCaseSplit> AbsoluteValueConstraint::getCaseSplits() const
     return splits;
 }
 
-List<unsigned> AbsoluteValueConstraint::getAllCases() const
+List<PhaseStatus> AbsoluteValueConstraint::getAllCases() const
 {
     return { ABS_PHASE_NEGATIVE, ABS_PHASE_POSITIVE};
 }
@@ -258,7 +258,7 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getNegativeSplit() const
     negativeEquation.addAddend( 1, _f );
     negativeEquation.setScalar( 0 );
     negativePhase.addEquation( negativeEquation );
-    negativePhase.setPhase( PhaseStatus::ABS_PHASE_NEGATIVE );
+    negativePhase.setPhase( static_cast<PhaseStatus>( PhaseStatus::ABS_PHASE_NEGATIVE ) );
 
     return negativePhase;
 }
@@ -276,19 +276,19 @@ PiecewiseLinearCaseSplit AbsoluteValueConstraint::getPositiveSplit() const
     positiveEquation.addAddend( -1, _f );
     positiveEquation.setScalar( 0 );
     positivePhase.addEquation( positiveEquation );
-    positivePhase.setPhase( PhaseStatus::ABS_PHASE_POSITIVE);
+    positivePhase.setPhase( ABS_PHASE_POSITIVE );
 
     return positivePhase;
 }
 
 bool AbsoluteValueConstraint::phaseFixed() const
 {
-    return *_phaseStatus != PhaseStatus::PHASE_NOT_FIXED;
+    return *_phaseStatus != PHASE_NOT_FIXED;
 }
 
 PiecewiseLinearCaseSplit AbsoluteValueConstraint::getValidCaseSplit() const
 {
-    ASSERT( *_phaseStatus != PhaseStatus::PHASE_NOT_FIXED );
+    ASSERT( *_phaseStatus != PHASE_NOT_FIXED );
 
     if ( *_phaseStatus == PhaseStatus::ABS_PHASE_POSITIVE )
         return getPositiveSplit();

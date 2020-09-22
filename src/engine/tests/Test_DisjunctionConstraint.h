@@ -97,7 +97,7 @@ public:
         List<PiecewiseLinearCaseSplit> caseSplits = { *cs1, *cs2, *cs3 };
         DisjunctionConstraint dc( caseSplits );
 
-        List<unsigned> cases = dc.getAllCases();
+        List<PhaseStatus> cases = dc.getAllCases();
 
         TS_ASSERT_EQUALS( cases.size(), 3u );
         //TS_ASSERT_EQUALS( cases.front(), 1u );

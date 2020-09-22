@@ -36,6 +36,30 @@ void PiecewiseLinearConstraint::registerBoundManager( BoundManager *boundManager
     _boundManager = boundManager;
 }
 
+void PiecewiseLinearConstraint::initializeCDOs( CVC4::context::Context *context )
+{
+    ASSERT( nullptr == _context );
+    _context = context;
+
+    initializeActiveStatus();
+    initializePhaseStatus();
+}
+
+void PiecewiseLinearConstraint::cdoCleanup()
+{
+    if ( nullptr != _constraintActive )
+        _constraintActive->deleteSelf();
+
+    _constraintActive= nullptr;
+
+    if ( nullptr != _phaseStatus )
+        _phaseStatus->deleteSelf();
+
+    _phaseStatus = nullptr;
+
+    _context = nullptr;
+}
+
 void PiecewiseLinearConstraint::initializeActiveStatus()
 {
     ASSERT( nullptr != _context );
@@ -50,7 +74,8 @@ void PiecewiseLinearConstraint::initializePhaseStatus()
     _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, PHASE_NOT_FIXED );
 }
 
-PiecewiseLinearConstraint::PhaseStatus PiecewiseLinearConstraint::getPhaseStatus() const
+
+PhaseStatus PiecewiseLinearConstraint::getPhaseStatus() const
 {
     ASSERT( nullptr != _phaseStatus );
     return *_phaseStatus;

@@ -133,9 +133,9 @@ List<PiecewiseLinearCaseSplit> DisjunctionConstraint::getCaseSplits() const
     return _disjuncts;
 }
 
-List<unsigned> DisjunctionConstraint::getAllCases() const
+List<PhaseStatus> DisjunctionConstraint::getAllCases() const
 {
-    List<unsigned> cases;
+    List<PhaseStatus> cases;
     for ( auto disjunct : _disjuncts )
         cases.append( disjunct.getPhase() );
     return cases;
@@ -242,7 +242,7 @@ void DisjunctionConstraint::initializeDisjuntCaseIds()
 {
     unsigned id = 0;
     for ( auto disjunct : _disjuncts)
-        disjunct.setPhase( ++id );
+        disjunct.setPhase( static_cast<PhaseStatus>( ++id ) );
 
 }
 

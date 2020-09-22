@@ -96,7 +96,7 @@ public:
     /*
      * Returns a list of all cases of this constraint
      */
-    List<unsigned> getAllCases() const ;
+    List<PhaseStatus> getAllCases() const ;
 
     /*
      * Returns case split corresponding to the given phase/id
