@@ -349,6 +349,22 @@ public:
             return _phaseStatus;
     }
 
+    // TODO: Context-dependent Exploration tracking
+    // Add CDList<PhaseStatus> infeasibleCases;
+    // Add to initializeCDOs and cdoCleanup
+    // void markInfeasible( PhaseStatus exploredCase );
+    // PhaseStatus nextFeasibleCase();
+
+    /* void markInfeasible( PhaseStatus infeasibleCase ) */
+    /* { */
+    /*     _infeasibleCases.pushBack( infeasibleCase ); */
+    /* } */
+
+    /* PhaseStatus nextFeasibleCase() //O(n^2) - using size to detect infeasible and implications, flagging the last case could also work */
+    /* { */
+    /*     //if ( _ind) */
+    /* } */
+
 protected:
     CVC4::context::Context *_context;
     CVC4::context::CDO<bool> *_constraintActive;
