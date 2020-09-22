@@ -54,12 +54,15 @@ void AbsoluteValueConstraint::restoreState( const PiecewiseLinearConstraint *sta
 
     CVC4::context::CDO<bool> *activeStatus = _constraintActive;
     CVC4::context::CDO<PhaseStatus> *phaseStatus = _phaseStatus;
+    CVC4::context::CDList<PhaseStatus> *infeasibleCases = _infeasibleCases;
     *this = *abs;
     _constraintActive = activeStatus;
     setActiveConstraint( abs->isActive() );
 
     _phaseStatus = phaseStatus;
     setPhaseStatus( abs->getPhaseStatus() );
+
+    _infeasibleCases = infeasibleCases;
 }
 
 void AbsoluteValueConstraint::registerAsWatcher( ITableau *tableau )

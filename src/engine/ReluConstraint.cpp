@@ -97,9 +97,11 @@ void ReluConstraint::restoreState( const PiecewiseLinearConstraint *state )
 
     CVC4::context::CDO<bool> *activeStatus = _constraintActive;
     CVC4::context::CDO<PhaseStatus> *phaseStatus = _phaseStatus;
+    CVC4::context::CDList<PhaseStatus> *infeasibleCases = _infeasibleCases;
     *this = *relu;
     _constraintActive = activeStatus;
     _phaseStatus = phaseStatus;
+    _infeasibleCases = infeasibleCases;
 }
 
 void ReluConstraint::registerAsWatcher( ITableau *tableau )
