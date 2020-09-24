@@ -75,6 +75,36 @@ public:
         TS_ASSERT_THROWS_NOTHING( delete mock );
     }
 
+    void test_initialization_of_CDOs()
+    {
+        CVC4::context::Context context;
+
+        List<PiecewiseLinearCaseSplit> caseSplits = { *cs1, *cs2, *cs3 };
+        DisjunctionConstraint dc( caseSplits );
+
+        TS_ASSERT_EQUALS( dc.getContext(), nullptr );
+
+        TS_ASSERT_EQUALS( dc.getActiveStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( dc.getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( dc.getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_THROWS_NOTHING( dc.initializeCDOs( &context ) );
+        TS_ASSERT_EQUALS( dc.getContext(), &context );
+        TS_ASSERT_DIFFERS( dc.getActiveStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( dc.getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( dc.getInfeasibleCasesCDList(), nullptr );
+
+        bool active = false;
+        TS_ASSERT_THROWS_NOTHING( active = dc.isActive() );
+        TS_ASSERT_EQUALS( active, true );
+
+        bool phaseFixed = true;
+        TS_ASSERT_THROWS_NOTHING( phaseFixed = dc.phaseFixed() );
+        TS_ASSERT_EQUALS( phaseFixed, PHASE_NOT_FIXED );
+        TS_ASSERT_EQUALS( dc.numFeasibleCases(), 3u );
+
+    }
+
+
     void test_get_case_splits()
     {
         List<PiecewiseLinearCaseSplit> caseSplits = { *cs1, *cs2, *cs3 };

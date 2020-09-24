@@ -21,6 +21,19 @@ PiecewiseLinearConstraint::PiecewiseLinearConstraint()
     , _constraintActive( nullptr )
     , _phaseStatus( nullptr )
     , _infeasibleCases( nullptr )
+    , _numCases( 0 )
+    , _score( -1 )
+    , _boundManager( nullptr )
+    , _statistics( nullptr )
+{
+}
+
+PiecewiseLinearConstraint::PiecewiseLinearConstraint( unsigned numCases )
+    : _context( nullptr )
+    , _constraintActive( nullptr )
+    , _phaseStatus( nullptr )
+    , _infeasibleCases( nullptr )
+    , _numCases( numCases )
     , _score( -1 )
     , _boundManager( nullptr )
     , _statistics( nullptr )
@@ -137,7 +150,8 @@ PhaseStatus PiecewiseLinearConstraint::nextFeasibleCase()
     for ( PhaseStatus thisCase : allCases)
     {
         auto loc = std::find( _infeasibleCases->begin(), _infeasibleCases->end(), thisCase );
-        if ( _infeasibleCases->end() != loc )
+        // Case not found, therefore it is feasible
+        if ( _infeasibleCases->end() == loc )
             return thisCase;
     }
 
@@ -146,6 +160,20 @@ PhaseStatus PiecewiseLinearConstraint::nextFeasibleCase()
     return PHASE_NOT_FIXED;
 }
 
+inline unsigned PiecewiseLinearConstraint::numFeasibleCases()
+{
+    return _numCases - _infeasibleCases->size();
+}
+
+bool PiecewiseLinearConstraint::isFeasible()
+{
+    return numFeasibleCases() >  0u;
+}
+
+bool PiecewiseLinearConstraint::isImplication()
+{
+    return 1u == numFeasibleCases();
+}
 
 void PiecewiseLinearConstraint::dump() const
 {

@@ -146,14 +146,15 @@ void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint, List<PhaseSta
         _statistics->incNumVisitedTreeStates();
     }
 
-    ASSERT( !cases.empty() );
-    ASSERT( cases.size() >= 2 ); 
+    if ( !constraint->isFeasible() )
+        throw MarabouError( MarabouError::DEBUGGING_ERROR );
+    ASSERT( constraint->isFeasible() );
+
+    ASSERT( !constraint->isImplication() );
 
     // TODO: DecisionMakingLogic
-    PhaseStatus decision = cases.front();
-    cases.erase( decision );
-
-    pushDecision( constraint, decision, cases );
+    PhaseStatus decision = constraint->nextFeasibleCase();
+    pushDecision( constraint, decision );
 
     if ( _statistics )
     {
@@ -321,25 +322,29 @@ bool SmtCore::backtrackAndContinue()
     if ( _statistics )
         _statistics->incNumVisitedTreeStates();
 
-    TrailEntry lastDecision( NULL, 0 );
+    TrailEntry lastDecision( NULL, PHASE_NOT_FIXED );
 
     popDecisionLevel( &lastDecision );
+    lastDecision.markInfeasible();
 
-    while ( lastDecision._alternativeSplits.empty() )
+    while ( !lastDecision._pwlConstraint->isFeasible() )
     {
         interruptIfCompliantWithDebugSolution();
 
         if ( !popDecisionLevel( &lastDecision ) )
             return false;
+        lastDecision.markInfeasible();
     }
 
     interruptIfCompliantWithDebugSolution();
 
-    ASSERT( lastDecision._alternativeSplits.size() > 0 );
-    if ( 1u == lastDecision._alternativeSplits.size() )
-        pushImplication( lastDecision._pwlConstraint,  lastDecision._alternativeSplits.front() );
+    PiecewiseLinearConstraint *pwlc = lastDecision._pwlConstraint;
+    ASSERT( pwlc->isFeasible() );
+
+    if ( pwlc->isImplication() )
+        pushImplication( pwlc, pwlc->nextFeasibleCase() );
     else
-        decideSplit( lastDecision._pwlConstraint, lastDecision._alternativeSplits);
+        decideSplit( pwlc );
 
     if ( _statistics )
     {

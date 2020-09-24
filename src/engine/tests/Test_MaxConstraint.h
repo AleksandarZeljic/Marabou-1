@@ -123,10 +123,21 @@ public:
 
         TS_ASSERT_EQUALS( max1->getActiveStatusCDO(), nullptr );
         TS_ASSERT_EQUALS( max1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( max1->getInfeasibleCasesCDList(), nullptr );
         TS_ASSERT_THROWS_NOTHING( max1->initializeCDOs( &context ) );
         TS_ASSERT_EQUALS( max1->getContext(), &context );
         TS_ASSERT_DIFFERS( max1->getActiveStatusCDO(), nullptr );
         TS_ASSERT_DIFFERS( max1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( max1->getInfeasibleCasesCDList(), nullptr );
+
+        bool active = false;
+        TS_ASSERT_THROWS_NOTHING( active = max1->isActive() );
+        TS_ASSERT_EQUALS( active, true );
+
+        bool phaseFixed = true;
+        TS_ASSERT_THROWS_NOTHING( phaseFixed = max1->phaseFixed() );
+        TS_ASSERT_EQUALS( phaseFixed, PHASE_NOT_FIXED );
+        TS_ASSERT_EQUALS( max1->numFeasibleCases(), elements.size() );
 
         TS_ASSERT_THROWS_NOTHING( delete max1 );
     }

@@ -40,7 +40,7 @@ public:
       Return a clone of the constraint. Allocates CDOs for the copy.
     */
     PiecewiseLinearConstraint *duplicateConstraint() const;
-a
+
     /*
       Restore the state of this constraint from the given one.
     */

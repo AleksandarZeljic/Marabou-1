@@ -31,7 +31,8 @@
 #endif
 
 ReluConstraint::ReluConstraint( unsigned b, unsigned f )
-    : _b( b )
+    : PiecewiseLinearConstraint( 2u )
+    , _b( b )
     , _f( f )
     , _auxVarInUse( false )
     , _direction( PHASE_NOT_FIXED )

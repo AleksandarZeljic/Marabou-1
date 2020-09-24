@@ -94,6 +94,11 @@ public:
         }
 
 
+        void setNumCases( unsigned num )
+        {
+            _numCases = num;
+        }
+
         bool satisfied() const
         {
             return true;
@@ -316,6 +321,7 @@ public:
         constraint.nextSplits.append( split1 );
         constraint.nextSplits.append( split2 );
         constraint.nextSplits.append( split3 );
+        constraint.setNumCases( 3u );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
             smtCore.reportViolatedConstraint( &constraint );
@@ -437,6 +443,7 @@ public:
         constraint1.nextSplits.append( split1_1 );
         constraint1.nextSplits.append( split1_2 );
         constraint1.nextSplits.append( split1_3 );
+        constraint1.setNumCases( 3u );
 
         MockConstraint constraint2;
 
@@ -484,6 +491,7 @@ public:
         constraint2.nextSplits.append( split2_1 );
         constraint2.nextSplits.append( split2_2 );
         constraint2.nextSplits.append( split2_3 );
+        constraint2.setNumCases( 3u );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
             smtCore.reportViolatedConstraint( &constraint1 );
@@ -581,6 +589,7 @@ public:
         constraint.nextSplits.append( split1 );
         constraint.nextSplits.append( split2 );
         constraint.nextSplits.append( split3 );
+        constraint.setNumCases( 3u );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
             smtCore.reportViolatedConstraint( &constraint );
@@ -736,6 +745,7 @@ public:
         constraint.nextSplits.append( split1 );
         constraint.nextSplits.append( split2 );
         constraint.nextSplits.append( split3 );
+        constraint.setNumCases( 3u );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
             smtCore.reportViolatedConstraint( &constraint );
@@ -885,6 +895,7 @@ public:
         constraint.nextSplits.append( split1 );
         constraint.nextSplits.append( split2 );
         constraint.nextSplits.append( split3 );
+        constraint.setNumCases( 3u );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
             smtCore.reportViolatedConstraint( &constraint );
@@ -945,6 +956,7 @@ public:
         // Store the splits
         constraint.nextSplits.append( split1 );
         constraint.nextSplits.append( split2 );
+        constraint.setNumCases( 2u );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
             smtCore.reportViolatedConstraint( &constraint );
@@ -986,6 +998,7 @@ public:
 
         constraint2.nextSplits.append( split4 );
         constraint2.nextSplits.append( split5 );
+        constraint2.setNumCases( 2u );
 
         for ( unsigned i = 0; i < GlobalConfiguration::CONSTRAINT_VIOLATION_THRESHOLD; ++i )
             smtCore.reportViolatedConstraint( &constraint2 );

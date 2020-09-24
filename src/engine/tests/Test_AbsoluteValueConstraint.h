@@ -55,10 +55,22 @@ public:
         TS_ASSERT_EQUALS( abs1->getContext(), nullptr );
         TS_ASSERT_EQUALS( abs1->getActiveStatusCDO(), nullptr );
         TS_ASSERT_EQUALS( abs1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( abs1->getInfeasibleCasesCDList(), nullptr );
         TS_ASSERT_THROWS_NOTHING( abs1->initializeCDOs( &context ) );
         TS_ASSERT_EQUALS( abs1->getContext(), &context );
         TS_ASSERT_DIFFERS( abs1->getActiveStatusCDO(), nullptr );
         TS_ASSERT_DIFFERS( abs1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( abs1->getInfeasibleCasesCDList(), nullptr );
+
+        bool active = false;
+        TS_ASSERT_THROWS_NOTHING( active = abs1->isActive() );
+        TS_ASSERT_EQUALS( active, true );
+
+        bool phaseFixed = true;
+        TS_ASSERT_THROWS_NOTHING( phaseFixed = abs1->phaseFixed() );
+        TS_ASSERT_EQUALS( phaseFixed, PHASE_NOT_FIXED );
+        TS_ASSERT_EQUALS( abs1->numFeasibleCases(), 2u );
+
 
         TS_ASSERT_THROWS_NOTHING( delete abs1 );
     }

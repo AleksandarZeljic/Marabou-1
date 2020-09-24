@@ -846,12 +846,73 @@ public:
 
         TS_ASSERT_EQUALS( relu1->getActiveStatusCDO(), nullptr );
         TS_ASSERT_EQUALS( relu1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_EQUALS( relu1->getInfeasibleCasesCDList(), nullptr );
         TS_ASSERT_THROWS_NOTHING( relu1->initializeCDOs( &context ) );
         TS_ASSERT_EQUALS( relu1->getContext(), &context );
         TS_ASSERT_DIFFERS( relu1->getActiveStatusCDO(), nullptr );
         TS_ASSERT_DIFFERS( relu1->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( relu1->getInfeasibleCasesCDList(), nullptr );
+
+        bool active = false;
+        TS_ASSERT_THROWS_NOTHING( active = relu1->isActive() );
+        TS_ASSERT_EQUALS( active, true );
+
+        bool phaseFixed = true;
+        TS_ASSERT_THROWS_NOTHING( phaseFixed = relu1->phaseFixed() );
+        TS_ASSERT_EQUALS( phaseFixed, PHASE_NOT_FIXED );
+        TS_ASSERT_EQUALS( relu1->numFeasibleCases(), 2u );
+        TS_ASSERT( relu1->isFeasible() );
+        TS_ASSERT( !relu1->isImplication() );
 
         TS_ASSERT_THROWS_NOTHING( delete relu1 );
+    }
+
+    void test_lazy_backtracking_of_CDOs()
+    {
+        CVC4::context::Context context;
+        ReluConstraint *relu1 = new ReluConstraint( 4, 6 );
+        TS_ASSERT_THROWS_NOTHING( relu1->initializeCDOs( &context ) );
+
+        // L0 - Feasible, not an implication
+        PhaseStatus phase1 = PHASE_NOT_FIXED;
+        TS_ASSERT_THROWS_NOTHING( phase1 = relu1->nextFeasibleCase() );
+        TS_ASSERT_EQUALS( phase1, relu1->nextFeasibleCase() );
+        TS_ASSERT( relu1->isFeasible() );
+        TS_ASSERT( !relu1->isImplication() );
+
+
+        // L1 - Feasible, an implication, nextFeasibleCase returns a new case 
+        TS_ASSERT_THROWS_NOTHING( context.push() );
+        TS_ASSERT_THROWS_NOTHING( relu1->markInfeasible( phase1 ) );
+        TS_ASSERT( relu1->isFeasible() );
+        TS_ASSERT( relu1->isImplication() );
+
+        PhaseStatus phase2 = PHASE_NOT_FIXED;
+        TS_ASSERT_THROWS_NOTHING( phase2 = relu1->nextFeasibleCase() );
+        TS_ASSERT_EQUALS( phase2, relu1->nextFeasibleCase() );
+        TS_ASSERT_DIFFERS( phase2, phase1 );
+
+        // L2 - Infeasible, not an implication, nextCase returns PHASE_NOT_FIXED
+        TS_ASSERT_THROWS_NOTHING( context.push() );
+        TS_ASSERT_THROWS_NOTHING( relu1->markInfeasible( phase2 ) );
+        TS_ASSERT( !relu1->isFeasible() );
+        TS_ASSERT( !relu1->isImplication() );
+        TS_ASSERT_EQUALS( relu1->nextFeasibleCase(), PHASE_NOT_FIXED );
+
+        // L1 again - Feasible, an implication, nextFeasibleCase returns same values as phase2
+        TS_ASSERT_THROWS_NOTHING( context.pop() );
+        TS_ASSERT( relu1->isFeasible() );
+        TS_ASSERT( relu1->isImplication() );
+        TS_ASSERT_EQUALS( phase2, relu1->nextFeasibleCase() );
+
+        // L0 again - Feasible, not an implication, nextFeasibleCase returns same value as phase1
+        TS_ASSERT_THROWS_NOTHING( context.pop() );
+        TS_ASSERT( relu1->isFeasible() );
+        TS_ASSERT( !relu1->isImplication() );
+        TS_ASSERT_EQUALS( phase1, relu1->nextFeasibleCase() );
+
+        TS_ASSERT_THROWS_NOTHING( delete relu1 );
+
     }
 
     void test_relu_duplicate_and_restore()

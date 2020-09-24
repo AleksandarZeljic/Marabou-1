@@ -31,7 +31,8 @@
 #endif
 
 MaxConstraint::MaxConstraint( unsigned f, const Set<unsigned> &elements )
-    : _f( f )
+    : PiecewiseLinearConstraint( elements.size() )
+    , _f( f )
     , _elements( elements )
     , _maxIndexSet( false )
     , _maxLowerBound( FloatUtils::negativeInfinity() )
