@@ -79,26 +79,24 @@ bool SmtCore::needToSplit() const
     return _needToSplit;
 }
 
-void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<PhaseStatus> &alternativeSplits )
+void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  PhaseStatus decision )
 {
-    ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
+    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
     SMT_LOG( "New decision level ..." );
 
     _context.push();
 
-    TrailEntry te( constraint, decision, alternativeSplits );
+    TrailEntry te( constraint, decision );
     _trail.push_back(te);
-
-    _decisions.push_back( &_trail.back() );
+    _decisions.push_back( te );
 
     _engine->applySplit( constraint->getCaseSplit( decision ) );
 
     SMT_LOG( Stringf( "Decision push @ %d DONE", _context.getLevel() ).ascii() );
-    ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
-    ASSERT( getDecisionLevel() == _decisions.size() )
+    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
 }
 
-void SmtCore::pushImplication( PiecewiseLinearConstraint *constraint, unsigned phase )
+void SmtCore::pushImplication( PiecewiseLinearConstraint *constraint, PhaseStatus phase )
 {
     SMT_LOG( Stringf( "Push implication on trail @%d ... ", _context.getLevel() ).ascii() );
 
@@ -132,11 +130,10 @@ void SmtCore::decide()
     _needToSplit = false;
     _constraintForSplitting->setActiveConstraint( false );
 
-    List<PhaseStatus> cases = _constraintForSplitting->getAllCases();
-    decideSplit( _constraintForSplitting, cases );
+    decideSplit( _constraintForSplitting );
 }
 
-void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint, List<PhaseStatus> &cases )
+void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint )
 {
     struct timespec start = TimeUtils::sampleMicro();
 
@@ -278,16 +275,18 @@ unsigned SmtCore::getDecisionLevel() const
 }
 
 //TODO _decision bookkeeping
-bool SmtCore::popDecisionLevel( TrailEntry *lastDecision )
+bool SmtCore::popDecisionLevel( TrailEntry &lastDecision )
 {
+    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
     if ( _decisions.empty() )
         return false;
 
     SMT_LOG( "Backtracking context ..." );
 
-    std::cout << _decisions.back() << std::endl;
-    *lastDecision = *_decisions.back();
+    lastDecision = _decisions.back();
+
     _context.pop();
+    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
     _engine->recomputeBasicStatus();
     SMT_LOG( "Backtracking context - %d DONE", _context.getLevel() );
     return true;
@@ -307,7 +306,7 @@ PiecewiseLinearCaseSplit SmtCore::getDecision( unsigned decisionLevel )
 {
     ASSERT( decisionLevel <= getDecisionLevel() );
     ASSERT( decisionLevel > 0 );
-    return _decisions[decisionLevel - 1]->getPiecewiseLinearCaseSplit() ;
+    return _decisions[decisionLevel - 1].getPiecewiseLinearCaseSplit() ;
 }
 
 bool SmtCore::backtrackAndContinue()
@@ -324,15 +323,16 @@ bool SmtCore::backtrackAndContinue()
 
     TrailEntry lastDecision( NULL, PHASE_NOT_FIXED );
 
-    popDecisionLevel( &lastDecision );
+    popDecisionLevel( lastDecision );
     lastDecision.markInfeasible();
 
     while ( !lastDecision._pwlConstraint->isFeasible() )
     {
         interruptIfCompliantWithDebugSolution();
 
-        if ( !popDecisionLevel( &lastDecision ) )
+        if ( !popDecisionLevel( lastDecision ) )
             return false;
+
         lastDecision.markInfeasible();
     }
 

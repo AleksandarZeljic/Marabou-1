@@ -71,11 +71,11 @@ public:
     /*
      * decideSplit - choose a phase of PiecewiseLinearConstraint's alternativeCases to decide.
      */
-    void decideSplit( PiecewiseLinearConstraint *constraint,  List<PhaseStatus> &alternativeCases );
+    void decideSplit( PiecewiseLinearConstraint *constraint );
     /*
-     * Push TrailEntry representing the decision onto the trai. Push the decided PiecewiseLinearCaseSplit to the engine.
+     * Push TrailEntry representing the decision onto the trail. Push the decided PiecewiseLinearCaseSplit to the engine.
      */
-    void pushDecision( PiecewiseLinearConstraint *constraint,  unsigned decision, List<PhaseStatus> &alternativeSplits );
+    void pushDecision( PiecewiseLinearConstraint *constraint,  PhaseStatus decision );
 
     /*
       Backtrack the search, by popping stacks with no alternatives, and perform
@@ -99,7 +99,7 @@ public:
       Pop a context level, lazily backtracking trail, bounds, etc. Return true
       if successful, false if the stack is empty.
     */
-    bool popDecisionLevel( TrailEntry *lastDecision );
+    bool popDecisionLevel( TrailEntry &lastDecision );
 
     /*
       The current stack depth.
@@ -114,7 +114,7 @@ public:
     /*
       Let the smt core trail know of an implied valid case split that was discovered.
     */
-    void pushImplication( PiecewiseLinearConstraint *constraint, unsigned phase );
+    void pushImplication( PiecewiseLinearConstraint *constraint, PhaseStatus phase );
 
     /*
       Return a list of all splits performed so far, both SMT-originating and valid ones,
@@ -216,8 +216,7 @@ private:
     /*
      * _decisions point to the decision at the beginning of each decision level
      */
-    CVC4::context::CDList<const TrailEntry * > _decisions;
-
+    CVC4::context::CDList<TrailEntry> _decisions;
 
     /*
       The engine.
