@@ -72,6 +72,7 @@ public:
     };
 
     PiecewiseLinearConstraint();
+    PiecewiseLinearConstraint( unsigned numCases );
     PiecewiseLinearConstraint( const PiecewiseLinearConstraint &original );
     virtual ~PiecewiseLinearConstraint()
     {
@@ -330,7 +331,13 @@ public:
             return _phaseStatus;
     }
 
-    // Add to initializeCDOs and cdoCleanup
+    /*
+      Get the infeasable cases object - debugging purposes only
+    */
+    CVC4::context::CDList<PhaseStatus> *getInfeasibleCasesCDList() const
+    {
+        return _infeasibleCases;
+    }
 
     /*
        Mark that exploredCase is infeasible.
@@ -343,6 +350,10 @@ public:
       Returns PHASE_NOT_FIXED if no feasible case exists.
      */
     PhaseStatus nextFeasibleCase();
+
+    bool isFeasible();
+    bool isImplication();
+    unsigned numFeasibleCases();
 
 protected:
     CVC4::context::Context *_context;
@@ -358,6 +369,8 @@ protected:
       Store infeasible cases under the current trail. Backtracks with context.
     */
     CVC4::context::CDList<PhaseStatus> *_infeasibleCases;
+
+    unsigned _numCases;
 
     Map<unsigned, double> _assignment;
     Map<unsigned, double> _lowerBounds;

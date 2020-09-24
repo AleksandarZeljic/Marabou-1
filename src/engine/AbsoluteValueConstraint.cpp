@@ -22,11 +22,13 @@
 #include "Statistics.h"
 
 AbsoluteValueConstraint::AbsoluteValueConstraint( unsigned b, unsigned f )
-    : _b( b )
+    : PiecewiseLinearConstraint( 2u )
+    , _b( b )
     , _f( f )
     , _haveEliminatedVariables( false )
 {
 }
+
 
 PiecewiseLinearFunctionType AbsoluteValueConstraint::getType() const
 {

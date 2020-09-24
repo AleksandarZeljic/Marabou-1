@@ -19,7 +19,8 @@
 #include "Statistics.h"
 
 DisjunctionConstraint::DisjunctionConstraint( const List<PiecewiseLinearCaseSplit> &disjuncts )
-    : _disjuncts( disjuncts )
+    : PiecewiseLinearConstraint( disjuncts.size() )
+    , _disjuncts( disjuncts )
     , _feasibleDisjuncts( disjuncts )
 {
     initializeDisjuntCaseIds();
@@ -28,6 +29,7 @@ DisjunctionConstraint::DisjunctionConstraint( const List<PiecewiseLinearCaseSpli
 
 
 DisjunctionConstraint::DisjunctionConstraint( const String &/* serializedDisjunction */ )
+    : PiecewiseLinearConstraint( 0 )
 {
     throw MarabouError( MarabouError::FEATURE_NOT_YET_SUPPORTED,
                         "Construct DisjunctionConstraint from String" );
