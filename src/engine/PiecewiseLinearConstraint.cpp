@@ -111,6 +111,7 @@ PhaseStatus PiecewiseLinearConstraint::getPhaseStatus() const
 void PiecewiseLinearConstraint::setPhaseStatus( PhaseStatus phaseStatus )
 {
     ASSERT( nullptr != _phaseStatus );
+    //ASSERT( PHASE_NOT_FIXED == getPhaseStatus() );
     *_phaseStatus = phaseStatus;
 }
 
@@ -143,6 +144,9 @@ void PiecewiseLinearConstraint::markInfeasible( PhaseStatus infeasibleCase )
 PhaseStatus PiecewiseLinearConstraint::nextFeasibleCase()
 {
     List<PhaseStatus> allCases = getAllCases();
+
+    if ( phaseFixed() )
+        return getPhaseStatus();
 
     if ( _infeasibleCases->size() == allCases.size() )
         return PHASE_NOT_FIXED;
