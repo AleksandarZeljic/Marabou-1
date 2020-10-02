@@ -5,6 +5,22 @@
 #+AUTHOR: Andrew Haoze Wu 
 #+AUTHOR: Aleksandar Zeljic
 
+* Integration into Master
+- Split into small self-contained easy to understand and well-documented commits
+- Follow coding and development guidelines.
+- Pragma once vs #defined guards
+- Namespaces? Take notes.
+- Clear description of added features. Well documented.
+- All features must be tested!
+- Tests should be as sleek as possible. Remove redundancy.
+- Given the overhead, maybe we should have an alternativeMaster.
+** Roadmap
+*** Add Context in sync with the stack.
+*** Add BoundManager class
+*** Integrate BoundManager in each BoundTightener (separate objects)
+*** Single shared BoundManager and remove between tighteners.
+*** Context-dependent PiecewiseLinearConstraints
+*** Add Trail and rewrite 
 * Development plan
 
 ** Development loop 
