@@ -616,19 +616,19 @@ void ReluConstraint::dump( String &output ) const
                       );
 
     output += Stringf( "b in [%s, %s], ",
-                       _lowerBounds.exists( _b ) ? Stringf( "%lf", _lowerBounds[_b] ).ascii() : "-inf",
-                       _upperBounds.exists( _b ) ? Stringf( "%lf", _upperBounds[_b] ).ascii() : "inf" );
+                       _lowerBounds.exists( _b ) ? Stringf( "%lf", _boundManager->getLowerBound( _b ) ).ascii() : "-inf",
+                       _upperBounds.exists( _b ) ? Stringf( "%lf", _boundManager->getUpperBound( _b ) ).ascii() : "inf" );
 
     output += Stringf( "f in [%s, %s]",
-                       _lowerBounds.exists( _f ) ? Stringf( "%lf", _lowerBounds[_f] ).ascii() : "-inf",
-                       _upperBounds.exists( _f ) ? Stringf( "%lf", _upperBounds[_f] ).ascii() : "inf" );
+                       _lowerBounds.exists( _f ) ? Stringf( "%lf", _boundManager->getLowerBound( _f ) ).ascii() : "-inf",
+                       _upperBounds.exists( _f ) ? Stringf( "%lf", _boundManager->getUpperBound( _f ) ).ascii() : "inf" );
 
     if ( _auxVarInUse )
     {
         output += Stringf( ". Aux var: %u. Range: [%s, %s]\n",
                            _aux,
-                           _lowerBounds.exists( _aux ) ? Stringf( "%lf", _lowerBounds[_aux] ).ascii() : "-inf",
-                           _upperBounds.exists( _aux ) ? Stringf( "%lf", _upperBounds[_aux] ).ascii() : "inf" );
+                           _lowerBounds.exists( _aux ) ? Stringf( "%lf", _boundManager->getLowerBound( _aux ) ).ascii() : "-inf",
+                           _upperBounds.exists( _aux ) ? Stringf( "%lf", _boundManager->getUpperBound( _aux ) ).ascii() : "inf" );
     }
 }
 
