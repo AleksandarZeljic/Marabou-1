@@ -16,6 +16,7 @@
 #include "FloatUtils.h"
 #include "BoundManager.h"
 #include "Debug.h"
+#include "InfeasibleQueryException.h"
 #include "Tableau.h"
 #include "Tightening.h"
 
@@ -91,6 +92,7 @@ bool BoundManager::tightenUpperBound( unsigned variable, double value )
         _tableau->postUpperBoundUpdate( variable, value );
     return tightened;
 }
+
 bool BoundManager::setLowerBound( unsigned variable, double value )
 {
     ASSERT( variable < _size );
@@ -98,6 +100,8 @@ bool BoundManager::setLowerBound( unsigned variable, double value )
     {
         *_lowerBounds[variable] = value;
         *_tightenedLower[variable] = true;
+        if ( !boundValid( variable ) )
+            throw InfeasibleQueryException();
         return true;
     }
     return false;
@@ -110,9 +114,17 @@ bool BoundManager::setUpperBound( unsigned variable, double value )
     {
         *_upperBounds[variable] = value ;
         *_tightenedUpper[variable] = true;
+        if ( !boundValid( variable ) )
+            throw InfeasibleQueryException();
         return true;
     }
     return false;
+}
+
+bool BoundManager::boundValid( unsigned variable )
+{
+    ASSERT( variable < _size );
+    return FloatUtils::gte( getUpperBound( variable ), getLowerBound( variable ) );
 }
 
 double BoundManager::getLowerBound( unsigned variable )
@@ -128,7 +140,7 @@ double BoundManager::getUpperBound( unsigned variable )
   return *_upperBounds[variable];
 }
 
-void BoundManager::getTightenings( List<Tightening> &tightenings ) 
+void BoundManager::getTightenings( List<Tightening> &tightenings )
 {
     for ( unsigned i = 0; i < _size; ++i )
     {
