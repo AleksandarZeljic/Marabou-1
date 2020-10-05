@@ -73,7 +73,6 @@ public:
 
     PiecewiseLinearConstraint();
     PiecewiseLinearConstraint( unsigned numCases );
-    PiecewiseLinearConstraint( const PiecewiseLinearConstraint &original );
     virtual ~PiecewiseLinearConstraint()
     {
         cdoCleanup();

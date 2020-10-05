@@ -164,7 +164,7 @@ PhaseStatus PiecewiseLinearConstraint::nextFeasibleCase()
     return PHASE_NOT_FIXED;
 }
 
-inline unsigned PiecewiseLinearConstraint::numFeasibleCases()
+unsigned PiecewiseLinearConstraint::numFeasibleCases()
 {
     return _numCases - _infeasibleCases->size();
 }
