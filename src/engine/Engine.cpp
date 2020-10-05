@@ -206,11 +206,11 @@ bool Engine::solve( unsigned timeoutInSeconds )
                 continue;
             }
 
-            if ( !_tableau->allBoundsValid() )
-            {
+            //if ( !_tableau->allBoundsValid() )
+            //{
                 // Some variable bounds are invalid, so the query is unsat
-                throw InfeasibleQueryException();
-            }
+            //    throw InfeasibleQueryException();
+            //}
 
             if ( allVarsWithinBounds() )
             {
