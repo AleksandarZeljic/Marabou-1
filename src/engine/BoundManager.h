@@ -44,6 +44,11 @@ public:
     bool setLowerBound( unsigned variable, double value );
     bool setUpperBound( unsigned variable, double value );
 
+    /*
+      Returns true if the bounds for the variable is valid
+    */
+    bool boundValid( unsigned variable );
+
     double getLowerBound( unsigned variable );
     double getUpperBound( unsigned variable );
 
