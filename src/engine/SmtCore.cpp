@@ -288,7 +288,7 @@ bool SmtCore::popDecisionLevel( TrailEntry &lastDecision )
     _context.pop();
     ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
     _engine->recomputeBasicStatus();
-    SMT_LOG( "Backtracking context - %d DONE", _context.getLevel() );
+    SMT_LOG( Stringf( "Backtracking context - %d DONE", _context.getLevel() ).ascii() );
     return true;
 }
 
