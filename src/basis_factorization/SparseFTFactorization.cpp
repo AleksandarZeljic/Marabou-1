@@ -283,6 +283,7 @@ void SparseFTFactorization::updateToAdjacentBasis( unsigned columnIndex,
          _z3[columnIndex] <
          GlobalConfiguration::SPARSE_FORREST_TOMLIN_DIAGONAL_ELEMENT_TOLERANCE )
     {
+        delete sparseEtaMatrix;
         obtainFreshBasis();
         return;
     }
