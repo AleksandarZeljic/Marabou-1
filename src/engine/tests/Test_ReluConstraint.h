@@ -176,14 +176,14 @@ public:
 
         context.push();
 
-        relu.notifyLowerBound( f, 1, true );
+        relu.notifyLowerBound( f, 1 );
         TS_ASSERT_EQUALS( relu.getPhaseStatus(), RELU_PHASE_ACTIVE );
 
         context.pop();
         TS_ASSERT_EQUALS( relu.getPhaseStatus(), PHASE_NOT_FIXED );
 
         context.push();
-        relu.notifyUpperBound( b, -1, true );
+        relu.notifyUpperBound( b, -1 );
         TS_ASSERT_EQUALS( relu.getPhaseStatus(), RELU_PHASE_INACTIVE );
 
         context.pop();
@@ -330,9 +330,9 @@ public:
         ReluConstraint relu( b, f );
         relu.initializeCDOs( &context );
 
-        relu.notifyLowerBound( b, -10, true );
-        relu.notifyUpperBound( b, 5, true );
-        relu.notifyUpperBound( f, 5, true );
+        relu.notifyLowerBound( b, -10 );
+        relu.notifyUpperBound( b, 5 );
+        relu.notifyUpperBound( f, 5 );
 
         unsigned auxVar = 10;
         InputQuery inputQuery;
@@ -437,7 +437,7 @@ public:
         List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
         TS_ASSERT_EQUALS( splits.size(), 2U );
 
-        relu.notifyLowerBound( 1, 1.0, true );
+        relu.notifyLowerBound( 1, 1.0 );
         /* TS_ASSERT_THROWS_EQUALS( splits = relu.getCaseSplits(), */
         /*                          const MarabouError &e, */
         /*                          e.getCode(), */
@@ -456,7 +456,7 @@ public:
         splits = relu.getCaseSplits();
         TS_ASSERT_EQUALS( splits.size(), 2U );
 
-        relu.notifyLowerBound( 4, 1.0, true );
+        relu.notifyLowerBound( 4, 1.0 );
         /* TS_ASSERT_THROWS_EQUALS( splits = relu.getCaseSplits(), */
         /*                          const MarabouError &e, */
         /*                          e.getCode(), */
@@ -482,7 +482,7 @@ public:
         List<PiecewiseLinearCaseSplit> splits = relu.getCaseSplits();
         TS_ASSERT_EQUALS( splits.size(), 2U );
 
-        relu.notifyUpperBound( 4, -1.0, true );
+        relu.notifyUpperBound( 4, -1.0 );
         // TODO: Reevaluate?
         /* TS_ASSERT_THROWS_EQUALS( splits = relu.getCaseSplits(), */
         /*                           const MarabouError &e, */
@@ -507,7 +507,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyUpperBound( b, -1.0, true );
+            relu.notifyUpperBound( b, -1.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
 
@@ -517,7 +517,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyUpperBound( b, 0.0, true );
+            relu.notifyUpperBound( b, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
 
@@ -527,7 +527,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyUpperBound( f, 0.0, true );
+            relu.notifyUpperBound( f, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
 
@@ -537,7 +537,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyUpperBound( b, 3.0, true );
+            relu.notifyUpperBound( b, 3.0 );
             TS_ASSERT( !relu.phaseFixed() );
         }
 
@@ -547,7 +547,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyUpperBound( b, 5.0, true );
+            relu.notifyUpperBound( b, 5.0 );
             TS_ASSERT( !relu.phaseFixed() );
         }
 
@@ -558,7 +558,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyLowerBound( b, 3.0, true );
+            relu.notifyLowerBound( b, 3.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
 
@@ -568,7 +568,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyLowerBound( b, 0.0, true );
+            relu.notifyLowerBound( b, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
 
@@ -578,7 +578,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyLowerBound( f, 6.0, true );
+            relu.notifyLowerBound( f, 6.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
 
@@ -588,7 +588,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyLowerBound( f, 0.0, true );
+            relu.notifyLowerBound( f, 0.0 );
             TS_ASSERT( !relu.phaseFixed() );
         }
 
@@ -598,7 +598,7 @@ public:
 
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyLowerBound( b, -2.0, true );
+            relu.notifyLowerBound( b, -2.0 );
             TS_ASSERT( !relu.phaseFixed() );
         }
 
@@ -609,16 +609,16 @@ public:
 
 
 
-            relu.notifyLowerBound( b, -5, true );
+            relu.notifyLowerBound( b, -5 );
             InputQuery dontCare;
             unsigned aux = 300;
             dontCare.setNumberOfVariables( aux );
             relu.addAuxiliaryEquations( dontCare );
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyUpperBound( aux, 3.0, true );
+            relu.notifyUpperBound( aux, 3.0 );
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyUpperBound( aux, 0.0, true );
+            relu.notifyUpperBound( aux, 0.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
 
@@ -629,16 +629,16 @@ public:
 
 
 
-            relu.notifyLowerBound( b, -5, true );
+            relu.notifyLowerBound( b, -5 );
             InputQuery dontCare;
             unsigned aux = 300;
             dontCare.setNumberOfVariables( aux );
             relu.addAuxiliaryEquations( dontCare );
 
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyLowerBound( aux, 0.0, true );
+            relu.notifyLowerBound( aux, 0.0 );
             TS_ASSERT( !relu.phaseFixed() );
-            relu.notifyLowerBound( aux, 1.0, true );
+            relu.notifyLowerBound( aux, 1.0 );
             TS_ASSERT( relu.phaseFixed() );
         }
     }
@@ -752,16 +752,16 @@ public:
 
 
 
-        relu.notifyUpperBound( b, 7, true );
-        relu.notifyUpperBound( f, 7, true );
+        relu.notifyUpperBound( b, 7 );
+        relu.notifyUpperBound( f, 7 );
 
-        relu.notifyLowerBound( b, -1, true );
-        relu.notifyLowerBound( f, 0, true );
+        relu.notifyLowerBound( b, -1 );
+        relu.notifyLowerBound( f, 0 );
 
         relu.addAuxiliaryEquations( dontCare );
 
-        relu.notifyLowerBound( aux, 0, true );
-        relu.notifyUpperBound( aux, 1, true );
+        relu.notifyLowerBound( aux, 0 );
+        relu.notifyUpperBound( aux, 1 );
 
         List<Tightening> entailedTightenings;
         relu.getEntailedTightenings( entailedTightenings );
@@ -782,8 +782,8 @@ public:
         // Positive lower bounds for b and f: active case. All bounds
         // propagated between f and b, and aux is set to 0. F and b are
         // non-negative.
-        relu.notifyLowerBound( b, 1, true );
-        relu.notifyLowerBound( f, 2, true );
+        relu.notifyLowerBound( b, 1 );
+        relu.notifyLowerBound( f, 2 );
 
         relu.getEntailedTightenings( entailedTightenings );
 
@@ -810,16 +810,16 @@ public:
 
 
 
-        relu2.notifyUpperBound( b, -1, true );
-        relu2.notifyUpperBound( f, 7, true );
+        relu2.notifyUpperBound( b, -1 );
+        relu2.notifyUpperBound( f, 7 );
 
-        relu2.notifyLowerBound( b, -2, true );
-        relu2.notifyLowerBound( f, 0, true );
+        relu2.notifyLowerBound( b, -2 );
+        relu2.notifyLowerBound( f, 0 );
 
         relu2.addAuxiliaryEquations( dontCare );
 
-        relu2.notifyLowerBound( aux, 0, true );
-        relu2.notifyUpperBound( aux, 2, true );
+        relu2.notifyLowerBound( aux, 0 );
+        relu2.notifyUpperBound( aux, 2 );
 
         relu2.getEntailedTightenings( entailedTightenings );
 
@@ -925,11 +925,11 @@ public:
         relu1->notifyVariableValue( 4, 1.0 );
         relu1->notifyVariableValue( 6, 1.0 );
 
-        relu1->notifyLowerBound( 4, -8.0, true );
-        relu1->notifyUpperBound( 4, 8.0, true );
+        relu1->notifyLowerBound( 4, -8.0 );
+        relu1->notifyUpperBound( 4, 8.0 );
 
-        relu1->notifyLowerBound( 6, 0.0, true );
-        relu1->notifyUpperBound( 6, 8.0, true );
+        relu1->notifyLowerBound( 6, 0.0 );
+        relu1->notifyUpperBound( 6, 8.0 );
 
         PiecewiseLinearConstraint * pwlc = NULL;
         TS_ASSERT_THROWS_NOTHING( pwlc =  relu1->duplicateConstraint() );
@@ -981,9 +981,9 @@ public:
         originalRelu.initializeCDOs( &context );
 
 
-        originalRelu.notifyLowerBound( b, -10, true );
-        originalRelu.notifyUpperBound( f, 5, true );
-        originalRelu.notifyUpperBound( f, 5, true );
+        originalRelu.notifyLowerBound( b, -10 );
+        originalRelu.notifyUpperBound( f, 5 );
+        originalRelu.notifyUpperBound( f, 5 );
 
         String originalSerialized = originalRelu.serializeToString();
         ReluConstraint recoveredRelu( originalSerialized );
@@ -1181,11 +1181,11 @@ public:
 
         query.setNumberOfVariables( 9 );
 
-        relu.notifyLowerBound( 4, -10, true );
-        relu.notifyLowerBound( 6, 0, true );
+        relu.notifyLowerBound( 4, -10 );
+        relu.notifyLowerBound( 6, 0 );
 
-        relu.notifyUpperBound( 4, 15, true );
-        relu.notifyUpperBound( 6, 15, true );
+        relu.notifyUpperBound( 4, 15 );
+        relu.notifyUpperBound( 6, 15 );
 
         TS_ASSERT_THROWS_NOTHING( relu.addAuxiliaryEquations( query ) );
 
@@ -1221,11 +1221,11 @@ public:
 
         query2.setNumberOfVariables( 9 );
 
-        relu2.notifyLowerBound( 4, 3, true );
-        relu2.notifyLowerBound( 6, 0, true );
+        relu2.notifyLowerBound( 4, 3 );
+        relu2.notifyLowerBound( 6, 0 );
 
-        relu2.notifyUpperBound( 4, 15, true );
-        relu2.notifyUpperBound( 6, 15, true );
+        relu2.notifyUpperBound( 4, 15 );
+        relu2.notifyUpperBound( 6, 15 );
 
         TS_ASSERT_THROWS_NOTHING( relu2.addAuxiliaryEquations( query2 ) );
 
@@ -1237,22 +1237,24 @@ public:
     {
         ReluConstraint relu( b, f );
         relu.initializeCDOs( context );
-        relu.registerBoundManager(boundManager);
+
+
 
         InputQuery dontCare;
         dontCare.setNumberOfVariables( aux );
 
-        relu.notifyLowerBound( b, -10, true );
-        relu.notifyLowerBound( f, 0, true );
+        relu.notifyLowerBound( b, -10 );
+        relu.notifyLowerBound( f, 0 );
 
-        relu.notifyUpperBound( b, 15, true );
-        relu.notifyUpperBound( f, 15, true );
+        relu.notifyUpperBound( b, 15 );
+        relu.notifyUpperBound( f, 15 );
 
         TS_ASSERT_THROWS_NOTHING( relu.addAuxiliaryEquations( dontCare ) );
 
-        relu.notifyLowerBound( aux, 0, true );
-        relu.notifyUpperBound( aux, 10, true );
+        relu.notifyLowerBound( aux, 0 );
+        relu.notifyUpperBound( aux, 10 );
 
+        relu.registerBoundManager( boundManager );
 
         return relu;
     }
@@ -1266,35 +1268,34 @@ public:
         boundManager.initialize( 11 );
         List<Tightening> tightenings;
 
+        boundManager.getTightenings( tightenings );
+
         // Initial state: b in [-10, 15], f in [0, 15], aux in [0, 10]
 
         {
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager, &context );
-            TS_ASSERT_THROWS_NOTHING( boundManager.getTightenings(tightenings) );
-            tightenings.clear();
 
-
-            relu.notifyLowerBound( b, -20, true );
+            relu.notifyLowerBound( b, -20 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
-            relu.notifyLowerBound( f, -3, true );
+            relu.notifyLowerBound( f, -3 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
-            relu.notifyLowerBound( aux, -5, true );
+            relu.notifyLowerBound( aux, -5 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
-            relu.notifyUpperBound( b, 20, true );
+            relu.notifyUpperBound( b, 20 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
-            relu.notifyUpperBound( f, 23, true );
+            relu.notifyUpperBound( f, 23 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
 
-            relu.notifyUpperBound( aux, 35, true );
+            relu.notifyUpperBound( aux, 35 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.empty() );
         }
@@ -1302,7 +1303,7 @@ public:
         {
             // Tighter lower bound for b that is negative
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager, &context );
-            relu.notifyLowerBound( b, -8, true );
+            relu.notifyLowerBound( b, -8 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( aux, 8, Tightening::UB ) ) );
         }
@@ -1310,7 +1311,7 @@ public:
         {
             // Tighter upper bound for aux that is positive
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager, &context );
-            relu.notifyUpperBound( aux, 7, true );
+            relu.notifyUpperBound( aux, 7 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( b, -7, Tightening::LB ) ) );
         }
@@ -1318,11 +1319,11 @@ public:
         {
             // Tighter upper bound for b/f that is positive
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager, &context );
-            relu.notifyUpperBound( b, 13, true );
+            relu.notifyUpperBound( b, 13 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( f, 13, Tightening::UB ) ) );
 
-            relu.notifyUpperBound( f, 12, true );
+            relu.notifyUpperBound( f, 12 );
             boundManager.getTightenings( tightenings );
             TS_ASSERT( tightenings.exists( Tightening( b, 12, Tightening::UB ) ) );
         }
@@ -1330,7 +1331,7 @@ public:
         {
             // Tighter upper bound 0 for f
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager, &context );
-            relu.notifyUpperBound( f, 0, true );
+            relu.notifyUpperBound( f, 0 );
             boundManager.getTightenings( tightenings );
 
             TS_ASSERT( tightenings.exists( Tightening( b, 0, Tightening::UB ) ) );
@@ -1339,7 +1340,7 @@ public:
         {
             // Tighter negative upper bound for b
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager, &context );
-            relu.notifyUpperBound( b, -1, true );
+            relu.notifyUpperBound( b, -1 );
             boundManager.getTightenings( tightenings );
 
             TS_ASSERT( tightenings.exists( Tightening( f, 0, Tightening::UB ) ) );
@@ -1349,7 +1350,7 @@ public:
         {
             // Tighter positive lower bound for aux
             ReluConstraint relu = prepareRelu( b, f, aux, &boundManager, &context );
-            relu.notifyLowerBound( aux, 1, true );
+            relu.notifyLowerBound( aux, 1 );
             boundManager.getTightenings( tightenings );
 
             TS_ASSERT( tightenings.exists( Tightening( f, 0, Tightening::UB ) ) );
@@ -1382,8 +1383,8 @@ public:
 
 
 
-            relu.notifyLowerBound( b, 1, true );
-            relu.notifyUpperBound( b, 2, true );
+            relu.notifyLowerBound( b, 1 );
+            relu.notifyUpperBound( b, 2 );
             TS_ASSERT( relu.computePolarity() == 1 );
 
             relu.updateDirection();
@@ -1395,8 +1396,8 @@ public:
             relu.initializeCDOs( &context );
 
 
-            relu.notifyLowerBound( b, -2, true );
-            relu.notifyUpperBound( b, 0, true );
+            relu.notifyLowerBound( b, -2 );
+            relu.notifyUpperBound( b, 0 );
             TS_ASSERT( relu.computePolarity() == -1 );
 
             relu.updateDirection();
@@ -1411,8 +1412,8 @@ public:
 
 
 
-            relu.notifyLowerBound( b, -2, true );
-            relu.notifyUpperBound( b, 2, true );
+            relu.notifyLowerBound( b, -2 );
+            relu.notifyUpperBound( b, 2 );
             TS_ASSERT( relu.computePolarity() == 0 );
 
             relu.updateDirection();
@@ -1446,8 +1447,8 @@ public:
 
 
 
-            relu.notifyLowerBound( b, -2, true );
-            relu.notifyUpperBound( b, 3, true );
+            relu.notifyLowerBound( b, -2 );
+            relu.notifyUpperBound( b, 3 );
             TS_ASSERT( relu.computePolarity() == 0.2 );
 
             relu.updateDirection();

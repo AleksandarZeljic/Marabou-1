@@ -57,8 +57,8 @@ public:
       changes, or when its bounds change.
     */
     void notifyVariableValue( unsigned variable, double value );
-    void notifyLowerBound( unsigned variable, double bound, bool updateBM = false );
-    void notifyUpperBound( unsigned variable, double bound, bool updateBM = false );
+    void notifyLowerBound( unsigned variable, double bound );
+    void notifyUpperBound( unsigned variable, double bound );
 
     /*
       Returns true iff the variable participates in this piecewise

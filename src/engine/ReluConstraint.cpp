@@ -132,7 +132,7 @@ void ReluConstraint::notifyVariableValue( unsigned variable, double value )
 }
 
 // TODO: Consider racing calls and how to not repeat work
-void ReluConstraint::notifyLowerBound( unsigned variable, double bound, bool updateBoundManager )
+void ReluConstraint::notifyLowerBound( unsigned variable, double bound )
 {
     if ( _statistics )
         _statistics->incNumBoundNotificationsPlConstraints();
@@ -154,9 +154,7 @@ void ReluConstraint::notifyLowerBound( unsigned variable, double bound, bool upd
     }
     else if ( !phaseFixed() )
     {
-        ASSERT( nullptr != _boundManager );
-        if ( updateBoundManager && !_boundManager->setLowerBound( variable, bound ) )
-            return;
+        ASSERT( nullptr != _boundManager )
         // Communicated bound is already registered with the central boundManager
         double lowerBound = _boundManager->getLowerBound( variable );
         ASSERT( FloatUtils::gte( lowerBound, bound ) );
@@ -211,7 +209,7 @@ void ReluConstraint::notifyLowerBound( unsigned variable, double bound, bool upd
     }
 }
 
-void ReluConstraint::notifyUpperBound( unsigned variable, double bound, bool updateBoundManager )
+void ReluConstraint::notifyUpperBound( unsigned variable, double bound )
 {
     if ( _statistics )
         _statistics->incNumBoundNotificationsPlConstraints();
@@ -232,9 +230,6 @@ void ReluConstraint::notifyUpperBound( unsigned variable, double bound, bool upd
     else if ( !phaseFixed() )
     {
         ASSERT( nullptr != _boundManager );
-
-        if ( updateBoundManager && !_boundManager->setUpperBound( variable, bound ) )
-            return;
         // Communicated bound is already registered with the central boundManager
         double upperBound = _boundManager->getUpperBound( variable );
         ASSERT( FloatUtils::lte( upperBound, bound ) );
@@ -853,7 +848,7 @@ void ReluConstraint::addAuxiliaryEquations( InputQuery &inputQuery )
     inputQuery.addEquation( equation );
 
     // Adjust the bounds for the new variable
-    ASSERT( _lowerBounds.exists( _b )  || nullptr != _boundManager);
+    ASSERT( _lowerBounds.exists( _b ) );
     inputQuery.setLowerBound( _aux, 0 );
 
     // Generally, aux.ub = -b.lb. However, if b.lb is positive (active
