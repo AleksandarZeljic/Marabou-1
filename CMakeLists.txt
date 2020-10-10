@@ -52,8 +52,6 @@ set(CVC4BASE_DIR "${CVC4_DIR}/base")
 file(GLOB DEPS_CVC4_CONTEXT "${CONTEXT_DIR}/*.cpp")
 file(GLOB DEPS_CVC4_BASE "${CVC4BASE_DIR}/*.cpp")
 
-include_directories(SYSTEM ${CVC4_DIR} ${CVC4_DIR}/include)
-
 set(OPENBLAS_LIB openblas)
 
 set(BIN_DIR "${CMAKE_BINARY_DIR}/bin")
@@ -138,7 +136,7 @@ if(${BUILD_PYTHON})
 endif()
 
 if (NOT MSVC)
-    set(COMPILE_FLAGS  -Wall -Wextra  -Werror -MMD) #-Wno-deprecated
+    set(COMPILE_FLAGS  -Wall -Wextra  -Werror -MMD ) #-Wno-deprecated
     set(RELEASE_FLAGS ${COMPILE_FLAGS} -O3) #-Wno-deprecated
 endif()
 
@@ -160,7 +158,7 @@ add_definitions(-DRESOURCES_DIR="${RESOURCES_DIR}")
 
 if (NOT MSVC)
     set(DEBUG_FLAGS ${COMPILE_FLAGS} ${MEMORY_FLAGS} -g)
-    set(CXXTEST_FLAGS ${DEBUG_FLAGS}  -Wno-ignored-qualifiers)
+    set(CXXTEST_FLAGS ${DEBUG_FLAGS}  -Wno-ignored-qualifiers -isystem ${CXXTEST_INCLUDE_DIR})
 else()
     set(DEBUG_FLAGS ${COMPILE_FLAGS} ${MEMORY_FLAGS})
     add_definitions(-DNOMINMAX) # remove min max macros
