@@ -37,6 +37,7 @@ ReluConstraint::ReluConstraint( unsigned b, unsigned f )
     , _auxVarInUse( false )
     , _direction( PHASE_NOT_FIXED )
     , _haveEliminatedVariables( false )
+
 {
 }
 
@@ -597,7 +598,7 @@ bool ReluConstraint::phaseFixed() const
     return getPhaseStatus() != PHASE_NOT_FIXED;
 }
 
-PiecewiseLinearCaseSplit ReluConstraint::getValidCaseSplit() const
+PiecewiseLinearCaseSplit ReluConstraint::getImpliedCaseSplit() const
 {
     ASSERT( getPhaseStatus() != PHASE_NOT_FIXED );
 

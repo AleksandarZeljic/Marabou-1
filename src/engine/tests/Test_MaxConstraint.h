@@ -295,7 +295,7 @@ void test_max_fixes()
 
         max.notifyVariableValue( 2, 7);
 
-        PiecewiseLinearCaseSplit validSplit = max.getValidCaseSplit();
+        PiecewiseLinearCaseSplit validSplit = max.getImpliedCaseSplit();
 		auto equations = validSplit.getEquations();
 
         TS_ASSERT_EQUALS( equations.size(), 1U );

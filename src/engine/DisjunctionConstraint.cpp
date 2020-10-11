@@ -159,7 +159,7 @@ bool DisjunctionConstraint::phaseFixed() const
     return _feasibleDisjuncts.size() == 1;
 }
 
-PiecewiseLinearCaseSplit DisjunctionConstraint::getValidCaseSplit() const
+PiecewiseLinearCaseSplit DisjunctionConstraint::getImpliedCaseSplit() const
 {
     return *_feasibleDisjuncts.begin();
 }

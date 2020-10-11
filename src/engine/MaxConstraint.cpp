@@ -406,7 +406,7 @@ bool MaxConstraint::phaseFixed() const
     return _elements.size() == 1;
 }
 
-PiecewiseLinearCaseSplit MaxConstraint::getValidCaseSplit() const
+PiecewiseLinearCaseSplit MaxConstraint::getImpliedCaseSplit() const
 {
     ASSERT( phaseFixed() );
     return getSplit( *( _elements.begin() ) );

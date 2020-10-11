@@ -108,7 +108,7 @@ class MaxConstraint : public PiecewiseLinearConstraint
     /*
       If the constraint's phase has been fixed, get the (valid) case split.
     */
-    PiecewiseLinearCaseSplit getValidCaseSplit() const;
+    PiecewiseLinearCaseSplit getImpliedCaseSplit() const;
 
     /*
       Return a list of smart fixes for violated constraint.

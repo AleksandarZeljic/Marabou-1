@@ -105,7 +105,7 @@ void PrecisionRestorer::restorePrecision( IEngine &engine,
             pair.first->setActiveConstraint( pair.second->isActive() );
 
         engine.setNumPlConstraintsDisabledByValidSplits
-            ( targetEngineState._numPlConstraintsDisabledByValidSplits );
+            ( targetEngineState._numImpliedPlConstraints );
 
         DEBUG({
                 // Same dimensions
@@ -123,8 +123,8 @@ void PrecisionRestorer::restorePrecision( IEngine &engine,
                 EngineState currentEngineState;
                 engine.storeState( currentEngineState, false );
 
-                ASSERT( currentEngineState._numPlConstraintsDisabledByValidSplits ==
-                        targetEngineState._numPlConstraintsDisabledByValidSplits );
+                ASSERT( currentEngineState._numImpliedPlConstraints ==
+                        targetEngineState._numImpliedPlConstraints );
 
                 tableau.verifyInvariants();
             });

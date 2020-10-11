@@ -662,7 +662,7 @@ public:
         TS_ASSERT( relu.phaseFixed() );
 
         PiecewiseLinearCaseSplit split;
-        TS_ASSERT_THROWS_NOTHING( split = relu.getValidCaseSplit() );
+        TS_ASSERT_THROWS_NOTHING( split = relu.getImpliedCaseSplit() );
 
         Equation activeEquation;
 
@@ -712,7 +712,7 @@ public:
         TS_ASSERT( relu.phaseFixed() );
 
         PiecewiseLinearCaseSplit split;
-        TS_ASSERT_THROWS_NOTHING( split = relu.getValidCaseSplit() );
+        TS_ASSERT_THROWS_NOTHING( split = relu.getImpliedCaseSplit() );
 
         Equation activeEquation;
 

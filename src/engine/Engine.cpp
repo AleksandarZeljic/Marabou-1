@@ -38,7 +38,7 @@ Engine::Engine( unsigned verbosity )
     , _tableau( _boundManager )
     , _rowBoundTightener( *_tableau )
     , _smtCore( this, _context )
-    , _numPlConstraintsDisabledByValidSplits( 0 )
+    , _numImpliedPlConstraints( 0 )
     , _preprocessingEnabled( false )
     , _initialStateStored( false )
     , _work( NULL )
@@ -330,9 +330,9 @@ void Engine::mainLoopStatistics()
             ++activeConstraints;
 
     _statistics.setNumActivePlConstraints( activeConstraints );
-    _statistics.setNumPlValidSplits( _numPlConstraintsDisabledByValidSplits );
+    _statistics.setNumPlValidSplits( _numImpliedPlConstraints );
     _statistics.setNumPlSMTSplits( _plConstraints.size() -
-                                   activeConstraints - _numPlConstraintsDisabledByValidSplits );
+                                   activeConstraints - _numImpliedPlConstraints );
 
     _statistics.incNumMainLoopIterations();
 
@@ -1258,7 +1258,7 @@ void Engine::storeState( EngineState &state, bool storeAlsoTableauState ) const
     for ( const auto &constraint : _plConstraints )
         state._plConstraintToState[constraint] = constraint->duplicateConstraint();
 
-    state._numPlConstraintsDisabledByValidSplits = _numPlConstraintsDisabledByValidSplits;
+    state._numImpliedPlConstraints = _numImpliedPlConstraints;
 }
 
 void Engine::restoreState( const EngineState &state )
@@ -1280,7 +1280,7 @@ void Engine::restoreState( const EngineState &state )
         constraint->restoreState( state._plConstraintToState[constraint] );
     }
 
-    _numPlConstraintsDisabledByValidSplits = state._numPlConstraintsDisabledByValidSplits;
+    _numImpliedPlConstraints = state._numImpliedPlConstraints;
 
     // Make sure the data structures are initialized to the correct size
     _rowBoundTightener->setDimensions();
@@ -1316,7 +1316,7 @@ void Engine::restoreStateForPrecisionRestoration( const EngineState &state )
 
 void Engine::setNumPlConstraintsDisabledByValidSplits( unsigned numConstraints )
 {
-    _numPlConstraintsDisabledByValidSplits = numConstraints;
+    _numImpliedPlConstraints = numConstraints;
 }
 
 bool Engine::attemptToMergeVariables( unsigned x1, unsigned x2 )
@@ -1559,6 +1559,8 @@ void Engine::applyAllBoundTightenings()
     _statistics.addTimeForApplyingStoredTightenings( TimeUtils::timePassed( start, end ) );
 }
 
+// TODO:  Linear pass attempting to discover implications - O(n) where n is number of active(?) constraints presumably
+//        Replace by a triggered resolution, when phase is fixed or implication detected  
 bool Engine::applyAllValidConstraintCaseSplits()
 {
     struct timespec start = TimeUtils::sampleMicro();
@@ -1584,9 +1586,9 @@ bool Engine::applyValidConstraintCaseSplit( PiecewiseLinearConstraint *constrain
                       constraintString.ascii() ).ascii() );
 
         constraint->setActiveConstraint( false );
-        PiecewiseLinearCaseSplit validSplit = constraint->getValidCaseSplit();
+        PiecewiseLinearCaseSplit validSplit = constraint->getImpliedCaseSplit();
         _smtCore.pushImplication( constraint, validSplit.getPhase() );
-        ++_numPlConstraintsDisabledByValidSplits;
+        ++_numImpliedPlConstraints;
 
         return true;
     }

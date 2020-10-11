@@ -1043,7 +1043,7 @@ public:
         TS_ASSERT( abs.phaseFixed() );
 
         PiecewiseLinearCaseSplit split;
-        TS_ASSERT_THROWS_NOTHING( split = abs.getValidCaseSplit() );
+        TS_ASSERT_THROWS_NOTHING( split = abs.getImpliedCaseSplit() );
 
         Equation activeEquation;
 
@@ -1090,7 +1090,7 @@ public:
         TS_ASSERT( abs.phaseFixed() );
 
         PiecewiseLinearCaseSplit split;
-        TS_ASSERT_THROWS_NOTHING( split = abs.getValidCaseSplit() );
+        TS_ASSERT_THROWS_NOTHING( split = abs.getImpliedCaseSplit() );
 
         Equation activeEquation;
 

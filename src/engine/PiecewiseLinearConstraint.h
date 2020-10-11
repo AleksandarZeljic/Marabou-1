@@ -188,7 +188,7 @@ public:
     /*
       If the constraint's phase has been fixed, get the (valid) case split.
     */
-    virtual PiecewiseLinearCaseSplit getValidCaseSplit() const = 0;
+    virtual PiecewiseLinearCaseSplit getImpliedCaseSplit() const = 0;
 
     /*
       Dump the current state of the constraint.

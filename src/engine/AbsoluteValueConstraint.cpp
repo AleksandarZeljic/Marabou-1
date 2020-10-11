@@ -291,7 +291,7 @@ bool AbsoluteValueConstraint::phaseFixed() const
     return *_phaseStatus != PHASE_NOT_FIXED;
 }
 
-PiecewiseLinearCaseSplit AbsoluteValueConstraint::getValidCaseSplit() const
+PiecewiseLinearCaseSplit AbsoluteValueConstraint::getImpliedCaseSplit() const
 {
     ASSERT( *_phaseStatus != PHASE_NOT_FIXED );
 

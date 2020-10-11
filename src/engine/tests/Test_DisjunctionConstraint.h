@@ -249,7 +249,7 @@ public:
             dc.notifyLowerBound( 0, 6 );
             TS_ASSERT( dc.phaseFixed() );
 
-            PiecewiseLinearCaseSplit validSplit = dc.getValidCaseSplit();
+            PiecewiseLinearCaseSplit validSplit = dc.getImpliedCaseSplit();
             TS_ASSERT_EQUALS( validSplit, *cs3 );
         }
 
@@ -274,7 +274,7 @@ public:
             dc.notifyUpperBound( 0, -2 );
             TS_ASSERT( dc.phaseFixed() );
 
-            PiecewiseLinearCaseSplit validSplit = dc.getValidCaseSplit();
+            PiecewiseLinearCaseSplit validSplit = dc.getImpliedCaseSplit();
             TS_ASSERT_EQUALS( validSplit, *cs1 );
         }
     }

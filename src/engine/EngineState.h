@@ -37,7 +37,7 @@ public:
       The state of each of the PL constraints
     */
     Map<PiecewiseLinearConstraint *, PiecewiseLinearConstraint *> _plConstraintToState;
-    unsigned _numPlConstraintsDisabledByValidSplits;
+    unsigned _numImpliedPlConstraints;
 
     /*
       A unique ID allocated to every state that is stored, for

@@ -114,7 +114,7 @@ public:
     /*
       If the constraint's phase has been fixed, get the (valid) case split.
     */
-    PiecewiseLinearCaseSplit getValidCaseSplit() const;
+    PiecewiseLinearCaseSplit getImpliedCaseSplit() const;
 
     /*
       Preprocessing related functions, to inform that a variable has

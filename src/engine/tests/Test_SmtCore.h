@@ -125,7 +125,7 @@ public:
             return false;
         }
 
-        PiecewiseLinearCaseSplit getValidCaseSplit() const
+        PiecewiseLinearCaseSplit getImpliedCaseSplit() const
         {
             PiecewiseLinearCaseSplit dontCare;
             return dontCare;

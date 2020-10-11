@@ -247,7 +247,7 @@ private:
     /*
       Number of pl constraints disabled by valid splits.
     */
-    unsigned _numPlConstraintsDisabledByValidSplits;
+    unsigned _numImpliedPlConstraints;
 
     /*
       Degradation checker.
