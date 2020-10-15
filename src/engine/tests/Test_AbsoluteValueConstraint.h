@@ -24,6 +24,8 @@
 #include <iostream>
 #include <string.h>
 
+using namespace CVC4::context;
+
 class MockForAbsoluteValueConstraint : public MockErrno
 {
 public:
@@ -33,12 +35,12 @@ class AbsoluteValueConstraintTestSuite : public CxxTest::TestSuite
 {
 public:
     MockForAbsoluteValueConstraint *mock;
-    CVC4::context::Context *context;
+    Context *context;
 
     void setUp()
     {
         TS_ASSERT( mock = new MockForAbsoluteValueConstraint );
-        TS_ASSERT( context = new CVC4::context::Context );
+        TS_ASSERT( context = new Context );
     }
 
     void tearDown()
@@ -49,18 +51,18 @@ public:
 
     void test_initialization_of_CDOs()
     {
-        CVC4::context::Context context;
+        Context context;
         AbsoluteValueConstraint *abs1 = new AbsoluteValueConstraint( 4, 6 );
 
-        TS_ASSERT_EQUALS( abs1->getContext(), nullptr );
-        TS_ASSERT_EQUALS( abs1->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( abs1->getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( abs1->getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_EQUALS( abs1->getContext(), static_cast<Context*>( nullptr ) );
+        TS_ASSERT_EQUALS( abs1->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_EQUALS( abs1->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_EQUALS( abs1->getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
         TS_ASSERT_THROWS_NOTHING( abs1->initializeCDOs( &context ) );
         TS_ASSERT_EQUALS( abs1->getContext(), &context );
-        TS_ASSERT_DIFFERS( abs1->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( abs1->getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( abs1->getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_DIFFERS( abs1->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( abs1->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( abs1->getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
 
         bool active = false;
         TS_ASSERT_THROWS_NOTHING( active = abs1->isActive() );
@@ -97,8 +99,8 @@ public:
 
         AbsoluteValueConstraint *abs2 = dynamic_cast<AbsoluteValueConstraint*>( pwlc );
         TS_ASSERT_EQUALS( abs1.getContext(), abs2->getContext() );
-        TS_ASSERT_DIFFERS( abs2->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( abs2->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( abs2->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( abs2->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
         TS_ASSERT_DIFFERS( abs1.getPhaseStatusCDO(), abs2->getPhaseStatusCDO() );
         TS_ASSERT_DIFFERS( abs1.getActiveStatusCDO(), abs2->getActiveStatusCDO() );
 

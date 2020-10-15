@@ -162,7 +162,7 @@ public:
 
     void test_relu_context_dependent_state()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -326,7 +326,7 @@ public:
         unsigned b = 1;
         unsigned f = 4;
 
-        CVC4::context::Context context;
+        Context context;
         ReluConstraint relu( b, f );
         relu.initializeCDOs( &context );
 
@@ -422,7 +422,7 @@ public:
 
     void test_fix_active()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -467,7 +467,7 @@ public:
 
     void test_fix_inactive()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -494,7 +494,7 @@ public:
 
     void test_constraint_phase_gets_fixed()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -645,7 +645,7 @@ public:
 
     void test_valid_split_relu_phase_fixed_to_active()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -695,7 +695,7 @@ public:
 
     void test_valid_split_relu_phase_fixed_to_inactive()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -739,7 +739,7 @@ public:
 
     void test_relu_entailed_tightenings()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -839,19 +839,19 @@ public:
 
     void test_initialization_of_CDOs()
     {
-        CVC4::context::Context context;
+        Context context;
         ReluConstraint *relu1 = new ReluConstraint( 4, 6 );
 
-        TS_ASSERT_EQUALS( relu1->getContext(), nullptr );
+        TS_ASSERT_EQUALS(relu1->getContext(), static_cast<Context*>( static_cast<Context*>( nullptr ) ) );
 
-        TS_ASSERT_EQUALS( relu1->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( relu1->getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( relu1->getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_EQUALS( relu1->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_EQUALS( relu1->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_EQUALS( relu1->getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
         TS_ASSERT_THROWS_NOTHING( relu1->initializeCDOs( &context ) );
         TS_ASSERT_EQUALS( relu1->getContext(), &context );
-        TS_ASSERT_DIFFERS( relu1->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( relu1->getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( relu1->getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_DIFFERS( relu1->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( relu1->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( relu1->getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
 
         bool active = false;
         TS_ASSERT_THROWS_NOTHING( active = relu1->isActive() );
@@ -869,7 +869,7 @@ public:
 
     void test_lazy_backtracking_of_CDOs()
     {
-        CVC4::context::Context context;
+        Context context;
         ReluConstraint *relu1 = new ReluConstraint( 4, 6 );
         TS_ASSERT_THROWS_NOTHING( relu1->initializeCDOs( &context ) );
 
@@ -917,7 +917,7 @@ public:
 
     void test_relu_duplicate_and_restore()
     {
-        CVC4::context::Context context;
+        Context context;
         ReluConstraint *relu1 = new ReluConstraint( 4, 6 );
         TS_ASSERT_THROWS_NOTHING( relu1->initializeCDOs( &context ) );
 
@@ -935,8 +935,8 @@ public:
         TS_ASSERT_THROWS_NOTHING( pwlc =  relu1->duplicateConstraint() );
         ReluConstraint *relu2 = dynamic_cast<ReluConstraint*>( pwlc );
         TS_ASSERT_EQUALS( relu1->getContext(), relu2->getContext() );
-        TS_ASSERT_DIFFERS( relu2->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( relu2->getPhaseStatusCDO(), nullptr );
+        TS_ASSERT_DIFFERS( relu1->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( relu1->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
         TS_ASSERT_DIFFERS( relu1->getPhaseStatusCDO(), relu2->getPhaseStatusCDO() );
         TS_ASSERT_DIFFERS( relu1->getActiveStatusCDO(), relu2->getActiveStatusCDO() );
 
@@ -955,7 +955,7 @@ public:
 
     void test_eliminate_variable_active()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -973,7 +973,7 @@ public:
 
     void test_serialize_and_unserialize()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 42;
         unsigned f = 7;
 
@@ -1027,7 +1027,7 @@ public:
 
     void test_relu_smart_fixes()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 
@@ -1172,7 +1172,7 @@ public:
 
     void test_add_auxiliary_equations()
     {
-        CVC4::context::Context context;
+        Context context;
         ReluConstraint relu( 4, 6 );
         relu.initializeCDOs( &context );
 
@@ -1233,7 +1233,7 @@ public:
         TS_ASSERT_EQUALS( query2.getUpperBound( aux ), 0 );
     }
 
-    ReluConstraint prepareRelu( unsigned b, unsigned f, unsigned aux, BoundManager *boundManager, CVC4::context::Context *context )
+    ReluConstraint prepareRelu( unsigned b, unsigned f, unsigned aux, BoundManager *boundManager, Context *context )
     {
         ReluConstraint relu( b, f );
         relu.initializeCDOs( context );
@@ -1360,7 +1360,7 @@ public:
 
     void test_polarity()
     {
-        CVC4::context::Context context;
+        Context context;
         unsigned b = 1;
         unsigned f = 4;
 

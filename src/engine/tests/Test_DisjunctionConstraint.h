@@ -19,6 +19,8 @@
 #include "MarabouError.h"
 #include "MockErrno.h"
 
+using namespace CVC4::context; 
+
 class MockForDisjunctionConstraint
     : public MockErrno
 {
@@ -77,21 +79,21 @@ public:
 
     void test_initialization_of_CDOs()
     {
-        CVC4::context::Context context;
+        Context context;
 
         List<PiecewiseLinearCaseSplit> caseSplits = { *cs1, *cs2, *cs3 };
         DisjunctionConstraint dc( caseSplits );
 
-        TS_ASSERT_EQUALS( dc.getContext(), nullptr );
+        TS_ASSERT_EQUALS( dc.getContext(), static_cast<Context*>( nullptr ) );
 
-        TS_ASSERT_EQUALS( dc.getActiveStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( dc.getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( dc.getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_EQUALS( dc.getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_EQUALS( dc.getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_EQUALS( dc.getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
         TS_ASSERT_THROWS_NOTHING( dc.initializeCDOs( &context ) );
         TS_ASSERT_EQUALS( dc.getContext(), &context );
-        TS_ASSERT_DIFFERS( dc.getActiveStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( dc.getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( dc.getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_DIFFERS( dc.getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( dc.getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( dc.getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
 
         bool active = false;
         TS_ASSERT_THROWS_NOTHING( active = dc.isActive() );

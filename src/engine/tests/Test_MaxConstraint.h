@@ -22,6 +22,8 @@
 
 #include <string.h>
 
+using namespace CVC4::context;
+
 class MockForMaxConstraint
 {
 public:
@@ -31,11 +33,11 @@ class MaxConstraintTestSuite : public CxxTest::TestSuite
 {
 public:
     MockForMaxConstraint *mock;
-    CVC4::context::Context *context;
+    Context *context;
 	void setUp()
     {
         TS_ASSERT( mock = new MockForMaxConstraint );
-        TS_ASSERT( context = new CVC4::context::Context );
+        TS_ASSERT( context = new Context );
     }
 
     void tearDown()
@@ -109,7 +111,7 @@ public:
 
     void test_initialization_of_CDOs()
     {
-        CVC4::context::Context context;
+        Context context;
 
         unsigned f = 1;
         Set<unsigned> elements;
@@ -119,16 +121,16 @@ public:
 
         MaxConstraint *max1 =  new MaxConstraint ( f, elements );
 
-        TS_ASSERT_EQUALS( max1->getContext(), nullptr );
+        TS_ASSERT_EQUALS(max1->getContext(), static_cast<Context*>( nullptr ) );
 
-        TS_ASSERT_EQUALS( max1->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( max1->getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_EQUALS( max1->getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_EQUALS( max1->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_EQUALS( max1->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_EQUALS( max1->getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
         TS_ASSERT_THROWS_NOTHING( max1->initializeCDOs( &context ) );
         TS_ASSERT_EQUALS( max1->getContext(), &context );
-        TS_ASSERT_DIFFERS( max1->getActiveStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( max1->getPhaseStatusCDO(), nullptr );
-        TS_ASSERT_DIFFERS( max1->getInfeasibleCasesCDList(), nullptr );
+        TS_ASSERT_DIFFERS( max1->getActiveStatusCDO(), static_cast<CDO<bool>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( max1->getPhaseStatusCDO(), static_cast<CDO<PhaseStatus>*>( nullptr ) );
+        TS_ASSERT_DIFFERS( max1->getInfeasibleCasesCDList(), static_cast<CDList<PhaseStatus>*>( nullptr ) );
 
         bool active = false;
         TS_ASSERT_THROWS_NOTHING( active = max1->isActive() );
