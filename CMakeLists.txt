@@ -129,20 +129,20 @@ if(${BUILD_PYTHON})
     endif()
 endif()
 
-if (NOT MSVC)
+if (NOT WIN32)
     set(COMPILE_FLAGS  -Wall -Wextra  -Werror -MMD) #-Wno-deprecated
     set(RELEASE_FLAGS ${COMPILE_FLAGS} -O3) #-Wno-deprecated
 endif()
 
 if (RUN_MEMORY_TEST)
-    if(NOT MSVC)
+    if(NOT WIN32)
         set(MEMORY_FLAGS -fsanitize=address -fno-omit-frame-pointer -O1)
     endif()
 endif()
 
 add_definitions(-DRESOURCES_DIR="${RESOURCES_DIR}")
 
-if (NOT MSVC)
+if (NOT WIN32)
     set(DEBUG_FLAGS ${COMPILE_FLAGS} ${MEMORY_FLAGS} -g)
     set(CXXTEST_FLAGS ${DEBUG_FLAGS}  -Wno-ignored-qualifiers)
 else()
@@ -155,22 +155,22 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 # Boost
-if (MSVC)
+if (WIN32)
     set(BOOST_ROOT "${BOOST_DIR}/win_installed")
-elseif (${CMAKE_SIZEOF_VOID_P} EQUAL 4 AND NOT MSVC)
+elseif (${CMAKE_SIZEOF_VOID_P} EQUAL 4 AND NOT WIN32)
     set(BOOST_ROOT "${BOOST_DIR}/installed32")
 else()
     set(BOOST_ROOT "${BOOST_DIR}/installed")
 endif()
 
-if (MSVC)
+if (WIN32)
     set(SCRIPT_EXTENSION bat)
     set(Boost_NAMESPACE libboost)
 else()
     set(SCRIPT_EXTENSION sh)
 endif()
 
-if (MSVC)
+if (WIN32)
     set(SCRIPT_EXTENSION bat)
     set(Boost_NAMESPACE libboost)
 else()
@@ -215,7 +215,7 @@ if (${ENABLE_GUROBI})
   target_include_directories(${GUROBI_LIB2} INTERFACE ${GUROBI_DIR}/include/)
 endif()
 
-if (NOT MSVC)
+if (NOT WIN32)
 if (${ENABLE_OPENBLAS})
     message(STATUS "using openblas for matrix multiplication")
     add_compile_definitions(ENABLE_OPENBLAS)
@@ -289,7 +289,7 @@ if (${BUILD_PYTHON})
 
     set_target_properties(${MARABOU_PY} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${PYTHON_API_DIR})
-    if(NOT MSVC)
+    if(NOT WIN32)
         target_compile_options(${MARABOU_LIB} PRIVATE -fPIC ${RELEASE_FLAGS})
     endif()
 endif()
@@ -347,7 +347,7 @@ if (NOT ${TESTS_TO_RUN} STREQUAL "")
 endif()
 
 if (${BUILD_PYTHON} AND ${RUN_PYTHON_TEST})
-    if (MSVC)
+    if (WIN32)
         add_custom_command(
             TARGET build-tests
             POST_BUILD
