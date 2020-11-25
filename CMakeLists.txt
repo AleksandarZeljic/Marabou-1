@@ -150,6 +150,7 @@ else()
     add_definitions(-DNOMINMAX) # remove min max macros
 endif()
 
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CXXTEST_FLAGS ${CXXTEST_FLAGS} -Wno-terminate)
 endif()
