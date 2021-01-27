@@ -52,12 +52,20 @@ void PiecewiseLinearConstraint::registerBoundManager( BoundManager *boundManager
 
 void PiecewiseLinearConstraint::initializeCDOs( CVC4::context::Context *context )
 {
-    ASSERT( nullptr == _context );
-    _context = context;
-
-    initializeActiveStatus();
-    initializePhaseStatus();
-    initializeInfeasibleCases();
+    if ( _context == NULL )
+    {
+        _context = context;
+        initializeActiveStatus();
+        initializePhaseStatus();
+        initializeInfeasibleCases();
+    }
+    else
+    {
+        _context = context;
+        reinitializeActiveStatus();
+        reinitializePhaseStatus();
+        reinitializeInfeasibleCases();
+    }
 }
 
 void PiecewiseLinearConstraint::cdoCleanup()
@@ -99,6 +107,35 @@ void PiecewiseLinearConstraint::initializePhaseStatus()
     ASSERT( nullptr != _context );
     ASSERT( nullptr == _phaseStatus );
     _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, PHASE_NOT_FIXED );
+}
+
+void PiecewiseLinearConstraint::reinitializeInfeasibleCases()
+{
+    ASSERT( nullptr != _context );
+    ASSERT( nullptr != _infeasibleCases );
+    auto infeasibleCases = new (true) CVC4::context::CDList<PhaseStatus>( _context );
+    for ( auto infeasibleCase = _infeasibleCases->begin(); infeasibleCase != _infeasibleCases->end(); ++infeasibleCase )
+        infeasibleCases->push_back( *infeasibleCase );
+    _infeasibleCases->deleteSelf();
+    _infeasibleCases = infeasibleCases;
+}
+
+void PiecewiseLinearConstraint::reinitializeActiveStatus()
+{
+    ASSERT( nullptr != _context );
+    ASSERT( nullptr != _constraintActive );
+    bool constraintActive = *_constraintActive;
+    _constraintActive->deleteSelf();
+    _constraintActive = new (true) CVC4::context::CDO<bool>( _context, constraintActive );
+}
+
+void PiecewiseLinearConstraint::reinitializePhaseStatus()
+{
+    ASSERT( nullptr != _context );
+    ASSERT( nullptr != _phaseStatus );
+    PhaseStatus phaseStatus = *_phaseStatus;
+    _phaseStatus->deleteSelf();
+    _phaseStatus = new (true) CVC4::context::CDO<PhaseStatus>( _context, phaseStatus );
 }
 
 

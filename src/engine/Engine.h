@@ -54,6 +54,8 @@ public:
     Engine( unsigned verbosity = 2 );
     ~Engine();
 
+    void pushContext();
+
     /*
       Attempt to find a feasible solution for the input within a time limit
       (a timeout of 0 means no time limit). Returns true if found, false if infeasible.

@@ -161,6 +161,8 @@ public:
      */
     PiecewiseLinearCaseSplit getDecision( unsigned decisionLevel );
 
+    void reset();
+
     /*
       For debugging purposes only - store a correct possible solution
     */

@@ -395,6 +395,10 @@ protected:
     void initializePhaseStatus();
     void initializeDuplicatesCDOs( PiecewiseLinearConstraint *clone ) const;
     void initializeInfeasibleCases();
+    void reinitializeActiveStatus();
+    void reinitializePhaseStatus();
+    void reinitializeInfeasibleCases();
+
 
     void setPhaseStatus( PhaseStatus phaseStatus );
     PhaseStatus getPhaseStatus() const;

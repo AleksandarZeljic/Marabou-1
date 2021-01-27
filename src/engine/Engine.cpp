@@ -92,6 +92,11 @@ void Engine::adjustWorkMemorySize()
         throw MarabouError( MarabouError::ALLOCATION_FAILED, "Engine::work" );
 }
 
+void Engine::pushContext()
+{
+    _context.push();
+}
+
 bool Engine::solve( unsigned timeoutInSeconds )
 {
     SignalHandler::getInstance()->initialize();
@@ -1530,6 +1535,7 @@ void Engine::applySplit( const PiecewiseLinearCaseSplit &split )
     }
 
     DEBUG( _tableau->verifyInvariants() );
+
     ENGINE_LOG( "Done with split\n" );
 }
 
@@ -1870,7 +1876,7 @@ void Engine::clearViolatedPLConstraints()
 
 void Engine::resetSmtCore()
 {
-    ASSERT(0);
+    _smtCore.reset();
 }
 
 void Engine::resetExitCode()

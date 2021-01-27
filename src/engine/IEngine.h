@@ -60,6 +60,8 @@ public:
 
     virtual void restoreStateForPrecisionRestoration( const EngineState &state ) = 0;
 
+    virtual void pushContext() {};
+
     /*
       Solve the encoded query.
     */

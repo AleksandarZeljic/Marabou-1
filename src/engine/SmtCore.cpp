@@ -81,7 +81,7 @@ bool SmtCore::needToSplit() const
 
 void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  PhaseStatus decision )
 {
-    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
+    //ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
     SMT_LOG( "New decision level ..." );
 
     _context.push();
@@ -93,7 +93,7 @@ void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  PhaseStatus 
     _engine->applySplit( constraint->getCaseSplit( decision ) );
 
     SMT_LOG( Stringf( "Decision push @ %d DONE", _context.getLevel() ).ascii() );
-    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
+    //ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
 }
 
 void SmtCore::pushImplication( PiecewiseLinearConstraint *constraint, PhaseStatus phase )
@@ -270,14 +270,14 @@ void SmtCore::decideSplit( PiecewiseLinearConstraint * constraint )
 
 unsigned SmtCore::getDecisionLevel() const
 {
-    ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
-    return _context.getLevel();
+    //ASSERT ( (int)( _decisions.size() ) == (int)( _context.getLevel() ) );
+    return _decisions.size();
 }
 
 //TODO _decision bookkeeping
 bool SmtCore::popDecisionLevel( TrailEntry &lastDecision )
 {
-    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
+    //ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
     if ( _decisions.empty() )
         return false;
 
@@ -286,7 +286,7 @@ bool SmtCore::popDecisionLevel( TrailEntry &lastDecision )
     lastDecision = _decisions.back();
 
     _context.pop();
-    ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
+    //ASSERT( static_cast<size_t>( _context.getLevel() ) == _decisions.size() );
     _engine->recomputeBasicStatus();
     SMT_LOG( Stringf( "Backtracking context - %d DONE", _context.getLevel() ).ascii() );
     return true;
@@ -517,6 +517,17 @@ bool SmtCore::pickSplitPLConstraint()
     if ( _needToSplit )
         _constraintForSplitting = _engine->pickSplitPLConstraint();
     return _constraintForSplitting != NULL;
+}
+
+void SmtCore::reset()
+{
+    _context.popto( 0 );
+    _engine->recomputeBasicStatus();
+    _impliedValidSplitsAtRoot.clear();
+    _needToSplit = false;
+    _constraintForSplitting = NULL;
+    _stateId = 0;
+    _constraintToViolationCount.clear();
 }
 
 //
