@@ -1914,16 +1914,7 @@ void Engine::applySplit( const PiecewiseLinearCaseSplit &split )
 
 void Engine::applyAllRowTightenings()
 {
-    List<Tightening> rowTightenings;
-    _rowBoundTightener->getRowTightenings( rowTightenings );
-
-    for ( const auto &tightening : rowTightenings )
-    {
-        if ( tightening._type == Tightening::LB )
-            _tableau->tightenLowerBound( tightening._variable, tightening._value );
-        else
-            _tableau->tightenUpperBound( tightening._variable, tightening._value );
-    }
+    _boundManager.propagateTightenings();
 }
 
 void Engine::applyAllConstraintTightenings()
