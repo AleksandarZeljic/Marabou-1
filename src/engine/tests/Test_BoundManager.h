@@ -189,7 +189,6 @@ public:
           TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
       }
 
-
       TS_ASSERT_THROWS_NOTHING( boundManager.storeLocalBounds() );
       TS_ASSERT_THROWS_NOTHING( context->push() );
 
@@ -212,9 +211,30 @@ public:
           TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
       }
 
+      TS_ASSERT_THROWS_NOTHING( boundManager.storeLocalBounds() );
+      TS_ASSERT_THROWS_NOTHING( context->push() );
+
+      for ( unsigned v = 0; v < numberOfVariables; ++v )
+      {
+          TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level2Lower[v] ) );
+          TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level2Upper[v] ) );
+
+          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level2Lower[v] );
+          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level2Upper[v] );
+       }
 
       TS_ASSERT_THROWS_NOTHING( context->pop() );
       TS_ASSERT_THROWS_NOTHING( boundManager.restoreLocalBounds() );
+
+      for ( unsigned v = 0; v < numberOfVariables; ++v )
+      {
+          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level1Lower[v] );
+          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
+      }
+
+      TS_ASSERT_THROWS_NOTHING( context->pop() );
+      TS_ASSERT_THROWS_NOTHING( boundManager.restoreLocalBounds() );
+
 
       for ( unsigned v = 0; v < numberOfVariables; ++v )
       {

@@ -33,8 +33,12 @@ BoundManager::BoundManager( Context &context )
     , _firstInconsistentTightening( 0, 0.0, Tightening::LB )
     , _lowerBounds( nullptr )
     , _upperBounds( nullptr )
+    , _copyUpper()
+    , _copyLower()
 {
     _consistentBounds = true;
+    _copyLower.append( new HashSet<unsigned>() );
+    _copyUpper.append( new HashSet<unsigned>() );
 };
 
 BoundManager::~BoundManager()
@@ -58,6 +62,12 @@ BoundManager::~BoundManager()
         _tightenedLower[i]->deleteSelf();
         _tightenedUpper[i]->deleteSelf();
     }
+
+    for ( auto hashSet : _copyLower )
+      delete hashSet;
+
+    for ( auto hashSet : _copyUpper )
+      delete hashSet;
 };
 
 void BoundManager::initialize( unsigned numberOfVariables )
@@ -163,6 +173,7 @@ bool BoundManager::setLowerBound( unsigned variable, double value )
     {
         _lowerBounds[variable] = value;
         *_tightenedLower[variable] = true;
+        _copyLower.last()->insert( variable );
         if ( !consistentBounds( variable ) )
             recordInconsistentBound( variable, value, Tightening::LB );
         return true;
@@ -178,6 +189,7 @@ bool BoundManager::setUpperBound( unsigned variable, double value )
     {
         _upperBounds[variable] = value;
         *_tightenedUpper[variable] = true;
+        _copyUpper.last()->insert( variable );
         if ( !consistentBounds( variable ) )
           recordInconsistentBound( variable, value, Tightening::UB );
         return true;
@@ -209,20 +221,28 @@ const double * BoundManager::getUpperBounds() const
 
 void BoundManager::storeLocalBounds()
 {
-    for ( unsigned i = 0; i < _size; ++i )
-    {
-      *_storedLowerBounds[i]=_lowerBounds[i];
-      *_storedUpperBounds[i]=_upperBounds[i];
-    }
+
+  for ( unsigned v : *_copyLower.last() )
+      *_storedLowerBounds[v]=_lowerBounds[v];
+
+  for ( unsigned v : *_copyUpper.last() )
+      *_storedUpperBounds[v]=_upperBounds[v];
+
+  _copyLower.append( new HashSet<unsigned> );
+  _copyUpper.append( new HashSet<unsigned> );
 }
 
 void BoundManager::restoreLocalBounds()
 {
-    for ( unsigned i = 0; i < _size; ++i )
-    {
-      _lowerBounds[i]=*_storedLowerBounds[i];
-      _upperBounds[i]=*_storedUpperBounds[i];
-    }
+   for ( unsigned v : *_copyLower.last() )
+      _lowerBounds[v]=*_storedLowerBounds[v];
+
+  for ( unsigned v : *_copyUpper.last() )
+      _upperBounds[v]=*_storedUpperBounds[v];
+
+  delete _copyLower.pop();
+  delete _copyUpper.pop();
+
 }
 
 void BoundManager::getTightenings( List<Tightening> &tightenings )
@@ -259,3 +279,4 @@ void BoundManager::registerTableau( ITableau *ptrTableau )
     ASSERT( _tableau == nullptr );
     _tableau = ptrTableau;
 }
+

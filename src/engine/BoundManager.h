@@ -37,6 +37,7 @@
 #ifndef __BoundManager_h__
 #define __BoundManager_h__
 
+#include "HashSet.h"
 #include "IBoundManager.h"
 #include "ITableau.h"
 #include "List.h"
@@ -132,6 +133,9 @@ private:
 
     double * _lowerBounds;
     double * _upperBounds;
+    Vector<HashSet<unsigned> *> _copyUpper;
+    Vector<HashSet<unsigned> *> _copyLower;
+
 
     Vector<CVC4::context::CDO<double> *> _storedLowerBounds;
     Vector<CVC4::context::CDO<double> *> _storedUpperBounds;
