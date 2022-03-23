@@ -221,28 +221,51 @@ const double * BoundManager::getUpperBounds() const
 
 void BoundManager::storeLocalBounds()
 {
+    ASSERT( !_copyLower.empty() );
+    ASSERT( !_copyUpper.empty() );
+    ASSERT( _copyLower.last() != nullptr );
+    ASSERT( _copyUpper.last() != nullptr );
 
-  for ( unsigned v : *_copyLower.last() )
-      *_storedLowerBounds[v]=_lowerBounds[v];
 
-  for ( unsigned v : *_copyUpper.last() )
-      *_storedUpperBounds[v]=_upperBounds[v];
+    for ( unsigned v : *_copyLower.last() )
+        *_storedLowerBounds[v] = _lowerBounds[v];
 
-  _copyLower.append( new HashSet<unsigned> );
-  _copyUpper.append( new HashSet<unsigned> );
+    for ( unsigned v : *_copyUpper.last() )
+        *_storedUpperBounds[v] = _upperBounds[v];
+
+    _copyLower.append( new HashSet<unsigned> );
+    _copyUpper.append( new HashSet<unsigned> );
+
+    if ( _copyLower.last() == nullptr )
+        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::lowerBoundCopyHash" );
+
+    if ( _copyUpper.last() == nullptr )
+        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::upperBoundCopyHash" );
 }
 
 void BoundManager::restoreLocalBounds()
 {
-   for ( unsigned v : *_copyLower.last() )
-      _lowerBounds[v]=*_storedLowerBounds[v];
+    ASSERT( !_copyLower.empty() );
+    ASSERT( !_copyUpper.empty() );
+    ASSERT( _copyLower.last() != nullptr );
+    ASSERT( _copyUpper.last() != nullptr );
 
-  for ( unsigned v : *_copyUpper.last() )
-      _upperBounds[v]=*_storedUpperBounds[v];
+    for ( unsigned v : *_copyLower.last() )
+        _lowerBounds[v] = *_storedLowerBounds[v];
 
-  delete _copyLower.pop();
-  delete _copyUpper.pop();
+    for ( unsigned v : *_copyUpper.last() )
+        _upperBounds[v] = *_storedUpperBounds[v];
 
+    if ( _context.getLevel() > 0 )
+    {
+      delete _copyLower.pop();
+      delete _copyUpper.pop();
+    }
+    else
+    {
+      _copyLower.last()->clear();
+      _copyUpper.last()->clear();
+    }
 }
 
 void BoundManager::getTightenings( List<Tightening> &tightenings )
