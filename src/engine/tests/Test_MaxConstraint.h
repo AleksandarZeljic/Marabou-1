@@ -1176,6 +1176,18 @@ public:
         context.pop(); // L0
     }
 
+    void contextPush( Context & context, BoundManager & boundManager )
+    {
+      boundManager.storeLocalBounds();
+      context.push();
+    }
+
+    void contextPop( Context & context, BoundManager & boundManager )
+    {
+      context.pop();
+      boundManager.restoreLocalBounds();
+    }
+
     void test_max_context_dependent_state_with_elimination()
     {
         // Case 2 - with eliminated variables during pre-processing
@@ -1203,7 +1215,8 @@ public:
 
         // In search phase, we initialize context-dependent structures
         max.initializeCDOs( &context );
-        context.push();
+
+        contextPush( context, bm );
 
         TS_ASSERT_EQUALS( max.getPhaseStatus(), PHASE_NOT_FIXED );
 
@@ -1213,13 +1226,13 @@ public:
 
         TS_ASSERT_EQUALS( max.numFeasibleCases(), 3u );
 
-        bm.storeLocalBounds();
-        context.push(); // L1
+
+        contextPush( context, bm ); // L1
         max.notifyUpperBound( 3, 5 ); // This should eliminate variable 3;
         TS_ASSERT_EQUALS( max.numFeasibleCases(), 2u );
 
-        bm.storeLocalBounds();
-        context.push(); // L2
+
+        contextPush( context, bm ); // L2
         PhaseStatus phase = max.nextFeasibleCase();
         TS_ASSERT_DIFFERS( phase, MAX_PHASE_ELIMINATED );
 
@@ -1228,7 +1241,7 @@ public:
         TS_ASSERT( max.isImplication() );
         TS_ASSERT_EQUALS( max.nextFeasibleCase(), MAX_PHASE_ELIMINATED );
 
-        context.pop(); // L1
+        contextPop( context, bm ); // L1
         bm.restoreLocalBounds();
         TS_ASSERT( !max.isImplication() );
         max.notifyUpperBound( 4, 6 ); // This should eliminate variable 4;
@@ -1240,7 +1253,7 @@ public:
         max.markInfeasible( phase );
         TS_ASSERT( !max.isFeasible() );
 
-        context.pop(); // L1
+        contextPop( context, bm ); // L1
         bm.restoreLocalBounds();
 
         TS_ASSERT_EQUALS( max.getPhaseStatus(), PHASE_NOT_FIXED );

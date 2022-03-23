@@ -133,9 +133,9 @@ private:
 
     double * _lowerBounds;
     double * _upperBounds;
-    Vector<HashSet<unsigned> *> _copyUpper;
-    Vector<HashSet<unsigned> *> _copyLower;
-
+    Vector<HashSet<unsigned> *> _upperLocalUpdates;
+    Vector<HashSet<unsigned> *> _lowerLocalUpdates;
+    int _allocatedHashSets;
 
     Vector<CVC4::context::CDO<double> *> _storedLowerBounds;
     Vector<CVC4::context::CDO<double> *> _storedUpperBounds;

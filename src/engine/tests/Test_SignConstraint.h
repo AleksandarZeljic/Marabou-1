@@ -60,6 +60,18 @@ public:
         TS_ASSERT_THROWS_NOTHING( delete mock );
     }
 
+    void contextPush( Context & context, BoundManager & boundManager )
+    {
+      boundManager.storeLocalBounds();
+      context.push();
+    }
+
+    void contextPop( Context & context, BoundManager & boundManager )
+    {
+      context.pop();
+      boundManager.restoreLocalBounds();
+    }
+
     void test_sign_constraint()
     {
         unsigned b = 1;
@@ -835,7 +847,7 @@ public:
             MockConstraintBoundTightener tightener;
             sign.registerConstraintBoundTightener( &tightener );
 
-            context.push();
+            contextPush( context, boundManager );
 
             TS_ASSERT_THROWS_NOTHING( sign.notifyLowerBound( b, -1 ) );
             TS_ASSERT_THROWS_NOTHING( sign.notifyUpperBound( b, 7 ) );
@@ -853,8 +865,8 @@ public:
 
             entailedTightenings.clear();
 
-            context.pop();
-            context.push();
+            contextPop( context, boundManager );
+            contextPush( context, boundManager );
 
             TS_ASSERT_THROWS_NOTHING( sign.notifyLowerBound( b, -1 ) );
             // the most important test
@@ -873,8 +885,8 @@ public:
             TS_ASSERT( entailedTightenings.exists( Tightening( b, 0, Tightening::UB ) ) );
 
             entailedTightenings.clear();
-            context.pop();
-            context.push();
+            contextPop( context, boundManager );
+            contextPush( context, boundManager );
 
             TS_ASSERT_THROWS_NOTHING( sign.notifyLowerBound( b, -1 ) );
             TS_ASSERT_THROWS_NOTHING( sign.notifyUpperBound( b, -0.5 ) );
@@ -892,8 +904,8 @@ public:
             TS_ASSERT( entailedTightenings.exists( Tightening( b, 0, Tightening::UB ) ) );
 
             entailedTightenings.clear();
-            context.pop();
-            context.push();
+            contextPop( context, boundManager );
+            contextPush( context, boundManager );
 
             TS_ASSERT_THROWS_NOTHING( sign.notifyLowerBound( b, 0 ) );
             TS_ASSERT_THROWS_NOTHING( sign.notifyUpperBound( b, 7 ) );
@@ -910,8 +922,8 @@ public:
             TS_ASSERT( entailedTightenings.exists( Tightening( b, 0, Tightening::LB ) ) );
 
             entailedTightenings.clear();
-            context.pop();
-            context.push();
+            contextPop( context, boundManager );
+            contextPush( context, boundManager );
 
             sign.notifyLowerBound( b, -5 );
             sign.notifyUpperBound( b, 5 );
@@ -928,14 +940,16 @@ public:
             TS_ASSERT( entailedTightenings.exists( Tightening( b, 0, Tightening::LB ) ) );
 
             entailedTightenings.clear();
-            context.pop();
-            context.push();
+            contextPop( context, boundManager );
 
             unsigned b2 = 1;
             unsigned f2 = 4;
 
             InputQuery dontCare2;
             dontCare.setNumberOfVariables( 500 );
+
+            /* while ( context.getLevel() > 0 ) */
+            /*   contextPop( context, boundManager ); */
             BoundManager boundManager2( context );
             boundManager2.initialize( 500 );
 
@@ -959,8 +973,8 @@ public:
             TS_ASSERT( entailedTightenings2.exists( Tightening( f2, -1, Tightening::LB ) ) );
 
             entailedTightenings2.clear();
-            // context.pop(); Incremental test case, no pop
-            context.push();
+            // contextPop( context, boundManager ); Incremental test case, no pop
+            contextPush( context, boundManager2 );
 
             // new case
             sign2.notifyUpperBound( b, 0 );
@@ -973,7 +987,7 @@ public:
             TS_ASSERT( entailedTightenings2.exists( Tightening( f2, -1, Tightening::LB ) ) );
 
             entailedTightenings2.clear();
-            context.pop();
+            contextPop( context, boundManager2 );
         }
     }
     SignConstraint prepareSign( unsigned b, unsigned f, IConstraintBoundTightener *tightener )

@@ -33,12 +33,22 @@ BoundManager::BoundManager( Context &context )
     , _firstInconsistentTightening( 0, 0.0, Tightening::LB )
     , _lowerBounds( nullptr )
     , _upperBounds( nullptr )
-    , _copyUpper()
-    , _copyLower()
+    , _upperLocalUpdates()
+    , _lowerLocalUpdates()
+    , _allocatedHashSets( 0 )
 {
     _consistentBounds = true;
-    _copyLower.append( new HashSet<unsigned>() );
-    _copyUpper.append( new HashSet<unsigned>() );
+    _lowerLocalUpdates.append( new HashSet<unsigned>() );
+    _upperLocalUpdates.append( new HashSet<unsigned>() );
+
+    if ( _lowerLocalUpdates.last() == nullptr )
+        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::lowerBoundCopyHash" );
+
+    if ( _upperLocalUpdates.last() == nullptr )
+        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::upperBoundCopyHash" );
+
+    _allocatedHashSets = 1;
+    ASSERT( _context.getLevel() < _allocatedHashSets );
 };
 
 BoundManager::~BoundManager()
@@ -63,10 +73,10 @@ BoundManager::~BoundManager()
         _tightenedUpper[i]->deleteSelf();
     }
 
-    for ( auto hashSet : _copyLower )
+    for ( auto hashSet : _lowerLocalUpdates )
       delete hashSet;
 
-    for ( auto hashSet : _copyUpper )
+    for ( auto hashSet : _upperLocalUpdates )
       delete hashSet;
 };
 
@@ -169,11 +179,13 @@ void BoundManager::recordInconsistentBound( unsigned variable, double value, Tig
 bool BoundManager::setLowerBound( unsigned variable, double value )
 {
     ASSERT( variable < _size );
+    ASSERT( _context.getLevel() < _allocatedHashSets );
+
     if ( value > _lowerBounds[variable] )
     {
         _lowerBounds[variable] = value;
         *_tightenedLower[variable] = true;
-        _copyLower.last()->insert( variable );
+        _lowerLocalUpdates[_context.getLevel()]->insert( variable );
         if ( !consistentBounds( variable ) )
             recordInconsistentBound( variable, value, Tightening::LB );
         return true;
@@ -185,11 +197,13 @@ bool BoundManager::setLowerBound( unsigned variable, double value )
 bool BoundManager::setUpperBound( unsigned variable, double value )
 {
     ASSERT( variable < _size );
+    ASSERT( _context.getLevel() < _allocatedHashSets );
+
     if ( value < _upperBounds[variable] )
     {
         _upperBounds[variable] = value;
         *_tightenedUpper[variable] = true;
-        _copyUpper.last()->insert( variable );
+        _upperLocalUpdates[_context.getLevel()]->insert( variable );
         if ( !consistentBounds( variable ) )
           recordInconsistentBound( variable, value, Tightening::UB );
         return true;
@@ -221,51 +235,57 @@ const double * BoundManager::getUpperBounds() const
 
 void BoundManager::storeLocalBounds()
 {
-    ASSERT( !_copyLower.empty() );
-    ASSERT( !_copyUpper.empty() );
-    ASSERT( _copyLower.last() != nullptr );
-    ASSERT( _copyUpper.last() != nullptr );
+    ASSERT( !_lowerLocalUpdates.empty() );
+    ASSERT( !_upperLocalUpdates.empty() );
+    ASSERT( _context.getLevel() < _allocatedHashSets );
+    ASSERT( _lowerLocalUpdates[_context.getLevel()] != nullptr );
+    ASSERT( _upperLocalUpdates[_context.getLevel()] != nullptr );
 
 
-    for ( unsigned v : *_copyLower.last() )
+    for ( unsigned v : *_lowerLocalUpdates[_context.getLevel()] )
         *_storedLowerBounds[v] = _lowerBounds[v];
 
-    for ( unsigned v : *_copyUpper.last() )
+    for ( unsigned v : *_upperLocalUpdates[_context.getLevel()] )
         *_storedUpperBounds[v] = _upperBounds[v];
 
-    _copyLower.append( new HashSet<unsigned> );
-    _copyUpper.append( new HashSet<unsigned> );
+    if ( _allocatedHashSets == _context.getLevel() + 1 )
+    {
+        _lowerLocalUpdates.append( new HashSet<unsigned> );
+        _upperLocalUpdates.append( new HashSet<unsigned> );
 
-    if ( _copyLower.last() == nullptr )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::lowerBoundCopyHash" );
+        if ( _lowerLocalUpdates[_context.getLevel()] == nullptr )
+            throw MarabouError( MarabouError::ALLOCATION_FAILED,
+                                "BoundManager::lowerBoundCopyHash" );
 
-    if ( _copyUpper.last() == nullptr )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::upperBoundCopyHash" );
+        if ( _upperLocalUpdates[_context.getLevel()] == nullptr )
+            throw MarabouError( MarabouError::ALLOCATION_FAILED,
+                                "BoundManager::upperBoundCopyHash" );
+
+        ++_allocatedHashSets;
+    }
+
+    ASSERT( _context.getLevel() < _allocatedHashSets );
 }
 
 void BoundManager::restoreLocalBounds()
 {
-    ASSERT( !_copyLower.empty() );
-    ASSERT( !_copyUpper.empty() );
-    ASSERT( _copyLower.last() != nullptr );
-    ASSERT( _copyUpper.last() != nullptr );
+    ASSERT( !_lowerLocalUpdates.empty() );
+    ASSERT( !_upperLocalUpdates.empty() );
 
-    for ( unsigned v : *_copyLower.last() )
+    unsigned index = _context.getLevel() + 1;
+    ASSERT( index <= _lowerLocalUpdates.size() );
+    ASSERT( index <= _upperLocalUpdates.size() );
+    ASSERT( _lowerLocalUpdates[index] != nullptr );
+    ASSERT( _upperLocalUpdates[index] != nullptr );
+
+    for ( unsigned v : *_lowerLocalUpdates[index] )
         _lowerBounds[v] = *_storedLowerBounds[v];
 
-    for ( unsigned v : *_copyUpper.last() )
+    for ( unsigned v : *_upperLocalUpdates[index] )
         _upperBounds[v] = *_storedUpperBounds[v];
 
-    if ( _context.getLevel() > 0 )
-    {
-      delete _copyLower.pop();
-      delete _copyUpper.pop();
-    }
-    else
-    {
-      _copyLower.last()->clear();
-      _copyUpper.last()->clear();
-    }
+    _lowerLocalUpdates[index]->clear();
+    _upperLocalUpdates[index]->clear();
 }
 
 void BoundManager::getTightenings( List<Tightening> &tightenings )
