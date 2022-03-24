@@ -247,7 +247,7 @@ bool SmtCore::popSplit()
             delete _stack.back();
             _stack.popBack();
             _context.pop();
-            _engine->postContextPopHook();
+            _engine->postContextPopHook( true );
 
             if ( _stack.empty() )
                 return false;
