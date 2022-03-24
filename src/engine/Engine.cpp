@@ -2333,10 +2333,12 @@ void Engine::preContextPushHook()
     _boundManager.storeLocalBounds();
 }
 
-void Engine::postContextPopHook()
+void Engine::postContextPopHook( bool justBounds )
 {
     _boundManager.restoreLocalBounds();
-    _tableau->postContextPopHook();
+
+    if ( !justBounds )
+      _tableau->postContextPopHook();
 }
 
 void Engine::reset()

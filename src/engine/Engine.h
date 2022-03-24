@@ -150,7 +150,7 @@ public:
     /*
       Hooks invoked before/after context push/pop to store/restore/update context independent data.
     */
-    void postContextPopHook();
+    void postContextPopHook( bool justBounds=false );
     void preContextPushHook();
 
     /*

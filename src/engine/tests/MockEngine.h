@@ -92,7 +92,7 @@ public:
         }
     }
 
-    void postContextPopHook() {};
+    void postContextPopHook( bool /*justBounds*/) {};
     void preContextPushHook() {};
 
     mutable EngineState *lastStoredState;
