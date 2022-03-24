@@ -233,6 +233,16 @@ void BoundManager::storeLocalBounds()
     for ( unsigned v : *_copyUpper.last() )
         *_storedUpperBounds[v] = _upperBounds[v];
 
+    allocateLocalUpdateHashSets();
+
+    ASSERT( !_copyLower.empty() );
+    ASSERT( !_copyUpper.empty() );
+    ASSERT( _copyLower.last() != nullptr );
+    ASSERT( _copyUpper.last() != nullptr );
+}
+
+void BoundManager::allocateLocalUpdateHashSets()
+{
     _copyLower.append( new HashSet<unsigned> );
     _copyUpper.append( new HashSet<unsigned> );
 
@@ -256,16 +266,19 @@ void BoundManager::restoreLocalBounds()
     for ( unsigned v : *_copyUpper.last() )
         _upperBounds[v] = *_storedUpperBounds[v];
 
-    if ( _context.getLevel() > 0 )
+    delete _copyLower.pop();
+    delete _copyUpper.pop();
+
+    if ( _copyLower.empty() || _copyUpper.empty() )
     {
-      delete _copyLower.pop();
-      delete _copyUpper.pop();
+      ASSERT( _copyLower.empty() && _copyUpper.empty() );
+      allocateLocalUpdateHashSets();
     }
-    else
-    {
-      _copyLower.last()->clear();
-      _copyUpper.last()->clear();
-    }
+
+    ASSERT( !_copyLower.empty() );
+    ASSERT( !_copyUpper.empty() );
+    ASSERT( _copyLower.last() != nullptr );
+    ASSERT( _copyUpper.last() != nullptr );
 }
 
 void BoundManager::getTightenings( List<Tightening> &tightenings )

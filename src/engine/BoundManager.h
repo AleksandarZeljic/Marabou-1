@@ -149,6 +149,7 @@ private:
     void recordInconsistentBound( unsigned variable, double value, Tightening::BoundType type );
 
     void allocateLocalBounds( unsigned size );
+    void allocateLocalUpdateHashSets();
 };
 
 #endif // __BoundManager_h__
