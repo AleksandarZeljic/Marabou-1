@@ -37,8 +37,7 @@ BoundManager::BoundManager( Context &context )
     , _copyLower()
 {
     _consistentBounds = true;
-    _copyLower.append( new HashSet<unsigned>() );
-    _copyUpper.append( new HashSet<unsigned>() );
+    allocateLocalUpdateHashSets();
 };
 
 BoundManager::~BoundManager()
@@ -266,13 +265,11 @@ void BoundManager::restoreLocalBounds()
     for ( unsigned v : *_copyUpper.last() )
         _upperBounds[v] = *_storedUpperBounds[v];
 
-    delete _copyLower.pop();
-    delete _copyUpper.pop();
-
-    if ( _copyLower.empty() || _copyUpper.empty() )
+    // We never delete level zero updates
+    if ( _context.getLevel() > 0 )
     {
-      ASSERT( _copyLower.empty() && _copyUpper.empty() );
-      allocateLocalUpdateHashSets();
+        delete _copyLower.pop();
+        delete _copyUpper.pop();
     }
 
     ASSERT( !_copyLower.empty() );
