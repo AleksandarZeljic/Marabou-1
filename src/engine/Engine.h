@@ -150,8 +150,10 @@ public:
     /*
       Hooks invoked before/after context push/pop to store/restore/update context independent data.
     */
-    void postContextPopHook( bool justBounds=false );
     void preContextPushHook();
+    void postContextPushHook();
+    void preContextPopHook();
+    void postContextPopHook( bool justBounds=false );
 
     /*
       Reset the state of the engine, before solving a new query

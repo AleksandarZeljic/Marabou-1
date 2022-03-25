@@ -40,6 +40,21 @@ public:
         TS_ASSERT_THROWS_NOTHING( delete context; );
     }
 
+
+    void contextPush( BoundManager &boundManager )
+    {
+        boundManager.storeLocalBounds();
+        context->push();
+        boundManager.clearLocalBoundsHashMap();
+    }
+
+    void contextPop( BoundManager &boundManager )
+    {
+        //boundManager.restoreLocalBounds();
+        context->pop();
+        boundManager.restoreLocalBounds();
+    }
+
     /*
      * Initialize creates bounds for every variable up to numberOfVariables
      * and sets their lower/upper bounds to -/+infinity respectively
@@ -156,41 +171,27 @@ public:
 
       TS_ASSERT_THROWS_NOTHING( boundManager.initialize( numberOfVariables ) );
 
-      double level0Lower[] = { -12.357682,  0.230001234, -333.78091231, 100.00,    -9.000002354 };
-      double level0Upper[] = {  15.387692, 20.301878234,   45.79159213, 120.03559, 89.53402 };
-      double level1Lower[] = { -2.357682,   5.230001234, -222.87012913, 103.5682,  -5.002300054 };
-      double level1Upper[] = {  5.387692,  15.308798432,   26.79159213, 119.5559,  77.500002 };
-      double level2Lower[] = {  2.523786,   8.231234000, -122.01291387, 111.5392,  10.002300054 };
-      double level2Upper[] = {  3.738962,   8.308432000,   16.79211593, 115.9003,  57.5459822 };
+      double level1Lower[] = { -12.357682,  0.230001234, -333.78091231, 100.00,    -9.000002354 };
+      double level1Upper[] = {  15.387692, 20.301878234,   45.79159213, 120.03559, 89.53402 };
+      double level2Lower[] = { -2.357682,   5.230001234, -222.87012913, 103.5682,  -5.002300054 };
+      double level2Upper[] = {  5.387692,  15.308798432,   26.79159213, 119.5559,  77.500002 };
+      double level3Lower[] = {  2.523786,   8.231234000, -122.01291387, 111.5392,  10.002300054 };
+      double level3Upper[] = {  3.738962,   8.308432000,   16.79211593, 115.9003,  57.5459822 };
 
-
-      TS_ASSERT_THROWS_NOTHING( boundManager.storeLocalBounds() );
-      TS_ASSERT_THROWS_NOTHING( context->push() );
-
+      // LVL 1
+      TS_ASSERT_THROWS_NOTHING( contextPush( boundManager ) );
 
       for ( unsigned v = 0; v < numberOfVariables; ++v )
       {
-        TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level0Lower[v] ) );
-        TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level0Upper[v] ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level1Lower[v] ) );
+        TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level1Upper[v] ) );
 
-        TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level0Lower[v] );
-        TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level0Upper[v] );
+        TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level1Lower[v] );
+        TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
       }
 
-      TS_ASSERT_THROWS_NOTHING( boundManager.storeLocalBounds() );
-      TS_ASSERT_THROWS_NOTHING( context->push() );
-
-      for ( unsigned v = 0; v < numberOfVariables; ++v )
-      {
-          TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level1Lower[v] ) );
-          TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level1Upper[v] ) );
-
-          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level1Lower[v] );
-          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
-      }
-
-      TS_ASSERT_THROWS_NOTHING( boundManager.storeLocalBounds() );
-      TS_ASSERT_THROWS_NOTHING( context->push() );
+      // LVL 2
+      TS_ASSERT_THROWS_NOTHING( contextPush( boundManager ) );
 
       for ( unsigned v = 0; v < numberOfVariables; ++v )
       {
@@ -199,20 +200,60 @@ public:
 
           TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level2Lower[v] );
           TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level2Upper[v] );
+      }
+
+      // LVL 3
+      TS_ASSERT_THROWS_NOTHING( contextPush( boundManager ) );
+
+      for ( unsigned v = 0; v < numberOfVariables; ++v )
+      {
+          TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level3Lower[v] ) );
+          TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level3Upper[v] ) );
+
+          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level3Lower[v] );
+          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level3Upper[v] );
        }
 
 
-      TS_ASSERT_THROWS_NOTHING( context->pop() );
-      TS_ASSERT_THROWS_NOTHING( boundManager.restoreLocalBounds() );
+      // LVL 2
+      TS_ASSERT_THROWS_NOTHING( contextPop( boundManager ) );
+
+      for ( unsigned v = 0; v < numberOfVariables; ++v )
+      {
+          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level2Lower[v] );
+          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level2Upper[v] );
+      }
+
+      // LVL 3
+      TS_ASSERT_THROWS_NOTHING( contextPush( boundManager ) );
+
+      for ( unsigned v = 0; v < numberOfVariables; ++v )
+      {
+          TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level3Lower[v] ) );
+          TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level3Upper[v] ) );
+
+          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level3Lower[v] );
+          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level3Upper[v] );
+       }
+
+      // LVL 2
+      TS_ASSERT_THROWS_NOTHING( contextPop( boundManager ) );
+
+      for ( unsigned v = 0; v < numberOfVariables; ++v )
+      {
+          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level2Lower[v] );
+          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level2Upper[v] );
+      }
+
+      // LVL 1
+      TS_ASSERT_THROWS_NOTHING( contextPop( boundManager ) );
+
 
       for ( unsigned v = 0; v < numberOfVariables; ++v )
       {
           TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level1Lower[v] );
           TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
       }
-
-      TS_ASSERT_THROWS_NOTHING( boundManager.storeLocalBounds() );
-      TS_ASSERT_THROWS_NOTHING( context->push() );
 
       for ( unsigned v = 0; v < numberOfVariables; ++v )
       {
@@ -221,47 +262,19 @@ public:
 
           TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level2Lower[v] );
           TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level2Upper[v] );
-       }
-
-      TS_ASSERT_THROWS_NOTHING( context->pop() );
-      TS_ASSERT_THROWS_NOTHING( boundManager.restoreLocalBounds() );
-
-      for ( unsigned v = 0; v < numberOfVariables; ++v )
-      {
-          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level1Lower[v] );
-          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
-      }
-
-      TS_ASSERT_THROWS_NOTHING( context->pop() );
-      TS_ASSERT_THROWS_NOTHING( boundManager.restoreLocalBounds() );
-
-
-      for ( unsigned v = 0; v < numberOfVariables; ++v )
-      {
-          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level0Lower[v] );
-          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level0Upper[v] );
-      }
-
-      for ( unsigned v = 0; v < numberOfVariables; ++v )
-      {
-          TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level1Lower[v] ) );
-          TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level1Upper[v] ) );
-
-          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level1Lower[v] );
-          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level1Upper[v] );
       }
 
       for ( unsigned v = 0; v < numberOfVariables; ++v )
         {
-          TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level2Lower[v] ) );
-          TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level2Upper[v] ) );
+          TS_ASSERT_THROWS_NOTHING( boundManager.setLowerBound( v, level3Lower[v] ) );
+          TS_ASSERT_THROWS_NOTHING( boundManager.setUpperBound( v, level3Upper[v] ) );
 
-          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level2Lower[v] );
-          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level2Upper[v] );
+          TS_ASSERT_EQUALS( boundManager.getLowerBound( v ), level3Lower[v] );
+          TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), level3Upper[v] );
         }
 
-      TS_ASSERT_THROWS_NOTHING( context->pop() );
-      TS_ASSERT_THROWS_NOTHING( boundManager.restoreLocalBounds() );
+      // LVL 0
+      TS_ASSERT_THROWS_NOTHING( contextPop( boundManager ) );
 
       for ( unsigned v = 0; v < numberOfVariables; ++v )
         {
@@ -269,7 +282,6 @@ public:
           TS_ASSERT_EQUALS( boundManager.getUpperBound( v ), FloatUtils::infinity() );
         }
     }
-
 };
 
 //

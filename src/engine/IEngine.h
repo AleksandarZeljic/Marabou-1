@@ -63,6 +63,8 @@ public:
       Hooks invoked before/after context push/pop to store/restore/update context independent data.
     */
     virtual void preContextPushHook() = 0;
+    virtual void postContextPushHook() = 0;
+    virtual void preContextPopHook() = 0;
     virtual void postContextPopHook( bool justBounds=false ) = 0;
 
     /*

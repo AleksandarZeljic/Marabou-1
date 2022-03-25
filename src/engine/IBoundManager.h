@@ -91,6 +91,7 @@ public:
       Register Tableau for callbacks.
      */
     virtual void registerTableau( ITableau *tableau ) = 0;
+
 };
 
 #endif // __IBoundManager_h__

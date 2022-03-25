@@ -130,6 +130,20 @@ bool SmtCore::needToSplit() const
     return _needToSplit;
 }
 
+void SmtCore::pushContext()
+{
+    _engine->preContextPushHook();
+    _context.push();
+    _engine->postContextPushHook();
+}
+
+void SmtCore::popContext( bool justBounds )
+{
+    _engine->preContextPopHook();
+    _context.pop();
+    _engine->postContextPopHook( justBounds );
+}
+
 void SmtCore::performSplit()
 {
     ASSERT( _needToSplit );
@@ -170,8 +184,9 @@ void SmtCore::performSplit()
     ++_stateId;
     _engine->storeState( *stateBeforeSplits,
                          TableauStateStorageLevel::STORE_BOUNDS_ONLY );
-    _engine->preContextPushHook();
-    _context.push();
+
+    pushContext();
+
     SmtStackEntry *stackEntry = new SmtStackEntry;
     // Perform the first split: add bounds and equations
     List<PiecewiseLinearCaseSplit>::iterator split = splits.begin();
@@ -246,8 +261,7 @@ bool SmtCore::popSplit()
             delete _stack.back()->_engineState;
             delete _stack.back();
             _stack.popBack();
-            _context.pop();
-            _engine->postContextPopHook( true );
+            popContext( true );
 
             if ( _stack.empty() )
                 return false;
@@ -262,8 +276,7 @@ bool SmtCore::popSplit()
 
         SmtStackEntry *stackEntry = _stack.back();
 
-        _context.pop();
-        _engine->postContextPopHook();
+        popContext();
         // Restore the state of the engine
         SMT_LOG( "\tRestoring engine state..." );
         _engine->restoreState( *( stackEntry->_engineState ) );
@@ -278,8 +291,7 @@ bool SmtCore::popSplit()
 
         SMT_LOG( "\tApplying new split..." );
         ASSERT( split->getEquations().size() == 0 );
-        _engine->preContextPushHook();
-        _context.push();
+        pushContext();
         _engine->applySplit( *split );
         SMT_LOG( "\tApplying new split - DONE" );
 

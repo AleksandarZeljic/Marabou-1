@@ -2328,9 +2328,9 @@ bool Engine::shouldExitDueToTimeout( unsigned timeout ) const
     return _statistics.getTotalTimeInMicro() / MICROSECONDS_TO_SECONDS > timeout;
 }
 
-void Engine::preContextPushHook()
+void Engine::preContextPopHook()
 {
-    _boundManager.storeLocalBounds();
+  //_boundManager.restoreLocalBounds();
 }
 
 void Engine::postContextPopHook( bool justBounds )
@@ -2339,6 +2339,16 @@ void Engine::postContextPopHook( bool justBounds )
 
     if ( !justBounds )
       _tableau->postContextPopHook();
+}
+
+void Engine::preContextPushHook()
+{
+    _boundManager.storeLocalBounds();
+}
+
+void Engine::postContextPushHook()
+{
+    _boundManager.clearLocalBoundsHashMap();
 }
 
 void Engine::reset()

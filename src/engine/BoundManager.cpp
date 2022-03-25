@@ -26,6 +26,7 @@ using namespace CVC4::context;
 
 BoundManager::BoundManager( Context &context )
     : _context( context )
+    , _myContext()
     , _size( 0 )
     , _allocated( 0 )
     , _tableau( nullptr )
@@ -33,12 +34,10 @@ BoundManager::BoundManager( Context &context )
     , _firstInconsistentTightening( 0, 0.0, Tightening::LB )
     , _lowerBounds( nullptr )
     , _upperBounds( nullptr )
-    , _copyUpper()
-    , _copyLower()
+    , _copyUpper( &_myContext )
+    , _copyLower( &_myContext )
 {
     _consistentBounds = true;
-    _copyLower.append( new HashSet<unsigned>() );
-    _copyUpper.append( new HashSet<unsigned>() );
 };
 
 BoundManager::~BoundManager()
@@ -62,12 +61,6 @@ BoundManager::~BoundManager()
         _tightenedLower[i]->deleteSelf();
         _tightenedUpper[i]->deleteSelf();
     }
-
-    for ( auto hashSet : _copyLower )
-      delete hashSet;
-
-    for ( auto hashSet : _copyUpper )
-      delete hashSet;
 };
 
 void BoundManager::initialize( unsigned numberOfVariables )
@@ -173,7 +166,7 @@ bool BoundManager::setLowerBound( unsigned variable, double value )
     {
         _lowerBounds[variable] = value;
         *_tightenedLower[variable] = true;
-        _copyLower.last()->insert( variable );
+        _copyLower[variable] = true;
         if ( !consistentBounds( variable ) )
             recordInconsistentBound( variable, value, Tightening::LB );
         return true;
@@ -189,7 +182,7 @@ bool BoundManager::setUpperBound( unsigned variable, double value )
     {
         _upperBounds[variable] = value;
         *_tightenedUpper[variable] = true;
-        _copyUpper.last()->insert( variable );
+        _copyUpper[variable] = true;
         if ( !consistentBounds( variable ) )
           recordInconsistentBound( variable, value, Tightening::UB );
         return true;
@@ -219,66 +212,41 @@ const double * BoundManager::getUpperBounds() const
     return _upperBounds;
 }
 
-void BoundManager::storeLocalBounds()
+void BoundManager::clearLocalBoundsHashMap()
 {
-    ASSERT( !_copyLower.empty() );
-    ASSERT( !_copyUpper.empty() );
-    ASSERT( _copyLower.last() != nullptr );
-    ASSERT( _copyUpper.last() != nullptr );
+    for ( auto v : _copyLower )
+        if ( v.second )
+            _copyLower[v.first] = false;
 
-
-    for ( unsigned v : *_copyLower.last() )
-        *_storedLowerBounds[v] = _lowerBounds[v];
-
-    for ( unsigned v : *_copyUpper.last() )
-        *_storedUpperBounds[v] = _upperBounds[v];
-
-    allocateLocalUpdateHashSets();
-
-    ASSERT( !_copyLower.empty() );
-    ASSERT( !_copyUpper.empty() );
-    ASSERT( _copyLower.last() != nullptr );
-    ASSERT( _copyUpper.last() != nullptr );
+    for ( auto v : _copyUpper )
+        if ( v.second )
+            _copyUpper[v.first] = false;
 }
 
-void BoundManager::allocateLocalUpdateHashSets()
+void BoundManager::storeLocalBounds()
 {
-    _copyLower.append( new HashSet<unsigned> );
-    _copyUpper.append( new HashSet<unsigned> );
+    for ( auto v : _copyLower )
+        if ( v.second )
+            *_storedLowerBounds[v.first] = _lowerBounds[v.first];
 
-    if ( _copyLower.last() == nullptr )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::lowerBoundCopyHash" );
+    for ( auto v : _copyUpper )
+        if ( v.second )
+            *_storedUpperBounds[v.first] = _upperBounds[v.first];
 
-    if ( _copyUpper.last() == nullptr )
-        throw MarabouError( MarabouError::ALLOCATION_FAILED, "BoundManager::upperBoundCopyHash" );
+    _myContext.push();
 }
 
 void BoundManager::restoreLocalBounds()
 {
-    ASSERT( !_copyLower.empty() );
-    ASSERT( !_copyUpper.empty() );
-    ASSERT( _copyLower.last() != nullptr );
-    ASSERT( _copyUpper.last() != nullptr );
+    for ( auto v : _copyLower )
+        if ( v.second )
+            _lowerBounds[v.first] = *_storedLowerBounds[v.first];
 
-    for ( unsigned v : *_copyLower.last() )
-        _lowerBounds[v] = *_storedLowerBounds[v];
+    for ( auto v : _copyUpper )
+        if ( v.second )
+            _upperBounds[v.first] = *_storedUpperBounds[v.first];
 
-    for ( unsigned v : *_copyUpper.last() )
-        _upperBounds[v] = *_storedUpperBounds[v];
-
-    delete _copyLower.pop();
-    delete _copyUpper.pop();
-
-    if ( _copyLower.empty() || _copyUpper.empty() )
-    {
-      ASSERT( _copyLower.empty() && _copyUpper.empty() );
-      allocateLocalUpdateHashSets();
-    }
-
-    ASSERT( !_copyLower.empty() );
-    ASSERT( !_copyUpper.empty() );
-    ASSERT( _copyLower.last() != nullptr );
-    ASSERT( _copyUpper.last() != nullptr );
+    _myContext.pop();
 }
 
 void BoundManager::getTightenings( List<Tightening> &tightenings )

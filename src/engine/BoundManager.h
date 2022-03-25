@@ -37,13 +37,13 @@
 #ifndef __BoundManager_h__
 #define __BoundManager_h__
 
-#include "HashSet.h"
 #include "IBoundManager.h"
 #include "ITableau.h"
 #include "List.h"
 #include "Tightening.h"
 #include "Vector.h"
 #include "context/cdo.h"
+#include "context/cdhashmap.h"
 #include "context/context.h"
 
 class ITableau;
@@ -100,6 +100,7 @@ public:
      */
     void storeLocalBounds();
     void restoreLocalBounds();
+    void clearLocalBoundsHashMap();
 
     /*
        Obtain a list of all the bound updates since the last call to
@@ -123,7 +124,8 @@ public:
     void registerTableau( ITableau *tableau );
 
 private:
-    CVC4::context::Context &_context;
+    CVC4::context::Context &_context; // SmtCore's context that synchronizes the global search
+    CVC4::context::Context _myContext; // Local context, slightly shifted w.r.t to global context to allow backtracking local updates.
     unsigned _size;
     unsigned _allocated;
     ITableau *_tableau; // Used only by callbacks
@@ -133,8 +135,8 @@ private:
 
     double * _lowerBounds;
     double * _upperBounds;
-    Vector<HashSet<unsigned> *> _copyUpper;
-    Vector<HashSet<unsigned> *> _copyLower;
+    CVC4::context::CDHashMap<unsigned,bool> _copyUpper;
+    CVC4::context::CDHashMap<unsigned,bool> _copyLower;
 
 
     Vector<CVC4::context::CDO<double> *> _storedLowerBounds;
@@ -149,7 +151,7 @@ private:
     void recordInconsistentBound( unsigned variable, double value, Tightening::BoundType type );
 
     void allocateLocalBounds( unsigned size );
-    void allocateLocalUpdateHashSets();
+
 };
 
 #endif // __BoundManager_h__

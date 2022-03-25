@@ -244,6 +244,12 @@ private:
       current search state.
     */
     unsigned _numRejectedPhasePatternProposal;
+
+    /*
+       Methods to invoke Context::push/pop methods and relevant hooks.
+     */
+    void pushContext();
+    void popContext( bool justBounds = false );
 };
 
 #endif // __SmtCore_h__

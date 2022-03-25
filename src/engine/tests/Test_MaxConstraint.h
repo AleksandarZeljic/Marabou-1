@@ -1203,7 +1203,9 @@ public:
 
         // In search phase, we initialize context-dependent structures
         max.initializeCDOs( &context );
+        bm.storeLocalBounds();
         context.push();
+        bm.clearLocalBoundsHashMap();
 
         TS_ASSERT_EQUALS( max.getPhaseStatus(), PHASE_NOT_FIXED );
 
@@ -1215,11 +1217,13 @@ public:
 
         bm.storeLocalBounds();
         context.push(); // L1
+        bm.clearLocalBoundsHashMap();
         max.notifyUpperBound( 3, 5 ); // This should eliminate variable 3;
         TS_ASSERT_EQUALS( max.numFeasibleCases(), 2u );
 
         bm.storeLocalBounds();
         context.push(); // L2
+        bm.clearLocalBoundsHashMap();
         PhaseStatus phase = max.nextFeasibleCase();
         TS_ASSERT_DIFFERS( phase, MAX_PHASE_ELIMINATED );
 
@@ -1240,7 +1244,7 @@ public:
         max.markInfeasible( phase );
         TS_ASSERT( !max.isFeasible() );
 
-        context.pop(); // L1
+        context.pop(); // L0
         bm.restoreLocalBounds();
 
         TS_ASSERT_EQUALS( max.getPhaseStatus(), PHASE_NOT_FIXED );

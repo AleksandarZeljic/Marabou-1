@@ -92,8 +92,10 @@ public:
         }
     }
 
-    void postContextPopHook( bool /*justBounds*/) {};
     void preContextPushHook() {};
+    void postContextPushHook() {};
+    void preContextPopHook() {};
+    void postContextPopHook( bool /*justBounds*/) {};
 
     mutable EngineState *lastStoredState;
     void storeState( EngineState &state, TableauStateStorageLevel /*level*/ ) const
