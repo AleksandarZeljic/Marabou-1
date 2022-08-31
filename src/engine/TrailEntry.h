@@ -44,6 +44,14 @@ public:
     {
         return _pwlConstraint->isFeasible();
     }
+    void print()
+    {
+      String constraintString;
+      std::cout << "TrailEntry: " << _pwlConstraint << " --- " << _phase << std::endl << std::flush;
+      _pwlConstraint->serializeInfeasibleCases( constraintString );
+      //_pwlConstraint->getCaseSplit( _phase ).dump( constraintString );
+      std::cout << "InfeasibleCases:" << constraintString.ascii() << std::endl;
+    }
 
     TrailEntry( PiecewiseLinearConstraint *pwlc, PhaseStatus phase )
         : _pwlConstraint( pwlc )

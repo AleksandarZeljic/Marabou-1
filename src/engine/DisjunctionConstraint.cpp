@@ -25,10 +25,15 @@ DisjunctionConstraint::DisjunctionConstraint( const List<PiecewiseLinearCaseSpli
     , _disjuncts( disjuncts.begin(), disjuncts.end() )
     , _feasibleDisjuncts( disjuncts.size(), 0 )
 {
+    std::cout << "[DisjunctionCtor]" << std::endl;
     for ( unsigned ind = 0; ind < disjuncts.size(); ++ind )
+    {
         _feasibleDisjuncts.append( ind );
+        std::cout << "Index : " << ind << std::endl;
+    }
 
     extractParticipatingVariables();
+
 }
 
 DisjunctionConstraint::DisjunctionConstraint( const Vector<PiecewiseLinearCaseSplit> &disjuncts )
@@ -341,9 +346,14 @@ void DisjunctionConstraint::dump( String &output ) const
         output += Stringf( "\t%s\n", disjunctOutput.ascii() );
     }
 
-    output += Stringf( "Active? %s.", _constraintActive ? "Yes" : "No" );
+    output += Stringf( "Active? %s / %s\n", _constraintActive ? "Yes" : "No", *_cdConstraintActive ? "Yes" : "No" );
+    output += Stringf( "PhaseStatus? %d / %d\n", _phaseStatus, _cdPhaseStatus->get());
 
     serializeInfeasibleCases( output );
+
+    output += Stringf( "Feasible disjuncts: " );
+    for ( const auto &disjunct : _disjuncts )
+      output += Stringf( "%d, ", disjunct );
 }
 
 void DisjunctionConstraint::updateVariableIndex( unsigned oldIndex, unsigned newIndex )

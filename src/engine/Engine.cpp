@@ -1945,6 +1945,7 @@ bool Engine::applyAllValidConstraintCaseSplits()
 {
     struct timespec start = TimeUtils::sampleMicro();
 
+    _tableau->dumpAssignment();
     bool appliedSplit = false;
     for ( auto &constraint : _plConstraints )
         if ( applyValidConstraintCaseSplit( constraint ) )

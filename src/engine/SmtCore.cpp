@@ -138,13 +138,7 @@ void SmtCore::pushImplication( PiecewiseLinearConstraint *constraint )
 {
     ASSERT( constraint->isImplication() || constraint->phaseFixed() );
     SMT_LOG( Stringf( "Implication @ %d ... ", _context.getLevel() ).ascii() );
-    PhaseStatus impliedCase = PHASE_NOT_FIXED;
-    if ( constraint->isImplication() )
-      impliedCase = constraint->nextFeasibleCase();
-    else
-      impliedCase = constraint->getPhaseStatus();
-    ASSERT( impliedCase != PHASE_NOT_FIXED );
-    TrailEntry te( constraint, impliedCase );
+    TrailEntry te( constraint, constraint->getImpliedCase() );
     applyTrailEntry( te, false );
     SMT_LOG( Stringf( "Implication @ %d DONE", _context.getLevel() ).ascii() );
 }
@@ -158,6 +152,7 @@ void SmtCore::applyTrailEntry( TrailEntry &te, bool isDecision )
         _decisions.push_back( te );
     }
 
+    te.print();
     _trail.push_back( te );
     _engine->applySplit( te.getPiecewiseLinearCaseSplit() );
 }
@@ -165,7 +160,7 @@ void SmtCore::applyTrailEntry( TrailEntry &te, bool isDecision )
 void SmtCore::decide()
 {
     ASSERT( _needToSplit );
-    SMT_LOG( "Performing a ReLU split" );
+    SMT_LOG( "[DECIDE] Performing a case split" );
 
     _numRejectedPhasePatternProposal = 0;
     // Maybe the constraint has already become inactive - if so, ignore
