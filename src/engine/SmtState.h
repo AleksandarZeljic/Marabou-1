@@ -17,22 +17,15 @@
 #define __SmtState_h__
 
 #include "List.h"
-#include "Map.h"
-#include "PiecewiseLinearConstraint.h"
-#include "SmtStackEntry.h"
+#include "TrailEntry.h"
 
 class SmtState
 {
 public:
     /*
-      Valid splits that were implied by level 0 of the stack.
+      The trail.
     */
-    List<PiecewiseLinearCaseSplit> _impliedValidSplitsAtRoot;
-
-    /*
-      The stack.
-    */
-    List<SmtStackEntry *> _stack;
+    List<TrailEntry *> _trail;
 
     /*
       A unique ID allocated to every state that is stored, for
@@ -43,10 +36,3 @@ public:
 
 #endif // __SmtState_h__
 
-//
-// Local Variables:
-// compile-command: "make -C ../.. "
-// tags-file-name: "../../TAGS"
-// c-basic-offset: 4
-// End:
-//

@@ -24,6 +24,7 @@
 #include "MarabouError.h"
 #include "PseudoImpactTracker.h"
 #include "ReluConstraint.h"
+#include "SmtState.h"
 
 using namespace CVC4::context;
 
@@ -129,8 +130,8 @@ bool SmtCore::needToSplit() const
 void SmtCore::pushDecision( PiecewiseLinearConstraint *constraint,  PhaseStatus decision )
 {
     SMT_LOG( Stringf( "Decision @ %d )", _context.getLevel() + 1 ).ascii() );
-    TrailEntry te( constraint, decision );
-    applyTrailEntry( te, true );
+    TrailEntry te( constraint, decision, true, _decisions.size() + 1 );
+    applyTrailEntry( te );
     SMT_LOG( Stringf( "Decision push @ %d DONE", _context.getLevel() ).ascii() );
 }
 
@@ -138,22 +139,22 @@ void SmtCore::pushImplication( PiecewiseLinearConstraint *constraint )
 {
     ASSERT( constraint->isImplication() || constraint->phaseFixed() );
     SMT_LOG( Stringf( "Implication @ %d ... ", _context.getLevel() ).ascii() );
-    TrailEntry te( constraint, constraint->getImpliedCase() );
-    applyTrailEntry( te, false );
+    TrailEntry te( constraint, constraint->getImpliedCase(), false, _decisions.size() );
+    applyTrailEntry( te );
     SMT_LOG( Stringf( "Implication @ %d DONE", _context.getLevel() ).ascii() );
 }
 
-void SmtCore::applyTrailEntry( TrailEntry &te, bool isDecision )
+void SmtCore::applyTrailEntry( TrailEntry &trailEntry )
 {
-    if ( isDecision )
+    if ( trailEntry._isDecision )
     {
         _engine->preContextPushHook();
         _context.push();
-        _decisions.push_back( te );
+        _decisions.push_back( trailEntry );
     }
 
-    _trail.push_back( te );
-    _engine->applySplit( te.getPiecewiseLinearCaseSplit() );
+    _trail.push_back( trailEntry );
+    _engine->applySplit( trailEntry.getPiecewiseLinearCaseSplit() );
 }
 
 void SmtCore::decide()
@@ -269,7 +270,7 @@ bool SmtCore::backtrackToFeasibleDecision( TrailEntry &lastDecision )
 
 bool SmtCore::backtrackAndContinueSearch()
 {
-    TrailEntry feasibleDecision( nullptr, CONSTRAINT_INFEASIBLE );
+    TrailEntry feasibleDecision( nullptr, CONSTRAINT_INFEASIBLE, false, 0 );
     struct timespec start = TimeUtils::sampleMicro();
 
     if ( !backtrackToFeasibleDecision( feasibleDecision ) )
@@ -427,10 +428,10 @@ bool SmtCore::splitAllowsStoredSolution( const PiecewiseLinearCaseSplit &split, 
     return true;
 }
 
-void SmtCore::setConstraintViolationThreshold( unsigned threshold )
-{
-    _constraintViolationThreshold = threshold;
-}
+// void SmtCore::setConstraintViolationThreshold( unsigned threshold )
+// {
+//     _constraintViolationThreshold = threshold;
+// }
 
 PiecewiseLinearConstraint *SmtCore::chooseViolatedConstraintForFixing( List<PiecewiseLinearConstraint *> &_violatedPlConstraints ) const
 {
@@ -465,11 +466,62 @@ PiecewiseLinearConstraint *SmtCore::chooseViolatedConstraintForFixing( List<Piec
     return candidate;
 }
 
+void SmtCore::replayTrailEntry( TrailEntry *trailEntry )
+{
+    struct timespec start = TimeUtils::sampleMicro();
+
+    if ( _statistics )
+    {
+        _statistics->incUnsignedAttribute( Statistics::NUM_SPLITS );
+        _statistics->incUnsignedAttribute( Statistics::NUM_VISITED_TREE_STATES );
+    }
+
+    // // // Obtain the current state of the engine
+    // // EngineState *stateBeforeSplits = new EngineState;
+    // // stateBeforeSplits->_stateId = _stateId;
+    // // ++_stateId;
+    // // _engine->storeState( *stateBeforeSplits,
+    // //                      TableauStateStorageLevel::STORE_ENTIRE_TABLEAU_STATE );
+    // // trailEntry->_engineState = stateBeforeSplits;
+
+    // // Apply all the splits
+    // _engine->applySplit( trailEntry->_activeSplit );
+    // for ( const auto &impliedSplit : trailEntry->_impliedValidSplits )
+    //     _engine->applySplit( impliedSplit );
+
+    // _stack.append( trailEntry );
+
+    applyTrailEntry( *trailEntry );
+
+    if ( _statistics )
+    {
+        unsigned level = getDecisionLevel();
+        _statistics->setUnsignedAttribute( Statistics::CURRENT_DECISION_LEVEL,
+                                           level );
+        if ( level > _statistics->getUnsignedAttribute
+             ( Statistics::MAX_DECISION_LEVEL ) )
+            _statistics->setUnsignedAttribute( Statistics::MAX_DECISION_LEVEL,
+                                               level );
+        struct timespec end = TimeUtils::sampleMicro();
+        _statistics->incLongAttribute( Statistics::TOTAL_TIME_SMT_CORE_MICRO, TimeUtils::timePassed( start, end ) );
+    }
+}
+
+void SmtCore::storeSmtState( SmtState &smtState )
+{
+    for ( auto &trailEntry : _trail )
+      smtState._trail.append( trailEntry.duplicateTrailEntry() );
+
+    smtState._stateId = _stateId;
+}
+
 bool SmtCore::pickSplitPLConstraint()
 {
     if ( _needToSplit )
+    {
         _constraintForSplitting = _engine->pickSplitPLConstraint
             ( _branchingHeuristic );
+    }
     return _constraintForSplitting != NULL;
 }
 

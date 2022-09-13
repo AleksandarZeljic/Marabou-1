@@ -18,17 +18,20 @@
 #ifndef __TrailEntry_h__
 #define __TrailEntry_h__
 
+#include "PiecewiseLinearConstraint.h"
 #include "PiecewiseLinearCaseSplit.h"
 
 /*
   A trail entry consists of the pointer to a PiecewiseLinearConstraint and
-  phase designation.
+  phase designation, whether its a decision and its decision level
 */
 class TrailEntry
 {
 public:
     PiecewiseLinearConstraint *_pwlConstraint;
     PhaseStatus _phase;
+    bool _isDecision;
+    unsigned _decisionLevel;
 
     PiecewiseLinearCaseSplit getPiecewiseLinearCaseSplit() const
     {
@@ -45,13 +48,20 @@ public:
         return _pwlConstraint->isFeasible();
     }
 
-    TrailEntry( PiecewiseLinearConstraint *pwlc, PhaseStatus phase )
+    TrailEntry( PiecewiseLinearConstraint *pwlc, PhaseStatus phase, bool isDecision, unsigned decisionLevel )
         : _pwlConstraint( pwlc )
         , _phase( phase )
+        , _isDecision( isDecision )
+        , _decisionLevel( decisionLevel )
     {
     }
 
     ~TrailEntry(){};
+
+    TrailEntry *duplicateTrailEntry() const
+    {
+      return new TrailEntry( _pwlConstraint, _phase, _isDecision, _decisionLevel );
+    }
 };
 
 #endif // TrailEntry.h

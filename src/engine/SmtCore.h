@@ -157,7 +157,7 @@ public:
         Pushes trail entry onto trail, handles decision book-keeping and
         update bounds and add equations to the engine.
      */
-    void applyTrailEntry( TrailEntry &te, bool isDecision = false );
+    void applyTrailEntry( TrailEntry &te );
 
     /*
       Decide and apply a case split using the constraint marked for splitting.
@@ -180,11 +180,6 @@ public:
       (as either a decision or implication)
     */
     bool backtrackAndContinueSearch();
-
-    /*
-      Pop a stack frame. Return true if successful, false if the stack is empty.
-    */
-    bool popSplit();
 
     /*
       Pop a context level - lazily backtracking trail, bounds, etc.
@@ -230,12 +225,20 @@ public:
     */
     PiecewiseLinearConstraint *chooseViolatedConstraintForFixing( List<PiecewiseLinearConstraint *> &_violatedPlConstraints ) const;
 
-    void setConstraintViolationThreshold( unsigned threshold );
-
     inline void setBranchingHeuristics( DivideStrategy strategy )
     {
         _branchingHeuristic = strategy;
     }
+
+    /*
+      Replay a trailEntry
+    */
+    void replayTrailEntry( TrailEntry *trailEntry );
+
+    /*
+      Store the current state of the SmtCore into smtState
+    */
+    void storeSmtState( SmtState &smtState );
 
     /*
       Pick the piecewise linear constraint for splitting, returns true
@@ -304,6 +307,12 @@ private:
       For debugging purposes only
     */
     Map<unsigned, double> _debuggingSolution;
+
+    /*
+      A unique ID allocated to every state that is stored, for
+      debugging purposes.
+    */
+    unsigned _stateId;
 
     /*
       Split when some relu has been violated for this many times during the

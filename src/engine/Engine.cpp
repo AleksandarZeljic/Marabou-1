@@ -31,6 +31,7 @@
 #include "TimeUtils.h"
 #include "VariableOutOfBoundDuringOptimizationException.h"
 #include "Vector.h"
+#include "SmtState.h"
 
 #include <random>
 
@@ -2629,6 +2630,56 @@ PiecewiseLinearConstraint *Engine::pickSplitPLConstraintSnC( SnCDivideStrategy s
                            "Picked..." :
                            "Unable to pick using the current strategy..." ) ).ascii() );
     return candidatePLConstraint;
+}
+
+bool Engine::restoreSmtState( SmtState & smtState )
+{
+    try
+    {
+        ASSERT( _smtCore.getDecisionLevel() == 0 );
+
+        unsigned decisionLevel = 0;
+
+        for ( auto &trailEntry : smtState._trail )
+        {
+          if ( trailEntry->_decisionLevel > decisionLevel )
+          {
+              tightenBoundsOnConstraintMatrix();
+              applyAllBoundTightenings();
+
+              do
+                performSymbolicBoundTightening();
+              while ( applyAllValidConstraintCaseSplits() );
+
+              decisionLevel = trailEntry->_decisionLevel;
+          }
+
+          _smtCore.replayTrailEntry( trailEntry );
+        }
+    }
+    catch ( const InfeasibleQueryException & )
+    {
+        // The current query is unsat, and we need to pop.
+        // If we're at level 0, the whole query is unsat.
+        if ( _smtCore.getDecisionLevel() == 0 )
+        {
+            if ( _verbosity > 0 )
+            {
+                printf( "\nEngine::solve: UNSAT query\n" );
+                _statistics.print();
+            }
+            _exitCode = Engine::UNSAT;
+            for ( PiecewiseLinearConstraint *p : _plConstraints )
+                p->setActiveConstraint( true );
+            return false;
+        }
+    }
+    return true;
+}
+
+void Engine::storeSmtState( SmtState & smtState )
+{
+    _smtCore.storeSmtState( smtState );
 }
 
 bool Engine::solveWithMILPEncoding( unsigned timeoutInSeconds )
