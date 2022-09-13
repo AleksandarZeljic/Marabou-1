@@ -425,89 +425,83 @@ public:
 
     void test_store_smt_state()
     {
-    /*     // ReLU(x0, x1) */
-    /*     // ReLU(x2, x3) */
-    /*     // ReLU(x4, x5) */
+        // ReLU(x0, x1)
+        // ReLU(x2, x3)
+        // ReLU(x4, x5)
+        // ReLU(x6, x7)
 
-    /*     InputQuery inputQuery; */
-    /*     inputQuery.setNumberOfVariables( 6 ); */
+        InputQuery inputQuery;
+        inputQuery.setNumberOfVariables( 8 );
 
-    /*     ReluConstraint relu1 = ReluConstraint( 0, 1 ); */
-    /*     ReluConstraint relu2 = ReluConstraint( 2, 3 ); */
+        ReluConstraint relu1 = ReluConstraint( 0, 1 );
+        ReluConstraint relu2 = ReluConstraint( 2, 3 );
+        ReluConstraint reluImplication1 = ReluConstraint( 4, 5 );
+        ReluConstraint reluImplication2 = ReluConstraint( 6, 7 );
 
-    /*     relu1.transformToUseAuxVariables( inputQuery ); */
-    /*     relu2.transformToUseAuxVariables( inputQuery ); */
 
-    /*     CVC4::context::Context context; */
-    /*     SmtCore smtCore( engine, context ); */
+        relu1.transformToUseAuxVariables( inputQuery );
+        relu2.transformToUseAuxVariables( inputQuery );
+        reluImplication1.transformToUseAuxVariables( inputQuery );
+        reluImplication2.transformToUseAuxVariables( inputQuery );
 
-    /*     PiecewiseLinearCaseSplit split1; */
-    /*     Tightening bound1( 1, 0.5, Tightening::LB ); */
-    /*     split1.storeBoundTightening( bound1 ); */
-    /*     TS_ASSERT_THROWS_NOTHING( smtCore.recordImpliedValidSplit( split1 ) ); */
+        CVC4::context::Context context;
+        SmtCore smtCore( engine, context );
 
-    /*     for ( unsigned i = 0; i < ( unsigned ) Options::get()->getInt( Options::CONSTRAINT_VIOLATION_THRESHOLD ); ++i ) */
-    /*         smtCore.reportViolatedConstraint( &relu1 ); */
+        relu1.initializeCDOs( &context );
+        relu2.initializeCDOs( &context );
+        reluImplication1.initializeCDOs( &context );
+        reluImplication2.initializeCDOs( &context );
 
-    /*     TS_ASSERT( smtCore.needToSplit() ); */
-    /*     TS_ASSERT_THROWS_NOTHING( smtCore.decide() ); */
-    /*     TS_ASSERT( !smtCore.needToSplit() ); */
+        // Make reluImplication1 an implication and pass it on to the SmtCore
+        TS_ASSERT_THROWS_NOTHING( reluImplication1.markInfeasible( RELU_PHASE_ACTIVE ) );
+        TS_ASSERT_THROWS_NOTHING( smtCore.pushImplication( &reluImplication1 ) );
 
-    /*     PiecewiseLinearCaseSplit split2; */
-    /*     Tightening bound2( 3, 2.3, Tightening::UB ); */
-    /*     split2.storeBoundTightening( bound2 ); */
-    /*     TS_ASSERT_THROWS_NOTHING( smtCore.recordImpliedValidSplit( split2 ) ); */
+        // Violate relu1
+        for ( unsigned i = 0; i < ( unsigned ) Options::get()->getInt( Options::CONSTRAINT_VIOLATION_THRESHOLD ); ++i )
+            smtCore.reportViolatedConstraint( &relu1 );
+        // Decide on relu1
+        TS_ASSERT( smtCore.needToSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decide() );
+        TS_ASSERT( !smtCore.needToSplit() );
 
-    /*     for ( unsigned i = 0; i < ( unsigned ) Options::get()->getInt( Options::CONSTRAINT_VIOLATION_THRESHOLD ); ++i ) */
-    /*         smtCore.reportViolatedConstraint( &relu2 ); */
+        // Make reluImplication2 an implication and pass it on to the SmtCore
+        TS_ASSERT_THROWS_NOTHING( reluImplication2.markInfeasible( RELU_PHASE_INACTIVE ) );
+        TS_ASSERT_THROWS_NOTHING( smtCore.pushImplication( &reluImplication2 ) );
 
-    /*     TS_ASSERT( smtCore.needToSplit() ); */
-    /*     TS_ASSERT_THROWS_NOTHING( smtCore.decide() ); */
-    /*     TS_ASSERT( !smtCore.needToSplit() ); */
+        // Violate relu2
+        for ( unsigned i = 0; i < ( unsigned ) Options::get()->getInt( Options::CONSTRAINT_VIOLATION_THRESHOLD ); ++i )
+            smtCore.reportViolatedConstraint( &relu2 );
 
-    /*     SmtState smtState; */
-    /*     smtCore.storeSmtState( smtState ); */
-    /*     TS_ASSERT( smtState._trailimpliedValidSplitsAtRoot.size() == 1 ); */
-    /*     TS_ASSERT( *smtState._trail.begin() == split1 ); */
+        // Decide on relu
+        TS_ASSERT( smtCore.needToSplit() );
+        TS_ASSERT_THROWS_NOTHING( smtCore.decide() );
+        TS_ASSERT( !smtCore.needToSplit() );
 
-    /*     TS_ASSERT( smtState._stack.size() == 2 ); */
-    /*     // Examine the first stackEntry */
-    /*     TrailEntry *stackEntry = *( smtState._stack.begin() ); */
-    /*     TS_ASSERT( stackEntry->_activeSplit == *( relu1.getCaseSplits().begin() ) ); */
-    /*     TS_ASSERT( *( stackEntry->_alternativeSplits.begin() ) == *( ++relu1.getCaseSplits().begin() ) ); */
-    /*     TS_ASSERT( stackEntry->_impliedValidSplits.size() == 1 ); */
-    /*     TS_ASSERT( *( stackEntry->_impliedValidSplits.begin() ) == split2 ); */
-    /*     // Examine the second stackEntry */
-    /*     stackEntry = *( ++smtState._stack.begin() ); */
-    /*     TS_ASSERT( stackEntry->_activeSplit == *( relu2.getCaseSplits().begin() ) ); */
-    /*     TS_ASSERT( *( stackEntry->_alternativeSplits.begin() ) == *( ++relu2.getCaseSplits().begin() ) ); */
-    /*     TS_ASSERT( stackEntry->_impliedValidSplits.size() == 0 ); */
+        // Store the current SmtCore state
+        SmtState smtState;
+        smtCore.storeSmtState( smtState );
 
-    /*     clearSmtState( smtState ); */
+        // TODO: Update for the new SmtCore representation
 
-    /*     TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() ); */
+        // ASSERT: Trail starts with an implication and it matches reluImplication1 (with ACTIVE_PHASE infeasible )
+        // ASSERT: Next TrailElement is a decision on relu1 (no infeasible cases yet)
+        // ASSERT: Next TrailElement is an implication and it matches reluImplication2 (with INACTIVE_PHASE infeasible )
+        // ASSERT: Next TrailElement is a decision on relu2 (no infeasible cases yet)
 
-    /*     smtCore.storeSmtState( smtState ); */
-    /*     TS_ASSERT( smtState._impliedValidSplitsAtRoot.size() == 1 ); */
-    /*     TS_ASSERT( *smtState._impliedValidSplitsAtRoot.begin() == split1 ); */
+        clearSmtState( smtState );
 
-    /*     TS_ASSERT( smtState._stack.size() == 2 ); */
-    /*     // Examine the first stackEntry */
-    /*     stackEntry = *( smtState._stack.begin() ); */
-    /*     TS_ASSERT( stackEntry->_activeSplit == *( relu1.getCaseSplits().begin() ) ); */
-    /*     TS_ASSERT( *( stackEntry->_alternativeSplits.begin() ) == *( ++relu1.getCaseSplits().begin() ) ); */
-    /*     TS_ASSERT( stackEntry->_impliedValidSplits.size() == 1 ); */
-    /*     TS_ASSERT( *( stackEntry->_impliedValidSplits.begin() ) == split2 ); */
-    /*     // Examine the second stackEntry */
-    /*     stackEntry = *( ++smtState._stack.begin() ); */
-    /*     TS_ASSERT( stackEntry->_activeSplit == *( ++relu2.getCaseSplits().begin() ) ); */
-    /*     TS_ASSERT( stackEntry->_alternativeSplits.empty() ); */
-    /*     TS_ASSERT( stackEntry->_impliedValidSplits.size() == 0 ); */
+        // Backtrack latest decision
+        TS_ASSERT_THROWS_NOTHING( smtCore.backtrackAndContinueSearch() );
 
-    /*     clearSmtState( smtState ); */
+        smtCore.storeSmtState( smtState );
+        // ASSERT: Trail starts with an implication and it matches reluImplication1 (with ACTIVE_PHASE infeasible )
+        // ASSERT: Next TrailElement is a decision on relu1 (no infeasible cases yet)
+        // ASSERT: Next TrailElement is an implication of relu2 ( with previously decided state infeasible)
 
-    /*     TS_ASSERT_THROWS_NOTHING( smtCore.popSplit() ); */
-    } 
+        clearSmtState( smtState );
+
+        TS_ASSERT_THROWS_NOTHING( smtCore.backtrackAndContinueSearch() );
+    }
 
     void clearSmtState( SmtState &smtState )
     {
