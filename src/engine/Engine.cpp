@@ -1577,9 +1577,17 @@ void Engine::extractSolution( InputQuery &inputQuery )
             variable = _preprocessor.getNewIndex( variable );
 
             // Finally, set the assigned value
-            inputQuery.setSolutionValue( i, _tableau->getValue( variable ) );
+            bool violatedLB = inputQuery.getLowerBound( i ) > _tableau->getLowerBound( i );
+            bool violatedUB = inputQuery.getUpperBound( i ) > _tableau->getUpperBound( i );
+            bool violatedOriginalBounds =
+              ( inputQuery.getLowerBound( i ) > _tableau->getValue( variable ) ) &&
+              ( inputQuery.getUpperBound( i ) < _tableau->getValue( variable ) );
+
+            if ( violatedOriginalBounds || violatedLB || violatedUB )
+              printf( "The assignment of variable %d violates original constraints.", i );
             inputQuery.setLowerBound( i, _tableau->getLowerBound( variable ) );
             inputQuery.setUpperBound( i, _tableau->getUpperBound( variable ) );
+            inputQuery.setSolutionValue( i, _tableau->getValue( variable ) );
         }
         else
         {

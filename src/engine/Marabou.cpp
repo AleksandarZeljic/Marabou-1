@@ -118,7 +118,7 @@ void Marabou::prepareInputQuery()
     if ( queryDumpFilePath.length() > 0 )
     {
         _inputQuery.saveQuery( queryDumpFilePath );
-        printf( "\nInput query successfully dumped to file\n" );
+        printf( "\nInput query successfully exported to %s\n", queryDumpFilePath.ascii() );
         exit( 0 );
     }
 }
